@@ -75,7 +75,7 @@ input, button, select, a { font: inherit; }
 button { cursor: pointer; border: 0; }
 
 /* ── App background — pool vibrancy ─────────────────── */
-html, body { background: #1a7bd4; }
+html, body { background: #0d4a8c; }
 
 .app {
   position: fixed; inset: 0;
@@ -83,18 +83,17 @@ html, body { background: #1a7bd4; }
   overflow: hidden;
   padding-top: env(safe-area-inset-top);
 
-  /* iOS 26 vibrant background — pool/sky */
+  /* Refined pool gradient — less saturated, more premium */
   background:
-    radial-gradient(ellipse 140% 60% at 12% -10%, rgba(190,230,255,.80), transparent 48%),
-    radial-gradient(ellipse  70% 50% at 88% 110%, rgba(0, 80,200,.36), transparent 52%),
-    radial-gradient(ellipse  36% 28% at 58%  44%, rgba(255,255,255,.15), transparent 36%),
-    linear-gradient(168deg,
-      #d4edff 0%,
-      #96d0f8 14%,
-      #42aaee 38%,
-      #1475c8 62%,
-      #0a52a0 82%,
-      #062f6e 100%);
+    radial-gradient(ellipse 110% 52% at 14% -4%,  rgba(168,214,255,.52), transparent 50%),
+    radial-gradient(ellipse  58% 42% at 86% 108%, rgba(0, 48,168,.22),   transparent 52%),
+    linear-gradient(162deg,
+      #e2f2ff 0%,
+      #a8d4f5 16%,
+      #4ea8e8 36%,
+      #1268c0 58%,
+      #0848a0 78%,
+      #062472 100%);
 }
 
 /* Status bar safe area overlay */
@@ -121,46 +120,26 @@ html, body { background: #1a7bd4; }
 
 /* ── iOS App Screen container ───────────────────────── */
 .screen {
-  width: min(430px, 100%);   /* iPhone 14 Pro Max width */
+  width: min(430px, 100%);
   margin: 0 auto;
-  border-radius: 44px;       /* matches iPhone corner radius */
-  background: rgba(255,255,255,.62);
-  backdrop-filter: blur(48px) saturate(210%) brightness(1.04);
-  -webkit-backdrop-filter: blur(48px) saturate(210%) brightness(1.04);
-  border: 1px solid rgba(255,255,255,.82);
+  border-radius: 44px;
+  background: rgba(248,251,255,.54);
+  backdrop-filter: blur(56px) saturate(180%) brightness(1.03);
+  -webkit-backdrop-filter: blur(56px) saturate(180%) brightness(1.03);
+  border: 0.5px solid rgba(255,255,255,.72);
   box-shadow:
-    inset 0 1.5px 0 rgba(255,255,255,.95),
-    inset 0 -1px 0 rgba(0,0,0,.04),
-    0 2px 6px rgba(0,0,0,.04),
-    0 16px 48px rgba(0,40,120,.16),
-    0 48px 96px rgba(0,40,120,.08);
+    inset 0 1px 0 rgba(255,255,255,.90),
+    inset 0 -0.5px 0 rgba(0,0,0,.03),
+    0 2px 6px rgba(0,0,0,.03),
+    0 12px 40px rgba(0,28,100,.12),
+    0 40px 80px rgba(0,28,100,.06);
   padding: 20px 0 28px;
-  overflow: hidden;   /* clips internal content to rounded corners */
-}
-
-/* ── Brand pill ─────────────────────────────────────── */
-.brand-pill {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 6px 13px 6px 7px;
-  margin: 0 20px;
-  border-radius: 999px;
-  background: rgba(255,255,255,.60);
-  backdrop-filter: blur(16px) saturate(180%);
-  border: 0.5px solid rgba(255,255,255,.85);
-  box-shadow: 0 1px 4px rgba(0,0,0,.06), inset 0 1px 0 rgba(255,255,255,.90);
-  color: var(--ios-blue);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: -0.2px;
-}
-.brand-pill img {
-  width: 22px; height: 22px;
-  border-radius: 6px;
+  overflow: hidden;
 }
 
 /* ── iOS Large Title ────────────────────────────────── */
 h1 {
-  margin: 18px 20px 6px;
+  margin: 28px 20px 6px;
   font-size: 34px;
   font-weight: 700;
   line-height: 1.06;
@@ -180,15 +159,15 @@ h1 {
 
 /* ── iOS Inset Grouped Sections (cards) ─────────────── */
 .card {
-  margin: 16px 16px 0;
+  margin: 12px 16px 0;
   padding: 0;
   border-radius: 16px;
-  background: rgba(255,255,255,.88);
-  border: 0.5px solid rgba(60,60,67,.16);
+  background: rgba(255,255,255,.84);
+  border: 0.5px solid rgba(255,255,255,.78);
   box-shadow:
-    inset 0 0.5px 0 rgba(255,255,255,.90),
-    0 1px 3px rgba(0,0,0,.04),
-    0 4px 16px rgba(0,40,120,.06);
+    inset 0 0.5px 0 rgba(255,255,255,.96),
+    0 1px 2px rgba(0,0,0,.03),
+    0 4px 14px rgba(0,28,100,.05);
   overflow: hidden;
 }
 .card-inner {
@@ -215,13 +194,11 @@ h1 {
 
 /* Card section header (iOS style: above card) */
 .section-header {
-  margin: 24px 32px 6px;
+  margin: 22px 20px 6px;
   font-size: 13px;
   font-weight: 400;
   letter-spacing: -0.08px;
   color: var(--label-2);
-  text-transform: uppercase;
-  font-variant: small-caps;
 }
 
 /* ── Quick action grid ──────────────────────────────── */
@@ -231,15 +208,31 @@ h1 {
   gap: 10px;
   margin: 16px 16px 0;
 }
+/* Orphan last card (2-col): center at half-width */
+.quick-grid > :last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: calc(50% - 5px);
+}
+
+/* Card wrapping a choice-grid: transparent — no double frame */
+.card:has(> .choice-grid) {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  overflow: visible;
+  margin-left: 6px;
+  margin-right: 6px;
+}
 
 /* ── iOS-style action cells ─────────────────────────── */
 .choice-card {
-  background: rgba(255,255,255,.82);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 0.5px solid rgba(60,60,67,.14);
+  background: rgba(255,255,255,.78);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 0.5px solid rgba(255,255,255,.82);
   border-radius: 18px;
-  min-height: 88px;
+  min-height: 84px;
   padding: 14px;
   color: var(--label);
   font-weight: 600;
@@ -320,6 +313,18 @@ a.choice-card.active:visited { color: #fff; }
 }
 .choice-grid.three {
   grid-template-columns: repeat(3, minmax(0,1fr));
+}
+/* Orphan last choice (2-col grid): center at half-width */
+.choice-grid > :last-child:nth-child(2n+1) {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: calc(50% - 4px);
+}
+/* 3-col grid: never orphan-center */
+.choice-grid.three > :last-child {
+  grid-column: auto;
+  justify-self: auto;
+  width: auto;
 }
 .spaced-title {
   padding: 12px 16px 4px !important;
@@ -934,7 +939,7 @@ a.choice-card.active:visited { color: #fff; }
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: 18px 20px 2px;
+  margin: 28px 20px 4px;
 }
 .faq-header h1 {
   margin: 0;

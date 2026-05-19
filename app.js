@@ -764,7 +764,7 @@ function faqSend(text) {
 }
 
 function faqInit() {
-  var welcome = '<strong>Bonjour ! Je suis l\'assistant BatiAzur \u{1F30A}</strong><div class="faq-body">Je reponds a vos questions sur l\'entretien de votre piscine : traitements, produits, desordres de l\'eau et dosages.<br><br>Tapez votre question ou choisissez un sujet ci-dessus.</div>';
+  var welcome = '<strong>Bonjour, je suis l\'assistant BatiAzur.</strong><div class="faq-body">Je reponds a vos questions sur l\'entretien de votre piscine : traitements, produits, desordres de l\'eau et dosages.<br><br>Tapez votre question ou choisissez un sujet ci-dessus.</div>';
   faqAddMessage(welcome, "bot");
 
   // Bind suggestion chips
