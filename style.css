@@ -39,6 +39,30 @@
   --glass-spec:     rgba(255,255,255,.92);
   --glass-shad:     rgba(0,0,0,.06);
 
+  /* Adaptive surfaces — overridden in dark mode */
+  --surface-screen:  rgba(248,251,255,.54);
+  --surface-card:    rgba(255,255,255,.84);
+  --border-card:     rgba(255,255,255,.78);
+  --surface-cell:    rgba(255,255,255,.78);
+  --border-cell:     rgba(255,255,255,.82);
+  --surface-msg:     rgba(255,255,255,.90);
+  --surface-overlay: rgba(255,255,255,.84);
+  --border-overlay:  rgba(255,255,255,.92);
+  --warn-bg:         rgba(255,159,10,.14);
+  --warn-border:     rgba(255,159,10,.28);
+  --warn-text:       #7a4800;
+  --tel-bg:          rgba(52,199,89,.12);
+  --tel-border:      rgba(52,199,89,.30);
+  --tel-text:        #1a7a35;
+  --map-bg:          rgba(255,159,10,.10);
+  --map-border:      rgba(255,159,10,.28);
+  --map-text:        #7a4800;
+  --cta-bg:          rgba(0,122,255,.09);
+  --cta-border:      rgba(0,122,255,.20);
+  --nomatch-bg:      rgba(255,159,10,.10);
+  --nomatch-border:  rgba(255,159,10,.28);
+  --nomatch-text:    #7a4800;
+
   /* Tab bar geometry */
   --bar-w:      min(360px, calc(100vw - 20px));
   --bar-h:      62px;
@@ -123,10 +147,10 @@ html, body { background: #0d4a8c; }
   width: min(430px, 100%);
   margin: 0 auto;
   border-radius: 44px;
-  background: rgba(248,251,255,.54);
+  background: var(--surface-screen);
   backdrop-filter: blur(56px) saturate(180%) brightness(1.03);
   -webkit-backdrop-filter: blur(56px) saturate(180%) brightness(1.03);
-  border: 0.5px solid rgba(255,255,255,.72);
+  border: 0.5px solid var(--border-overlay);
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.90),
     inset 0 -0.5px 0 rgba(0,0,0,.03),
@@ -162,8 +186,8 @@ h1 {
   margin: 12px 16px 0;
   padding: 0;
   border-radius: 16px;
-  background: rgba(255,255,255,.84);
-  border: 0.5px solid rgba(255,255,255,.78);
+  background: var(--surface-card);
+  border: 0.5px solid var(--border-card);
   box-shadow:
     inset 0 0.5px 0 rgba(255,255,255,.96),
     0 1px 2px rgba(0,0,0,.03),
@@ -227,10 +251,10 @@ h1 {
 
 /* ── iOS-style action cells ─────────────────────────── */
 .choice-card {
-  background: rgba(255,255,255,.78);
+  background: var(--surface-cell);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border: 0.5px solid rgba(255,255,255,.82);
+  border: 0.5px solid var(--border-cell);
   border-radius: 18px;
   min-height: 84px;
   padding: 14px;
@@ -511,9 +535,9 @@ a.choice-card.active:visited { color: #fff; }
   margin: 10px 16px 0;
   border-radius: 12px;
   padding: 11px 14px;
-  background: rgba(255,159,10,.14);
-  border: 0.5px solid rgba(255,159,10,.28);
-  color: #7a4800;
+  background: var(--warn-bg);
+  border: 0.5px solid var(--warn-border);
+  color: var(--warn-text);
   font-size: 14px;
   line-height: 1.45;
   font-weight: 500;
@@ -1047,7 +1071,7 @@ a.choice-card.active:visited { color: #fff; }
 /* Bot bubble */
 .faq-msg.bot {
   align-self: flex-start;
-  background: rgba(255,255,255,.90);
+  background: var(--surface-msg);
   color: var(--label);
   border-bottom-left-radius: 4px;
   border: 0.5px solid rgba(60,60,67,.13);
@@ -1091,16 +1115,16 @@ a.choice-card.active:visited { color: #fff; }
 
 /* Bot no-match bubble */
 .faq-msg.nomatch {
-  background: rgba(255,159,10,.10);
-  border: 0.5px solid rgba(255,159,10,.28);
-  color: #7a4800;
+  background: var(--nomatch-bg);
+  border: 0.5px solid var(--nomatch-border);
+  color: var(--nomatch-text);
 }
 
 /* Typing indicator */
 .faq-typing {
   align-self: flex-start;
-  background: rgba(255,255,255,.88);
-  border: 0.5px solid rgba(60,60,67,.12);
+  background: var(--surface-msg);
+  border: 0.5px solid var(--border-card);
   border-radius: 20px;
   border-bottom-left-radius: 4px;
   padding: 14px 18px;
@@ -1131,10 +1155,10 @@ a.choice-card.active:visited { color: #fff; }
   transform: translateX(-50%);
   width: min(430px, calc(100% - 16px));
   padding: 7px 7px 7px 14px;
-  background: rgba(255,255,255,.84);
+  background: var(--surface-overlay);
   backdrop-filter: blur(40px) saturate(200%) brightness(1.04);
   -webkit-backdrop-filter: blur(40px) saturate(200%) brightness(1.04);
-  border: 0.5px solid rgba(255,255,255,.92);
+  border: 0.5px solid var(--border-overlay);
   border-radius: 26px;
   display: flex;
   align-items: center;
@@ -1213,19 +1237,19 @@ a.choice-card.active:visited { color: #fff; }
   fill: currentColor;
 }
 .faq-contact-tel {
-  background: rgba(52,199,89,.12);
-  border: 0.5px solid rgba(52,199,89,.30);
-  color: #1a7a35;
+  background: var(--tel-bg);
+  border: 0.5px solid var(--tel-border);
+  color: var(--tel-text);
 }
 .faq-contact-mail {
-  background: rgba(0,122,255,.10);
-  border: 0.5px solid rgba(0,122,255,.24);
+  background: var(--cta-bg);
+  border: 0.5px solid var(--cta-border);
   color: var(--ios-blue);
 }
 .faq-contact-map {
-  background: rgba(255,159,10,.10);
-  border: 0.5px solid rgba(255,159,10,.28);
-  color: #7a4800;
+  background: var(--map-bg);
+  border: 0.5px solid var(--map-border);
+  color: var(--map-text);
 }
 
 /* BatiAzur CTA footer in bot messages */
@@ -1236,8 +1260,8 @@ a.choice-card.active:visited { color: #fff; }
   margin-top: 10px;
   padding: 9px 11px;
   border-radius: 10px;
-  background: rgba(0,122,255,.09);
-  border: 0.5px solid rgba(0,122,255,.20);
+  background: var(--cta-bg);
+  border: 0.5px solid var(--cta-border);
 }
 .faq-batiazur-cta svg {
   width: 14px; height: 14px;
@@ -1268,5 +1292,167 @@ a.choice-card.active:visited { color: #fff; }
   .faq-input-overlay {
     bottom: calc(var(--bar-h) + var(--dock-extra) + var(--bottom-gap) + env(safe-area-inset-bottom) + 4px);
     width: min(600px, calc(100% - 80px));
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   Dark Mode — prefers-color-scheme: dark
+   Apple HIG dark system colors + deep ocean gradient
+   ═══════════════════════════════════════════════════════ */
+
+@media (prefers-color-scheme: dark) {
+
+  /* ── System color tokens ─────────────────────────────── */
+  :root {
+    --ios-blue:        #0A84FF;
+    --ios-blue-press:  #0070D8;
+    --ios-tint:        rgba(10,132,255,.22);
+    --ios-tint-mid:    rgba(10,132,255,.14);
+
+    --label:    #FFFFFF;
+    --label-2:  rgba(235,235,245,.60);
+    --label-3:  rgba(235,235,245,.30);
+    --label-4:  rgba(235,235,245,.18);
+
+    --fill:      rgba(118,118,128,.40);
+    --fill-2:    rgba(118,118,128,.32);
+    --fill-3:    rgba(118,118,128,.24);
+    --separator: rgba(84,84,88,.65);
+
+    --glass-bar:  rgba(22,22,30,.86);
+    --glass-spec: rgba(48,48,58,.94);
+    --glass-shad: rgba(0,0,0,.52);
+
+    --surface-screen:  rgba(10,12,20,.74);
+    --surface-card:    rgba(34,34,38,.90);
+    --border-card:     rgba(255,255,255,.08);
+    --surface-cell:    rgba(44,44,50,.82);
+    --border-cell:     rgba(255,255,255,.10);
+    --surface-msg:     rgba(38,38,44,.94);
+    --surface-overlay: rgba(18,20,28,.92);
+    --border-overlay:  rgba(255,255,255,.12);
+
+    --warn-bg:    rgba(255,159,10,.16);
+    --warn-border: rgba(255,159,10,.32);
+    --warn-text:  #FF9F0A;
+
+    --tel-bg:     rgba(48,209,88,.14);
+    --tel-border: rgba(48,209,88,.30);
+    --tel-text:   #30D158;
+
+    --map-bg:     rgba(255,159,10,.14);
+    --map-border: rgba(255,159,10,.28);
+    --map-text:   #FF9F0A;
+
+    --cta-bg:     rgba(10,132,255,.12);
+    --cta-border: rgba(10,132,255,.26);
+
+    --nomatch-bg:     rgba(255,159,10,.14);
+    --nomatch-border: rgba(255,159,10,.28);
+    --nomatch-text:   #FF9F0A;
+  }
+
+  /* ── App background — deep ocean dark ───────────────── */
+  html, body { background: #020810; }
+
+  .app {
+    background:
+      radial-gradient(ellipse 100% 50% at 16% -4%, rgba(0,56,160,.45), transparent 52%),
+      radial-gradient(ellipse  58% 44% at 88% 108%, rgba(0,16,80,.68), transparent 52%),
+      linear-gradient(162deg,
+        #06101e 0%,
+        #091a36 18%,
+        #082448 38%,
+        #051638 60%,
+        #030c28 80%,
+        #020810 100%);
+  }
+
+  .app::before {
+    background: linear-gradient(180deg, rgba(6,20,44,.60), transparent);
+  }
+
+  /* ── Screen container ───────────────────────────────── */
+  .screen {
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.10),
+      inset 0 -0.5px 0 rgba(0,0,0,.40),
+      0 2px 6px rgba(0,0,0,.28),
+      0 12px 40px rgba(0,0,0,.48),
+      0 40px 80px rgba(0,0,0,.24);
+  }
+
+  /* ── Cards ──────────────────────────────────────────── */
+  .card {
+    box-shadow:
+      inset 0 0.5px 0 rgba(255,255,255,.08),
+      0 1px 2px rgba(0,0,0,.24),
+      0 4px 14px rgba(0,0,0,.28);
+  }
+
+  /* ── Choice cells ───────────────────────────────────── */
+  .choice-card {
+    box-shadow:
+      inset 0 0.5px 0 rgba(255,255,255,.10),
+      0 1px 3px rgba(0,0,0,.24),
+      0 4px 12px rgba(0,0,0,.32);
+  }
+  .choice-card::before        { background: rgba(255,255,255,.05); }
+  .choice-card.active         { background: rgba(10,132,255,.88); }
+  .choice-card.active::before { background: rgba(255,255,255,.08); }
+
+  /* ── Buttons ────────────────────────────────────────── */
+  .primary-btn {
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.16),
+      0 2px 8px rgba(10,132,255,.32),
+      0 8px 20px rgba(10,132,255,.18);
+  }
+
+  /* ── Tab bar ────────────────────────────────────────── */
+  .tabbar {
+    border-color: rgba(255,255,255,.12);
+    box-shadow:
+      inset 0 1.5px 0 rgba(255,255,255,.14),
+      inset 0 -0.5px 0 rgba(0,0,0,.30),
+      0 2px 8px rgba(0,0,0,.30),
+      0 16px 44px rgba(0,0,0,.50),
+      0 32px 64px rgba(0,0,0,.26);
+  }
+
+  /* ── Tab bubble ─────────────────────────────────────── */
+  .bubble {
+    background: #0A84FF;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.24),
+      0 4px 14px rgba(10,132,255,.60),
+      0 12px 28px rgba(10,132,255,.30);
+  }
+
+  /* ── Result box ─────────────────────────────────────── */
+  .result-box {
+    background: rgba(10,132,255,.88);
+    border-color: rgba(10,132,255,.46);
+  }
+
+  /* ── FAQ input overlay ──────────────────────────────── */
+  .faq-input-overlay {
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.10),
+      inset 0 -0.5px 0 rgba(0,0,0,.30),
+      0 2px 8px rgba(0,0,0,.32),
+      0 10px 28px rgba(0,0,0,.44);
+  }
+
+  /* ── FAQ bot bubble ─────────────────────────────────── */
+  .faq-msg.bot {
+    border-color: rgba(255,255,255,.08);
+    box-shadow: 0 1px 3px rgba(0,0,0,.24), 0 4px 14px rgba(0,0,0,.32);
+  }
+
+  /* ── Google logo card (white bg) ────────────────────── */
+  .social-logo[style*="background:#fff"] {
+    background: rgba(255,255,255,.08) !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,.40) !important;
   }
 }
