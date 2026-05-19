@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Admin Actualités — BatiAzur Analyse</title>
+  <style>
+    :root{
+      --cream:#FDFAEF;
+      --blue:#5284CB;
+      --blue-dark:#3E6398;
+      --yellow:#FFBE00;
+      --text:#23334A;
+      --danger:#B94A48;
+    }
+
+    *{box-sizing:border-box;}
+
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      background:
+        radial-gradient(circle at 15% 0%, rgba(82,132,203,.18), transparent 32%),
+        linear-gradient(180deg,#EAF3FF 0%, #fff 32%, var(--cream) 100%);
+      color:var(--text);
+      padding:20px;
+      min-height:100vh;
+    }
+
+    main{
+      width:min(960px,100%);
+      margin:0 auto;
+      padding-bottom:40px;
+    }
+
+    h1{
+      margin:8px 0 8px;
+      color:var(--blue-dark);
+      font-size:32px;
+      line-height:1.05;
+      letter-spacing:-.045em;
+    }
+
+    h2{
+      margin:0 0 10px;
+      color:var(--blue-dark);
+      font-size:20px;
+    }
+
+    h3{
+      margin:18px 0 8px;
+      color:var(--blue-dark);
+      font-size:15px;
+    }
+
+    p{
+      color:#657086;
+      line-height:1.45;
+    }
+
+    .card{
+      background:rgba(255,255,255,.96);
+      border:1px solid rgba(82,132,203,.12);
+      border-radius:24px;
+      padding:18px;
+      margin:16px 0;
+      box-shadow:0 14px 38px rgba(37,61,92,.10);
+    }
+
+    label{
+      display:block;
+      margin:12px 0 6px;
+      font-weight:850;
+      color:var(--blue-dark);
+      font-size:13px;
+    }
+
+    input, textarea{
+      width:100%;
+      border:1px solid rgba(82,132,203,.25);
+      border-radius:16px;
+      padding:13px 14px;
+      font:inherit;
+      background:#fff;
+      outline:none;
+    }
+
+    textarea{
+      min-height:120px;
+      resize:vertical;
+    }
+
+    input:focus, textarea:focus{
+      border-color:var(--blue);
+      box-shadow:0 0 0 4px rgba(82,132,203,.13);
+    }
+
+    button, .btn{
+      border:0;
+      border-radius:16px;
+      background:var(--blue);
+      color:white;
+      font-weight:900;
+      padding:13px 16px;
+      margin:8px 8px 0 0;
+      display:inline-flex;
+      text-decoration:none;
+      cursor:pointer;
+      min-height:46px;
+      align-items:center;
+      justify-content:center;
+    }
+
+    button:active{
+      transform:scale(.97);
+      background:var(--yellow);
+      color:var(--blue-dark);
+    }
+
+    .secondary{
+      background:rgba(82,132,203,.12);
+      color:var(--blue-dark);
+    }
+
+    .danger{
+      background:var(--danger);
+    }
+
+    .row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+
+    .note{
+      color:#6d7789;
+      font-size:14px;
+    }
+
+    .status{
+      margin-top:12px;
+      padding:12px 14px;
+      border-radius:16px;
+      background:rgba(82,132,203,.10);
+      color:var(--blue-dark);
+      font-weight:800;
+      font-size:14px;
+    }
+
+    .debug{
+      margin-top:12px;
+      padding:12px 14px;
+      border-radius:16px;
+      background:#12203A;
+      color:#EAF3FF;
+      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+      font-size:12px;
+      line-height:1.45;
+      white-space:pre-wrap;
+      word-break:break-word;
+      max-height:240px;
+      overflow:auto;
+    }
+
+    .item{
+      border:1px solid rgba(82,132,203,.12);
+      background:rgba(82,132,203,.06);
+      border-radius:18px;
+      padding:14px;
+      margin-top:10px;
+    }
+
+    pre{
+      white-space:pre-wrap;
+      word-break:break-word;
+      background:#12203A;
+      color:#EAF3FF;
+      border-radius:18px;
+      padding:14px;
+      overflow:auto;
+      max-height:360px;
+      font-size:12px;
+    }
+
+    @media(max-width:720px){
+      body{padding:16px;}
+      h1{font-size:28px;}
+      .row{grid-template-columns:1fr;}
+      button{width:100%; margin-right:0;}
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Admin Actualités</h1>
+  <p class="note">Page d’administration BatiAzur Analyse. Elle sert à créer ou publier les actualités affichées dans l’application.</p>
+
+  <section class="card">
+    <h2>Publication automatique</h2>
+    <p class="note">À utiliser quand le Cloudflare Worker sera créé. Sinon, tu peux télécharger le fichier <strong>actus.json</strong> et le remplacer manuellement sur GitHub.</p>
+
+    <label for="workerUrl">URL du Cloudflare Worker</label>
+    <input id="workerUrl" placeholder="https://batiazur-actus-worker.votre-compte.workers.dev">
+
+    <label for="adminPassword">Mot de passe admin</label>
+    <input id="adminPassword" type="password" placeholder="Mot de passe défini dans Cloudflare">
+
+    <button type="button" onclick="testWorker()">Tester le Worker</button>
+    <button type="button" onclick="publishToCloudflare()">Publier sur GitHub</button>
+    <div class="status" id="publishStatus">Statut : en attente.</div>
+    <div class="debug" id="debugBox">Diagnostic : aucun test lancé.</div>
+  </section>
+
+  <section class="card">
+    <h2>Réseaux et liens</h2>
+
+    <label for="facebook">Facebook</label>
+    <input id="facebook" value="https://www.facebook.com/profile.php?id=61589950888126&locale=ga_IE">
+
+    <label for="instagram">Instagram</label>
+    <input id="instagram" value="https://www.instagram.com/bati_azur03/">
+
+    <label for="google">Avis Google</label>
+    <input id="google" value="https://g.page/r/CfwnXPUtWcjnEAE/review">
+
+    <label for="website">Application</label>
+    <input id="website" value="https://batiazur-hub.github.io/batiazur-analyse/">
+  </section>
+
+  <section class="card">
+    <h2>Ajouter une actualité</h2>
+
+    <div class="row">
+      <div>
+        <label for="title">Titre</label>
+        <input id="title" placeholder="Ex. Fortes chaleurs : que faire ?">
+      </div>
+      <div>
+        <label for="date">Date</label>
+        <input id="date" placeholder="Ex. 15 mai 2026">
+      </div>
+    </div>
+
+    <label for="category">Catégorie</label>
+    <input id="category" placeholder="Conseil / Promo / Alerte / Nouveauté">
+
+    <label for="image">URL image</label>
+    <input id="image" placeholder="https://...jpg ou .png">
+
+    <label for="text">Texte</label>
+    <textarea id="text" placeholder="Texte de l’actualité..."></textarea>
+
+    <h3>Bouton 1</h3>
+    <div class="row">
+      <input id="btn1label" placeholder="Libellé bouton">
+      <input id="btn1url" placeholder="Lien bouton">
+    </div>
+
+    <h3>Bouton 2</h3>
+    <div class="row">
+      <input id="btn2label" placeholder="Libellé bouton">
+      <input id="btn2url" placeholder="Lien bouton">
+    </div>
+
+    <button type="button" onclick="addItem()">Ajouter l’actualité</button>
+    <button class="secondary" type="button" onclick="clearForm()">Vider le formulaire</button>
+  </section>
+
+  <section class="card">
+    <h2>Actualités créées</h2>
+    <div id="list"></div>
+  </section>
+
+  <section class="card">
+    <h2>Exporter / secours</h2>
+    <p class="note">Si la publication automatique n’est pas encore configurée, télécharge le fichier puis remplace <strong>actus.json</strong> dans GitHub.</p>
+    <button type="button" onclick="downloadJson()">Télécharger actus.json</button>
+    <button class="secondary" type="button" onclick="copyJson()">Copier le JSON</button>
+    <pre id="output"></pre>
+  </section>
+</main>
+
+<script>
+const data = {
+  updated_at: new Date().toISOString().slice(0,10),
+  socials:{
+    instagram:"https://www.instagram.com/bati_azur03/",
+    google:"https://g.page/r/CfwnXPUtWcjnEAE/review",
+    website:"https://batiazur-hub.github.io/batiazur-analyse/"
+  },
+  items:[]
+};
+
+function byId(id){
+  return document.getElementById(id);
+}
+
+function val(id){
+  const el = byId(id);
+  return el ? el.value.trim() : "";
+}
+
+function escapeHtml(value){
+  return String(value || "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function refresh(){
+  data.updated_at = new Date().toISOString().slice(0,10);
+  data.socials.facebook = val("facebook");
+  data.socials.instagram = val("instagram");
+  data.socials.google = val("google");
+  data.socials.website = val("website");
+
+  const list = byId("list");
+  if(list){
+    if(!data.items.length){
+      list.innerHTML = "<p class='note'>Aucune actualité créée.</p>";
+    }else{
+      list.innerHTML = data.items.map((item,index) => `
+        <div class="item">
+          <strong>${escapeHtml(item.title)}</strong><br>
+          <small>${escapeHtml(item.date)} · ${escapeHtml(item.category)}</small>
+          <p>${escapeHtml(item.text)}</p>
+          <button class="danger" type="button" onclick="removeItem(${index})">Supprimer</button>
+        </div>
+      `).join("");
+    }
+  }
+
+  const output = byId("output");
+  if(output){
+    output.textContent = JSON.stringify(data,null,2);
+  }
+}
+
+function addItem(){
+  const buttons = [];
+
+  if(val("btn1label") && val("btn1url")){
+    buttons.push({label:val("btn1label"), url:val("btn1url")});
+  }
+
+  if(val("btn2label") && val("btn2url")){
+    buttons.push({label:val("btn2label"), url:val("btn2url")});
+  }
+
+  data.items.unshift({
+    title: val("title") || "Actualité BatiAzur",
+    date: val("date"),
+    category: val("category") || "Actualité",
+    image: val("image"),
+    text: val("text"),
+    buttons: buttons
+  });
+
+  clearForm();
+  refresh();
+}
+
+function removeItem(index){
+  data.items.splice(index,1);
+  refresh();
+}
+
+function clearForm(){
+  ["title","date","category","image","text","btn1label","btn1url","btn2label","btn2url"].forEach(id => {
+    const el = byId(id);
+    if(el) el.value = "";
+  });
+}
+
+function downloadJson(){
+  refresh();
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "actus.json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+async function copyJson(){
+  refresh();
+  try{
+    await navigator.clipboard.writeText(JSON.stringify(data,null,2));
+    alert("JSON copié.");
+  }catch(e){
+    alert("Copie impossible sur ce navigateur.");
+  }
+}
+
+function setDebug(message){
+  const box = byId("debugBox");
+  if(box) box.textContent = message;
+}
+
+async function readResponseDetails(response){
+  const text = await response.text();
+  let json = null;
+  try{
+    json = JSON.parse(text);
+  }catch(e){}
+
+  return {
+    status: response.status,
+    statusText: response.statusText,
+    ok: response.ok,
+    contentType: response.headers.get("content-type"),
+    raw: text,
+    json
+  };
+}
+
+async function testWorker(){
+  const workerUrl = val("workerUrl");
+  const adminPassword = val("adminPassword");
+  const status = byId("publishStatus");
+
+  if(!workerUrl){
+    status.textContent = "Statut : renseigne l’URL du Cloudflare Worker.";
+    return;
+  }
+
+  status.textContent = "Statut : test du Worker en cours...";
+  setDebug("Test en cours...");
+
+  try{
+    const response = await fetch(workerUrl, {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "X-Admin-Password":adminPassword || "test"
+      },
+      body:JSON.stringify({
+        actus:{
+          updated_at:new Date().toISOString().slice(0,10),
+          socials:data.socials,
+          items:[{
+            title:"Test Worker",
+            date:new Date().toLocaleDateString("fr-FR"),
+            category:"Test",
+            image:"",
+            text:"Test de connexion Cloudflare Worker.",
+            buttons:[]
+          }]
+        }
+      })
+    });
+
+    const details = await readResponseDetails(response);
+    setDebug(JSON.stringify(details,null,2));
+
+    if(response.ok && details.json && details.json.ok){
+      status.textContent = "Statut : Worker OK, publication test réussie.";
+    }else{
+      status.textContent = "Statut : Worker joint, mais erreur. Voir diagnostic.";
+    }
+  }catch(e){
+    status.textContent = "Statut : impossible de joindre le Worker.";
+    setDebug(String(e && e.stack ? e.stack : e));
+  }
+}
+
+async function publishToCloudflare(){
+  refresh();
+
+  const workerUrl = val("workerUrl");
+  const adminPassword = val("adminPassword");
+  const status = byId("publishStatus");
+
+  if(!workerUrl){
+    status.textContent = "Statut : renseigne l’URL du Cloudflare Worker.";
+    return;
+  }
+
+  if(!adminPassword){
+    status.textContent = "Statut : renseigne le mot de passe admin.";
+    return;
+  }
+
+  status.textContent = "Statut : publication en cours...";
+  setDebug("Publication en cours...");
+
+  try{
+    const response = await fetch(workerUrl, {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "X-Admin-Password":adminPassword
+      },
+      body:JSON.stringify({actus:data})
+    });
+
+    const details = await readResponseDetails(response);
+    setDebug(JSON.stringify(details,null,2));
+
+    const result = details.json || {};
+
+    if(!response.ok || !result.ok){
+      status.textContent = "Statut : erreur — " + (result.error || "publication impossible");
+      console.error(details);
+      return;
+    }
+
+    status.textContent = "Statut : publié. GitHub Pages peut prendre 1 à 3 minutes pour afficher la mise à jour.";
+  }catch(e){
+    status.textContent = "Statut : erreur réseau ou Worker inaccessible.";
+    setDebug(String(e && e.stack ? e.stack : e));
+    console.error(e);
+  }
+}
+
+["facebook","instagram","google","website"].forEach(id => {
+  const el = byId(id);
+  if(el) el.addEventListener("input", refresh);
+});
+
+refresh();
+</script>
+</body>
+</html>

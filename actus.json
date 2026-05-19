@@ -1,0 +1,31 @@
+{
+  "updated_at": "2026-05-15",
+  "socials": {
+    "instagram": "https://www.instagram.com/bati_azur03/",
+    "google": "https://g.page/r/CfwnXPUtWcjnEAE/review",
+    "website": "https://batiazur-hub.github.io/batiazur-analyse/",
+    "waze": "https://waze.com/ul?q=Bati%20Azur%2C%20Les%20Cailles%2C%20route%20de%20Saint%20Ennemond%2C%2003000%20AVERMES&navigate=yes",
+    "apple_maps": "https://maps.apple.com/?q=Bati%20Azur%2C%20Les%20Cailles%2C%20route%20de%20Saint%20Ennemond%2C%2003000%20AVERMES",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Bati%20Azur%2C%20Les%20Cailles%2C%20route%20de%20Saint%20Ennemond%2C%2003000%20AVERMES",
+    "facebook": "https://www.facebook.com/profile.php?id=61589950888126&locale=ga_IE"
+  },
+  "items": [
+    {
+      "title": "Conseil piscine",
+      "date": "À mettre à jour",
+      "category": "Info client",
+      "image": "",
+      "text": "Retrouvez ici les conseils BatiAzur, les nouveautés, les alertes fortes chaleurs, les opérations commerciales et les documents utiles.",
+      "buttons": [
+        {
+          "label": "Appeler BatiAzur",
+          "url": "tel:+33470342196"
+        },
+        {
+          "label": "Voir les horaires",
+          "url": "https://www.google.com/search?q=BatiAzur%20Piscine%20horaires"
+        }
+      ]
+    }
+  ]
+}

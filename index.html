@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+  <title>BatiAzur Analyse</title>
+  <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
+  <link rel="icon" href="./favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+  <link rel="manifest" href="./site.webmanifest">
+  <meta name="theme-color" content="#1475c8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="BatiAzur Analyse">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+<div class="app">
+
+  <!-- ── Splash ──────────────────────────────────────── -->
+  <div class="splash-screen" id="splashScreen" aria-hidden="true">
+    <div class="splash-glow"></div>
+    <div class="splash-content">
+      <img src="./android-chrome-512x512.png" alt="" class="splash-logo">
+      <div class="splash-title">BatiAzur Analyse</div>
+      <div class="splash-subtitle">Analyse &amp; dosage piscine</div>
+    </div>
+  </div>
+
+  <main class="app-scroll">
+  <section class="screen">
+
+    <div class="brand-pill">
+      <img src="./android-chrome-192x192.png" alt="" />
+      <span>BatiAzur Analyse</span>
+    </div>
+
+    <!-- ══ ACCUEIL ══════════════════════════════════════ -->
+    <section class="page active" id="page-home">
+
+      <h1>Accueil</h1>
+      <p class="lead">Volume &amp; dosage piscine — produits BatiAzur exclusivement.</p>
+
+      <!-- Actions rapides -->
+      <div class="quick-grid">
+        <button class="choice-card" data-go="volume">
+          <svg viewBox="0 0 48 28"><path d="M5 23h38"/><path d="M11 21 24 4l13 17"/><path d="M15 16h18"/></svg>
+          <strong>Volume</strong>
+          <small>Forme + fond + dimensions</small>
+        </button>
+        <button class="choice-card" data-go="dosage">
+          <svg viewBox="0 0 48 28"><path d="M24 4s10 9.5 10 16a10 10 0 0 1-20 0C14 13.5 24 4 24 4z"/></svg>
+          <strong>Dosage</strong>
+          <small>pH, TAC, sel, stabilisant…</small>
+        </button>
+        <button class="choice-card" data-go="actualites">
+          <svg viewBox="0 0 48 28"><path d="M9 6h30v18H9z"/><path d="M15 12h18"/><path d="M15 17h12"/></svg>
+          <strong>Actualités</strong>
+          <small>Conseils & nouveautés</small>
+        </button>
+        <a class="choice-card" href="https://www.instagram.com/bati_azur03/" target="_blank" rel="noopener">
+          <svg viewBox="0 0 48 28"><rect x="10" y="5" width="28" height="18" rx="6"/><circle cx="24" cy="14" r="5"/><circle cx="32" cy="10" r="1.5"/></svg>
+          <strong>Instagram</strong>
+          <small>Suivre BatiAzur</small>
+        </a>
+        <a class="choice-card" href="https://www.facebook.com/profile.php?id=61589950888126" target="_blank" rel="noopener">
+          <svg viewBox="0 0 48 28"><circle cx="24" cy="14" r="11"/><path d="M26.5 9h-2.1c-1.3 0-2.2.9-2.2 2.2V14h-2.1v3.1h2.1V24h3.3v-6.9h2.5l.5-3.1h-3v-2c0-.6.3-1 1-1h2V9z"/></svg>
+          <strong>Facebook</strong>
+          <small>Page officielle</small>
+        </a>
+      </div>
+
+      <!-- Volume retenu -->
+      <p class="section-header">Dernier volume</p>
+      <div class="card">
+        <p id="homeVolumeText">Calcule un volume dans l'onglet Volume — il s'affichera ici.</p>
+      </div>
+
+      <!-- Contact -->
+      <p class="section-header">Contact BatiAzur</p>
+      <div class="card">
+        <div class="contact-block">
+          <span>Téléphone</span>
+          <strong>04 70 34 21 96</strong>
+          <a href="tel:+33470342196" class="secondary-btn" style="margin:0;width:auto;padding:7px 13px;font-size:13px;border-radius:999px;">Appeler</a>
+        </div>
+        <div class="contact-block">
+          <span>Email</span>
+          <strong>bati.azur03@gmail.com</strong>
+          <a href="mailto:bati.azur03@gmail.com?subject=Demande%20depuis%20BatiAzur%20Analyse" class="secondary-btn" style="margin:0;width:auto;padding:7px 13px;font-size:13px;border-radius:999px;">Mail</a>
+        </div>
+        <div class="contact-block contact-block--column" style="border-bottom:none;">
+          <span>Adresse</span>
+          <strong>Bati Azur, Les Cailles, route de Saint Ennemond, 03000 AVERMES</strong>
+          <div class="nav-buttons" style="padding:8px 0 0;margin:0;">
+            <a href="https://waze.com/ul?q=Bati%20Azur%2C%20Les%20Cailles%2C%20route%20de%20Saint%20Ennemond%2C%2003000%20AVERMES&navigate=yes" target="_blank" rel="noopener" class="secondary-btn" style="margin:0;">Waze</a>
+            <a href="https://maps.apple.com/?q=Bati%20Azur%2C%20Les%20Cailles%2C%20route%20de%20Saint%20Ennemond%2C%2003000%20AVERMES" target="_blank" rel="noopener" class="secondary-btn" style="margin:0;">Plans</a>
+            <a href="https://www.google.com/maps/search/?api=1&query=Bati%20Azur%2C%20Les%20Cailles%2C%20route%20de%20Saint%20Ennemond%2C%2003000%20AVERMES" target="_blank" rel="noopener" class="secondary-btn" style="margin:0;">Maps</a>
+          </div>
+        </div>
+      </div>
+      <a href="https://www.google.com/search?q=BatiAzur%20Piscine%20horaires" target="_blank" rel="noopener" class="secondary-btn" style="margin:8px 16px 0;width:calc(100% - 32px);">Horaires sur Google</a>
+
+      <!-- Réseaux sociaux -->
+      <p class="section-header">Réseaux &amp; avis</p>
+      <div class="card">
+
+        <!-- Facebook -->
+        <a class="social-card" href="https://www.facebook.com/profile.php?id=61589950888126" target="_blank" rel="noopener">
+          <span class="social-logo">
+            <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+              <rect width="40" height="40" rx="10" fill="#1877F2"/>
+              <path d="M24 20.5h-2.7V30h-3.8V20.5H15V17h2.5v-2.2c0-3 1.5-4.8 4.6-4.8h2.9v3.5h-1.9c-1.1 0-1.4.5-1.4 1.5V17H25l-.5 3.5z" fill="white"/>
+            </svg>
+          </span>
+          <span class="social-card-text">
+            <strong>Facebook</strong>
+            <small>Page officielle BatiAzur</small>
+          </span>
+        </a>
+
+        <!-- Instagram -->
+        <a class="social-card" href="https://www.instagram.com/bati_azur03/" target="_blank" rel="noopener">
+          <span class="social-logo">
+            <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="ig" x1="0%" y1="100%" x2="100%" y2="0%">
+                  <stop offset="0%"   stop-color="#f09433"/>
+                  <stop offset="25%"  stop-color="#e6683c"/>
+                  <stop offset="50%"  stop-color="#dc2743"/>
+                  <stop offset="75%"  stop-color="#cc2366"/>
+                  <stop offset="100%" stop-color="#bc1888"/>
+                </linearGradient>
+              </defs>
+              <rect width="40" height="40" rx="10" fill="url(#ig)"/>
+              <rect x="8" y="8" width="24" height="24" rx="7" fill="none" stroke="white" stroke-width="2.2"/>
+              <circle cx="20" cy="20" r="5.5" fill="none" stroke="white" stroke-width="2.2"/>
+              <circle cx="28" cy="12" r="1.6" fill="white"/>
+            </svg>
+          </span>
+          <span class="social-card-text">
+            <strong>Instagram</strong>
+            <small>Compte officiel BatiAzur</small>
+          </span>
+        </a>
+
+        <!-- Google Avis -->
+        <a class="social-card" href="https://g.page/r/CfwnXPUtWcjnEAE/review" target="_blank" rel="noopener" style="border-bottom:none;">
+          <span class="social-logo" style="background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.14);">
+            <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+              <rect width="40" height="40" rx="10" fill="white"/>
+              <path d="M32 20.4c0-.8-.07-1.6-.2-2.35H20.5v4.44h6.5c-.28 1.5-1.13 2.77-2.4 3.62v3.01h3.88C30.8 27.25 32 24.1 32 20.4z" fill="#4285F4"/>
+              <path d="M20.5 33c3.27 0 6.01-1.08 8.01-2.93l-3.88-3.01c-1.08.72-2.46 1.15-4.13 1.15-3.17 0-5.86-2.14-6.82-5.02H9.7v3.11C11.69 30.44 15.84 33 20.5 33z" fill="#34A853"/>
+              <path d="M13.68 23.19A7.56 7.56 0 0 1 13.27 21c0-.76.13-1.5.41-2.19V15.7H9.7A12.01 12.01 0 0 0 8.5 21c0 1.93.46 3.76 1.2 5.3l3.98-3.11z" fill="#FBBC05"/>
+              <path d="M20.5 13.79c1.78 0 3.38.61 4.64 1.82l3.48-3.48C26.5 10.11 23.77 9 20.5 9c-4.66 0-8.81 2.56-10.8 6.3l3.98 3.11c.96-2.88 3.65-4.62 6.82-4.62z" fill="#EA4335"/>
+            </svg>
+          </span>
+          <span class="social-card-text">
+            <strong>Avis Google</strong>
+            <small>Laisser un avis</small>
+          </span>
+        </a>
+      </div>
+
+      <button class="primary-btn" id="shareAppHome" type="button" style="margin-bottom:4px;">Partager l'application</button>
+    </section>
+
+    <!-- ══ ACTUALITÉS ════════════════════════════════════ -->
+    <section class="page" id="page-actualites">
+      <button class="back-btn" type="button" data-go="home">
+        <svg viewBox="0 0 20 20"><path d="M12 5l-5 5 5 5"/></svg>
+        Retour
+      </button>
+      <h1>Actualités</h1>
+      <p class="lead">Conseils, alertes, nouveautés et documents BatiAzur.</p>
+      <div id="newsList" class="news-list" style="margin-top:16px;">
+        <div class="card"><p style="padding:14px 16px;">Chargement en cours…</p></div>
+      </div>
+    </section>
+
+    <!-- ══ VOLUME ════════════════════════════════════════ -->
+    <section class="page" id="page-volume">
+      <h1>Volume</h1>
+      <p class="lead">Le volume calculé sera repris automatiquement dans Dosage.</p>
+
+      <div class="responsive-grid">
+
+        <!-- Forme du bassin -->
+        <p class="section-header">Forme du bassin</p>
+        <div class="card">
+          <div class="choice-grid" style="padding:14px 14px 14px;">
+            <button class="choice-card active" data-shape="rect" style="min-height:72px;">
+              <svg viewBox="0 0 48 28"><rect x="6" y="6" width="36" height="16" rx="2"/></svg>
+              <strong>Rectangulaire</strong><small>Bassin classique</small>
+            </button>
+            <button class="choice-card" data-shape="oval" style="min-height:72px;">
+              <svg viewBox="0 0 48 28"><ellipse cx="24" cy="14" rx="18" ry="9"/></svg>
+              <strong>Ovoïde</strong><small>Ovale type piscine</small>
+            </button>
+            <button class="choice-card" data-shape="round" style="min-height:72px;">
+              <svg viewBox="0 0 48 28"><circle cx="24" cy="14" r="10"/></svg>
+              <strong>Rond</strong><small>Diamètre</small>
+            </button>
+            <button class="choice-card" data-shape="hex" style="min-height:72px;">
+              <svg viewBox="0 0 48 28"><path d="M15 5h18l9 9-9 9H15l-9-9z"/></svg>
+              <strong>Hexagonal</strong><small>Approximation</small>
+            </button>
+            <button class="choice-card" data-shape="free" style="min-height:72px;">
+              <svg viewBox="0 0 48 28"><path d="M7 16c3-9 12-11 18-7 6 4 13 0 16 7-2 8-12 9-18 5-6-4-13 2-16-5z"/></svg>
+              <strong>Forme libre</strong><small>Coeff. 0,85</small>
+            </button>
+          </div>
+
+          <h2 class="spaced-title">Fond</h2>
+          <div class="choice-grid three" style="padding:4px 14px 14px;">
+            <button class="choice-card active" data-floor="flat" style="min-height:64px;">
+              <svg viewBox="0 0 48 28"><path d="M7 18h34"/></svg>
+              <strong>Plat</strong>
+            </button>
+            <button class="choice-card" data-floor="slope" style="min-height:64px;">
+              <svg viewBox="0 0 48 28"><path d="M7 12h12l14 8h8"/></svg>
+              <strong>Pente</strong>
+            </button>
+            <button class="choice-card" data-floor="diamond" style="min-height:64px;">
+              <svg viewBox="0 0 48 28"><path d="M7 10h10l7 10 7-10h10"/></svg>
+              <strong>Diamant</strong>
+            </button>
+          </div>
+        </div>
+
+        <!-- Dimensions -->
+        <p class="section-header">Dimensions</p>
+        <div class="card">
+          <div class="form-grid" id="volumeFields">
+            <label class="field field-rect">
+              <span>Longueur</span>
+              <input id="length" type="number" inputmode="decimal" step="0.01" placeholder="8 m">
+            </label>
+            <label class="field field-rect">
+              <span>Largeur</span>
+              <input id="width" type="number" inputmode="decimal" step="0.01" placeholder="4 m">
+            </label>
+            <label class="field field-round hidden">
+              <span>Diamètre</span>
+              <input id="diameter" type="number" inputmode="decimal" step="0.01" placeholder="4,5 m">
+            </label>
+            <label class="field depth-flat">
+              <span>Profondeur</span>
+              <input id="depth" type="number" inputmode="decimal" step="0.01" placeholder="1,5 m">
+            </label>
+            <label class="field depth-slope hidden">
+              <span>Prof. mini</span>
+              <input id="depthMin" type="number" inputmode="decimal" step="0.01" placeholder="1,2 m">
+            </label>
+            <label class="field depth-slope hidden">
+              <span>Prof. maxi</span>
+              <input id="depthMax" type="number" inputmode="decimal" step="0.01" placeholder="1,8 m">
+            </label>
+            <label class="field depth-diamond hidden">
+              <span>Prof. bords</span>
+              <input id="depthEdge" type="number" inputmode="decimal" step="0.01" placeholder="1,2 m">
+            </label>
+            <label class="field depth-diamond hidden">
+              <span>Prof. centre</span>
+              <input id="depthCenter" type="number" inputmode="decimal" step="0.01" placeholder="1,8 m">
+            </label>
+          </div>
+          <button class="primary-btn" id="calculateVolume" type="button">Calculer le volume</button>
+          <div class="result-box" id="volumeResult" style="margin-bottom:4px;">
+            <span>Volume retenu</span>
+            <strong>—</strong>
+            <p>Renseigne les dimensions ci-dessus.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ DOSAGE ═════════════════════════════════════════ -->
+    <section class="page" id="page-dosage">
+      <h1>Dosage</h1>
+      <p class="lead">Volume repris automatiquement ou saisi directement.</p>
+
+      <div class="responsive-grid">
+
+        <p class="section-header">Paramètre</p>
+        <div class="card">
+          <div class="choice-grid" style="padding:14px;">
+            <button class="choice-card active" data-param="ph"><strong>pH</strong><small>Idéal 7,2</small></button>
+            <button class="choice-card" data-param="tac"><strong>TAC</strong><small>Idéal 150 ppm</small></button>
+            <button class="choice-card" data-param="salt"><strong>Sel</strong><small>5 g/L</small></button>
+            <button class="choice-card" data-param="stabilizer"><strong>Stabilisant</strong><small>Idéal 30 ppm</small></button>
+            <button class="choice-card" data-param="shock"><strong>Chlore choc</strong><small>Stab. / non stab.</small></button>
+            <button class="choice-card" data-param="brome"><strong>Brome choc</strong><small>150 g / 10 m³</small></button>
+            <button class="choice-card" data-param="metals"><strong>Métaux</strong><small>Séquestrant</small></button>
+          </div>
+        </div>
+
+        <p class="section-header" id="calcTitle" style="margin-top:16px;">Correction pH</p>
+        <div class="card">
+          <div class="form-grid">
+            <label class="field">
+              <span>Volume (m³)</span>
+              <input id="doseVolume" type="number" inputmode="decimal" step="0.1" placeholder="48">
+            </label>
+          </div>
+          <div id="paramFields"></div>
+          <button class="primary-btn" id="calculateDose" type="button">Calculer le dosage</button>
+          <div class="result-box" id="doseResult">
+            <span>Résultat</span>
+            <strong>—</strong>
+            <p>Renseigne le volume et les paramètres.</p>
+          </div>
+          <a class="secondary-btn" id="mailResult" href="mailto:?subject=Analyse%20BatiAzur&body=Résultat%20à%20calculer">Envoyer par mail</a>
+          <button class="secondary-btn" id="copyResult" type="button" style="margin-bottom:4px;">Copier le résultat</button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ FAQ / ASSISTANT ══════════════════════════════════ -->
+    <section class="page" id="page-faq">
+
+      <div class="faq-header">
+        <div class="faq-avatar">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 10h8M8 14h5"/></svg>
+        </div>
+        <div>
+          <h1 style="margin:0;font-size:26px;">Assistant BatiAzur</h1>
+          <p class="faq-status">Expert piscine</p>
+        </div>
+      </div>
+
+      <div class="faq-chips-wrap">
+        <div class="faq-chips" id="faqChips">
+          <button class="faq-chip" data-q="Mon eau est verte">Eau verte</button>
+          <button class="faq-chip" data-q="Eau trouble ou laiteuse">Eau trouble</button>
+          <button class="faq-chip" data-q="Corriger le pH">pH</button>
+          <button class="faq-chip" data-q="Valeurs ideales piscine">Valeurs cibles</button>
+          <button class="faq-chip" data-q="Chlore choc traitement">Chlore choc</button>
+          <button class="faq-chip" data-q="Algicide utilisation">Algicide</button>
+          <button class="faq-chip" data-q="Flocculant clarifier eau">Flocculant</button>
+          <button class="faq-chip" data-q="Hivernage fermeture piscine">Hivernage</button>
+          <button class="faq-chip" data-q="Taux de sel electrolyseur">Sel</button>
+          <button class="faq-chip" data-q="Combien d'heures filtrer">Filtration</button>
+        </div>
+      </div>
+
+      <div class="faq-messages" id="faqMessages"></div>
+
+    </section>
+
+  </section><!-- /.screen -->
+  </main>
+
+  <!-- ══ TAB BAR iOS 26 ═══════════════════════════════════ -->
+  <div class="tabbar-dock">
+    <nav class="tabbar" id="tabbar">
+      <div class="bubble"></div>
+      <button class="tab active" type="button" data-page="home">
+        <span class="icon">
+          <svg viewBox="0 0 24 24"><path d="M4 11.5 12 5l8 6.5"/><path d="M6.5 10.5V20h4.2v-5.2h2.6V20h4.2v-9.5"/></svg>
+        </span>
+        <span class="tab-label">Accueil</span>
+      </button>
+      <button class="tab" type="button" data-page="volume">
+        <span class="icon">
+          <svg viewBox="0 0 24 24"><path d="M4 17.5h16"/><path d="M6 15.5 12 5l6 10.5"/><path d="M8.5 13h7"/></svg>
+        </span>
+        <span class="tab-label">Volume</span>
+      </button>
+      <button class="tab" type="button" data-page="dosage">
+        <span class="icon">
+          <svg viewBox="0 0 24 24"><path d="M12 3.8s5.5 5.8 5.5 10.2a5.5 5.5 0 0 1-11 0C6.5 9.6 12 3.8 12 3.8Z"/></svg>
+        </span>
+        <span class="tab-label">Dosage</span>
+      </button>
+      <button class="tab" type="button" data-page="faq">
+        <span class="icon">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 10h8M8 14h5"/></svg>
+        </span>
+        <span class="tab-label">FAQ</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ══ FAQ INPUT OVERLAY ════════════════════════════════ -->
+  <div id="faqInputOverlay" class="faq-input-overlay" style="display:none;" role="search" aria-label="Poser une question">
+    <input id="faqInput" type="text" placeholder="Posez votre question…" autocomplete="off" autocorrect="on" autocapitalize="sentences" aria-label="Question">
+    <button id="faqSend" type="button" aria-label="Envoyer">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+    </button>
+  </div>
+
+</div><!-- /.app -->
+<script src="./app.js"></script>
+</body>
+</html>
