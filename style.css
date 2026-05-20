@@ -130,37 +130,29 @@ html, body { background: #0d4a8c; }
 }
 
 /* ── Scroll ─────────────────────────────────────────── */
+/* ── Scroll ─────────────────────────────────────────── */
 .app-scroll {
   position: absolute; inset: 0; top: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-  padding:
-    calc(16px + env(safe-area-inset-top))
-    12px
-    calc(var(--bar-h) + var(--dock-extra) + var(--bottom-gap) + 40px + env(safe-area-inset-bottom));
+  padding: 0 0 calc(var(--bar-h) + var(--dock-extra) + var(--bottom-gap) + 20px + env(safe-area-inset-bottom));
   scroll-behavior: smooth;
 }
 
-/* ── iOS App Screen container ───────────────────────── */
+/* ── iOS App Screen container — full bleed ──────────── */
 .screen {
-  width: min(430px, 100%);
-  margin: 0 auto;
-  border-radius: 44px;
+  width: 100%;
+  margin: 0;
+  border-radius: 0;
   background: var(--surface-screen);
   backdrop-filter: blur(56px) saturate(180%) brightness(1.03);
   -webkit-backdrop-filter: blur(56px) saturate(180%) brightness(1.03);
-  border: 0.5px solid var(--border-overlay);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.90),
-    inset 0 -0.5px 0 rgba(0,0,0,.03),
-    0 2px 6px rgba(0,0,0,.03),
-    0 12px 40px rgba(0,28,100,.12),
-    0 40px 80px rgba(0,28,100,.06);
-  padding: 20px 0 28px;
-  overflow: hidden;
+  border: none;
+  box-shadow: none;
+  padding: calc(env(safe-area-inset-top) + 16px) 0 28px;
+  min-height: 100dvh;
 }
-
 /* ── iOS Large Title ────────────────────────────────── */
 h1 {
   margin: 28px 20px 6px;
@@ -926,8 +918,8 @@ a.choice-card.active:visited { color: #fff; }
   }
   .app          { padding-top: 0; }
   .app::before  { display: none; }
-  .app-scroll   { padding: 12px 20px calc(var(--bar-h) + var(--dock-extra) + var(--bottom-gap) + 28px + env(safe-area-inset-bottom)); }
-  .screen       { width: min(900px,100%); border-radius: 32px; padding: 16px 0 22px; }
+  .app-scroll   { padding: 0 0 calc(var(--bar-h) + var(--dock-extra) + var(--bottom-gap) + 16px + env(safe-area-inset-bottom)); }
+  .screen       { width: 100%; border-radius: 0; padding: 12px 0 22px; min-height: 100dvh; }
   h1            { font-size: 26px; margin: 12px 20px 4px; }
   .lead         { font-size: 14px; }
   .responsive-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; padding: 0 16px; }
@@ -946,8 +938,8 @@ a.choice-card.active:visited { color: #fff; }
     --bar-h: 52px; --bubble: 44px; --bubble-top: -22px;
     --bottom-gap: 74px; --dock-extra: 36px;
   }
-  .app-scroll { padding-top: 8px; }
-  .screen { padding: 12px 0 18px; }
+  .app-scroll { padding-top: 0; }
+  .screen { padding: 10px 0 16px; }
   h1 { font-size: 22px; }
 }
 @media (orientation:landscape) and (max-height:360px) {
@@ -1372,15 +1364,8 @@ a.choice-card.active:visited { color: #fff; }
     background: linear-gradient(180deg, rgba(6,20,44,.60), transparent);
   }
 
-  /* ── Screen container ───────────────────────────────── */
-  .screen {
-    box-shadow:
-      inset 0 1px 0 rgba(255,255,255,.10),
-      inset 0 -0.5px 0 rgba(0,0,0,.40),
-      0 2px 6px rgba(0,0,0,.28),
-      0 12px 40px rgba(0,0,0,.48),
-      0 40px 80px rgba(0,0,0,.24);
-  }
+  /* ── Screen container — full bleed, no shadow needed ── */
+  .screen { box-shadow: none; border: none; }
 
   /* ── Cards ──────────────────────────────────────────── */
   .card {
