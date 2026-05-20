@@ -5,282 +5,473 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Admin Actualités — BatiAzur Analyse</title>
   <style>
-    :root{
-      --cream:#FDFAEF;
-      --blue:#5284CB;
-      --blue-dark:#3E6398;
-      --yellow:#FFBE00;
-      --text:#23334A;
-      --danger:#B94A48;
+    :root {
+      --ios-blue: #007AFF;
+      --ios-red: #FF3B30;
+      --label: #000000;
+      --label-2: rgba(60, 60, 67, 0.60);
+      --label-3: rgba(60, 60, 67, 0.28);
+      --fill: rgba(120, 120, 128, 0.12);
+      --separator: rgba(60, 60, 67, 0.10);
+      --glass-surface: rgba(255, 255, 255, 0.78);
+      --border-card: rgba(0, 0, 0, 0.08);
+      --input-bg: rgba(255, 255, 255, 0.92);
+      --input-border: rgba(60, 60, 67, 0.16);
+      --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+      --section-bg: rgba(255, 255, 255, 0.50);
+      --section-border: rgba(0, 0, 0, 0.06);
+      --code-bg: #0d1117;
+      --code-text: #e6edf3;
     }
 
-    *{box-sizing:border-box;}
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-    body{
-      margin:0;
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-      background:
-        radial-gradient(circle at 15% 0%, rgba(82,132,203,.18), transparent 32%),
-        linear-gradient(180deg,#EAF3FF 0%, #fff 32%, var(--cream) 100%);
-      color:var(--text);
-      padding:20px;
-      min-height:100vh;
+    html, body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      color: var(--label);
     }
 
-    main{
-      width:min(960px,100%);
-      margin:0 auto;
-      padding-bottom:40px;
+    body {
+      background: linear-gradient(162deg, #e8f4fd 0%, #f0f8ff 40%, #faf9ff 100%);
+      padding: 16px;
     }
 
-    h1{
-      margin:8px 0 8px;
-      color:var(--blue-dark);
-      font-size:32px;
-      line-height:1.05;
-      letter-spacing:-.045em;
+    .bg-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.50;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb-1 { width: 420px; height: 420px; top: -140px; left: -100px; background: rgba(90, 200, 250, 0.28); }
+    .orb-2 { width: 280px; height: 280px; top: 50%; right: -80px; background: rgba(0, 122, 255, 0.14); }
+    .orb-3 { width: 450px; height: 450px; bottom: -180px; left: 10%; background: rgba(52, 199, 89, 0.09); }
+
+    main {
+      position: relative;
+      z-index: 1;
+      width: min(860px, 100%);
+      margin: 0 auto;
+      padding-bottom: 48px;
     }
 
-    h2{
-      margin:0 0 10px;
-      color:var(--blue-dark);
-      font-size:20px;
+    /* ── Topbar ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
     }
 
-    h3{
-      margin:18px 0 8px;
-      color:var(--blue-dark);
-      font-size:15px;
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 14px;
+      background: var(--glass-surface);
+      border: 1px solid var(--border-card);
+      backdrop-filter: blur(20px) saturate(1.6);
+      -webkit-backdrop-filter: blur(20px) saturate(1.6);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ios-blue);
+      text-decoration: none;
+      box-shadow: var(--shadow-card);
+      transition: opacity 0.15s;
+      white-space: nowrap;
+    }
+    .back-btn:hover { opacity: 0.72; }
+
+    /* ── Page header ── */
+    .page-header {
+      margin-bottom: 20px;
     }
 
-    p{
-      color:#657086;
-      line-height:1.45;
+    .page-header h1 {
+      margin: 0 0 6px;
+      font-size: clamp(28px, 5vw, 40px);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: var(--label);
     }
 
-    .card{
-      background:rgba(255,255,255,.96);
-      border:1px solid rgba(82,132,203,.12);
-      border-radius:24px;
-      padding:18px;
-      margin:16px 0;
-      box-shadow:0 14px 38px rgba(37,61,92,.10);
+    .page-header p {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 1.5;
+      color: var(--label-2);
     }
 
-    label{
-      display:block;
-      margin:12px 0 6px;
-      font-weight:850;
-      color:var(--blue-dark);
-      font-size:13px;
+    /* ── Cards ── */
+    .card {
+      background: var(--glass-surface);
+      border: 1px solid var(--border-card);
+      border-radius: 22px;
+      padding: 22px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-card);
+      backdrop-filter: blur(24px) saturate(1.8);
+      -webkit-backdrop-filter: blur(24px) saturate(1.8);
+      position: relative;
+      overflow: hidden;
     }
 
-    input, textarea{
-      width:100%;
-      border:1px solid rgba(82,132,203,.25);
-      border-radius:16px;
-      padding:13px 14px;
-      font:inherit;
-      background:#fff;
-      outline:none;
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.7), transparent);
     }
 
-    textarea{
-      min-height:120px;
-      resize:vertical;
+    .card h2 {
+      margin: 0 0 4px;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--label);
     }
 
-    input:focus, textarea:focus{
-      border-color:var(--blue);
-      box-shadow:0 0 0 4px rgba(82,132,203,.13);
+    .card-desc {
+      margin: 0 0 18px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--label-2);
+      line-height: 1.45;
     }
 
-    button, .btn{
-      border:0;
-      border-radius:16px;
-      background:var(--blue);
-      color:white;
-      font-weight:900;
-      padding:13px 16px;
-      margin:8px 8px 0 0;
-      display:inline-flex;
-      text-decoration:none;
-      cursor:pointer;
-      min-height:46px;
-      align-items:center;
-      justify-content:center;
+    /* ── Form elements ── */
+    label {
+      display: block;
+      margin: 14px 0 5px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--label-2);
     }
 
-    button:active{
-      transform:scale(.97);
-      background:var(--yellow);
-      color:var(--blue-dark);
+    label:first-child { margin-top: 0; }
+
+    input, textarea {
+      width: 100%;
+      border: 1px solid var(--input-border);
+      border-radius: 10px;
+      padding: 11px 13px;
+      font: inherit;
+      font-size: 15px;
+      background: var(--input-bg);
+      color: var(--label);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
 
-    .secondary{
-      background:rgba(82,132,203,.12);
-      color:var(--blue-dark);
+    textarea {
+      min-height: 100px;
+      resize: vertical;
     }
 
-    .danger{
-      background:var(--danger);
+    input:focus, textarea:focus {
+      border-color: var(--ios-blue);
+      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.14);
     }
 
-    .row{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
+    /* ── Buttons ── */
+    button, .btn {
+      border: none;
+      border-radius: 12px;
+      padding: 11px 16px;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-decoration: none;
+      cursor: pointer;
+      min-height: 42px;
+      transition: opacity 0.15s, transform 0.12s;
+      margin: 6px 6px 0 0;
+    }
+    button:hover, .btn:hover { opacity: 0.82; }
+    button:active, .btn:active { transform: scale(0.97); }
+
+    .btn-primary {
+      background: var(--ios-blue);
+      color: white;
+      box-shadow: 0 4px 12px rgba(0, 122, 255, 0.28);
     }
 
-    .note{
-      color:#6d7789;
-      font-size:14px;
+    .secondary {
+      background: var(--fill);
+      color: var(--label);
+      border: 1px solid var(--section-border);
     }
 
-    .status{
-      margin-top:12px;
-      padding:12px 14px;
-      border-radius:16px;
-      background:rgba(82,132,203,.10);
-      color:var(--blue-dark);
-      font-weight:800;
-      font-size:14px;
+    .danger {
+      background: rgba(255, 59, 48, 0.10);
+      color: var(--ios-red);
+      border: 1px solid rgba(255, 59, 48, 0.14);
+    }
+    .danger:hover { background: rgba(255, 59, 48, 0.18); opacity: 1; }
+
+    .btn-row {
+      margin-top: 8px;
     }
 
-    .debug{
-      margin-top:12px;
-      padding:12px 14px;
-      border-radius:16px;
-      background:#12203A;
-      color:#EAF3FF;
-      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
-      font-size:12px;
-      line-height:1.45;
-      white-space:pre-wrap;
-      word-break:break-word;
-      max-height:240px;
-      overflow:auto;
+    /* ── 2-col row ── */
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
     }
 
-    .item{
-      border:1px solid rgba(82,132,203,.12);
-      background:rgba(82,132,203,.06);
-      border-radius:18px;
-      padding:14px;
-      margin-top:10px;
+    /* ── Sub-section heading ── */
+    h3 {
+      margin: 20px 0 4px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--label-2);
     }
 
-    pre{
-      white-space:pre-wrap;
-      word-break:break-word;
-      background:#12203A;
-      color:#EAF3FF;
-      border-radius:18px;
-      padding:14px;
-      overflow:auto;
-      max-height:360px;
-      font-size:12px;
+    /* ── Status / debug ── */
+    .status {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(0, 122, 255, 0.08);
+      border: 1px solid rgba(0, 122, 255, 0.14);
+      color: var(--ios-blue);
+      font-weight: 700;
+      font-size: 14px;
     }
 
-    @media(max-width:720px){
-      body{padding:16px;}
-      h1{font-size:28px;}
-      .row{grid-template-columns:1fr;}
-      button{width:100%; margin-right:0;}
+    .debug {
+      margin-top: 10px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 200px;
+      overflow: auto;
+    }
+
+    /* ── News items list ── */
+    .item {
+      border: 1px solid var(--section-border);
+      background: var(--fill);
+      border-radius: 14px;
+      padding: 14px;
+      margin-top: 10px;
+    }
+
+    .item strong {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--label);
+    }
+
+    .item small {
+      display: block;
+      margin: 3px 0 8px;
+      font-size: 13px;
+      color: var(--label-2);
+    }
+
+    .item p {
+      margin: 0 0 10px;
+      font-size: 14px;
+      color: var(--label-2);
+      line-height: 1.45;
+    }
+
+    .note {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--label-2);
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    /* ── JSON output ── */
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 12px;
+      padding: 14px;
+      overflow: auto;
+      max-height: 320px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      margin-top: 14px;
+    }
+
+    /* ── Dark mode ── */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --ios-blue: #0A84FF;
+        --ios-red: #FF453A;
+        --label: #FFFFFF;
+        --label-2: rgba(235, 235, 245, 0.60);
+        --label-3: rgba(235, 235, 245, 0.25);
+        --fill: rgba(120, 120, 128, 0.24);
+        --separator: rgba(255, 255, 255, 0.08);
+        --glass-surface: rgba(30, 30, 34, 0.84);
+        --border-card: rgba(255, 255, 255, 0.08);
+        --input-bg: rgba(44, 44, 48, 0.92);
+        --input-border: rgba(255, 255, 255, 0.12);
+        --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.40), 0 2px 8px rgba(0, 0, 0, 0.20);
+        --section-bg: rgba(44, 44, 48, 0.50);
+        --section-border: rgba(255, 255, 255, 0.07);
+        --code-bg: #0a0e14;
+        --code-text: #c9d1d9;
+      }
+
+      body {
+        background: linear-gradient(162deg, #06101e 0%, #090e1a 40%, #050810 100%);
+      }
+
+      .orb-1 { background: rgba(10, 132, 255, 0.12); }
+      .orb-2 { background: rgba(100, 210, 255, 0.07); }
+      .orb-3 { background: rgba(48, 209, 88, 0.05); }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      body { padding: 12px; }
+      .row { grid-template-columns: 1fr; }
+      button, .btn { width: 100%; margin-right: 0; }
     }
   </style>
 </head>
 <body>
-<main>
-  <h1>Admin Actualités</h1>
-  <p class="note">Page d’administration BatiAzur Analyse. Elle sert à créer ou publier les actualités affichées dans l’application.</p>
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-orb orb-3"></div>
 
-  <section class="card">
-    <h2>Publication automatique</h2>
-    <p class="note">À utiliser quand le Cloudflare Worker sera créé. Sinon, tu peux télécharger le fichier <strong>actus.json</strong> et le remplacer manuellement sur GitHub.</p>
+  <main>
+    <div class="topbar">
+      <a class="back-btn" href="https://batiazur-hub.github.io/plateforme-bati-azur/" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        Hub
+      </a>
+    </div>
 
-    <label for="workerUrl">URL du Cloudflare Worker</label>
-    <input id="workerUrl" placeholder="https://batiazur-actus-worker.votre-compte.workers.dev">
+    <div class="page-header">
+      <h1>Admin Actualités</h1>
+      <p>Page d'administration BatiAzur Analyse. Elle sert à créer et publier les actualités affichées dans l'application.</p>
+    </div>
 
-    <label for="adminPassword">Mot de passe admin</label>
-    <input id="adminPassword" type="password" placeholder="Mot de passe défini dans Cloudflare">
+    <section class="card">
+      <h2>Publication automatique</h2>
+      <p class="card-desc">À utiliser quand le Cloudflare Worker sera créé. Sinon, téléchargez le fichier <strong>actus.json</strong> et remplacez-le manuellement sur GitHub.</p>
 
-    <button type="button" onclick="testWorker()">Tester le Worker</button>
-    <button type="button" onclick="publishToCloudflare()">Publier sur GitHub</button>
-    <div class="status" id="publishStatus">Statut : en attente.</div>
-    <div class="debug" id="debugBox">Diagnostic : aucun test lancé.</div>
-  </section>
+      <label for="workerUrl">URL du Cloudflare Worker</label>
+      <input id="workerUrl" placeholder="https://batiazur-actus-worker.votre-compte.workers.dev">
 
-  <section class="card">
-    <h2>Réseaux et liens</h2>
+      <label for="adminPassword">Mot de passe admin</label>
+      <input id="adminPassword" type="password" placeholder="Mot de passe défini dans Cloudflare">
 
-    <label for="facebook">Facebook</label>
-    <input id="facebook" value="https://www.facebook.com/profile.php?id=61589950888126&locale=ga_IE">
-
-    <label for="instagram">Instagram</label>
-    <input id="instagram" value="https://www.instagram.com/bati_azur03/">
-
-    <label for="google">Avis Google</label>
-    <input id="google" value="https://g.page/r/CfwnXPUtWcjnEAE/review">
-
-    <label for="website">Application</label>
-    <input id="website" value="https://batiazur-hub.github.io/batiazur-analyse/">
-  </section>
-
-  <section class="card">
-    <h2>Ajouter une actualité</h2>
-
-    <div class="row">
-      <div>
-        <label for="title">Titre</label>
-        <input id="title" placeholder="Ex. Fortes chaleurs : que faire ?">
+      <div class="btn-row">
+        <button class="btn-primary" type="button" onclick="testWorker()">Tester le Worker</button>
+        <button class="btn-primary" type="button" onclick="publishToCloudflare()">Publier sur GitHub</button>
       </div>
-      <div>
-        <label for="date">Date</label>
-        <input id="date" placeholder="Ex. 15 mai 2026">
+      <div class="status" id="publishStatus">Statut : en attente.</div>
+      <div class="debug" id="debugBox">Diagnostic : aucun test lancé.</div>
+    </section>
+
+    <section class="card">
+      <h2>Réseaux et liens</h2>
+      <p class="card-desc">Ces URLs sont intégrées dans les actualités et dans les liens sociaux de l'application.</p>
+
+      <label for="facebook">Facebook</label>
+      <input id="facebook" value="https://www.facebook.com/profile.php?id=61589950888126&locale=ga_IE">
+
+      <label for="instagram">Instagram</label>
+      <input id="instagram" value="https://www.instagram.com/bati_azur03/">
+
+      <label for="google">Avis Google</label>
+      <input id="google" value="https://g.page/r/CfwnXPUtWcjnEAE/review">
+
+      <label for="website">Application</label>
+      <input id="website" value="https://batiazur-hub.github.io/batiazur-analyse/">
+    </section>
+
+    <section class="card">
+      <h2>Ajouter une actualité</h2>
+
+      <div class="row">
+        <div>
+          <label for="title">Titre</label>
+          <input id="title" placeholder="Ex. Fortes chaleurs : que faire ?">
+        </div>
+        <div>
+          <label for="date">Date</label>
+          <input id="date" placeholder="Ex. 15 mai 2026">
+        </div>
       </div>
-    </div>
 
-    <label for="category">Catégorie</label>
-    <input id="category" placeholder="Conseil / Promo / Alerte / Nouveauté">
+      <label for="category">Catégorie</label>
+      <input id="category" placeholder="Conseil / Promo / Alerte / Nouveauté">
 
-    <label for="image">URL image</label>
-    <input id="image" placeholder="https://...jpg ou .png">
+      <label for="image">URL image</label>
+      <input id="image" placeholder="https://...jpg ou .png">
 
-    <label for="text">Texte</label>
-    <textarea id="text" placeholder="Texte de l’actualité..."></textarea>
+      <label for="text">Texte</label>
+      <textarea id="text" placeholder="Texte de l'actualité..."></textarea>
 
-    <h3>Bouton 1</h3>
-    <div class="row">
-      <input id="btn1label" placeholder="Libellé bouton">
-      <input id="btn1url" placeholder="Lien bouton">
-    </div>
+      <h3>Bouton 1</h3>
+      <div class="row">
+        <input id="btn1label" placeholder="Libellé bouton">
+        <input id="btn1url" placeholder="Lien bouton">
+      </div>
 
-    <h3>Bouton 2</h3>
-    <div class="row">
-      <input id="btn2label" placeholder="Libellé bouton">
-      <input id="btn2url" placeholder="Lien bouton">
-    </div>
+      <h3>Bouton 2</h3>
+      <div class="row">
+        <input id="btn2label" placeholder="Libellé bouton">
+        <input id="btn2url" placeholder="Lien bouton">
+      </div>
 
-    <button type="button" onclick="addItem()">Ajouter l’actualité</button>
-    <button class="secondary" type="button" onclick="clearForm()">Vider le formulaire</button>
-  </section>
+      <div class="btn-row">
+        <button class="btn-primary" type="button" onclick="addItem()">Ajouter l'actualité</button>
+        <button class="secondary" type="button" onclick="clearForm()">Vider le formulaire</button>
+      </div>
+    </section>
 
-  <section class="card">
-    <h2>Actualités créées</h2>
-    <div id="list"></div>
-  </section>
+    <section class="card">
+      <h2>Actualités créées</h2>
+      <div id="list"></div>
+    </section>
 
-  <section class="card">
-    <h2>Exporter / secours</h2>
-    <p class="note">Si la publication automatique n’est pas encore configurée, télécharge le fichier puis remplace <strong>actus.json</strong> dans GitHub.</p>
-    <button type="button" onclick="downloadJson()">Télécharger actus.json</button>
-    <button class="secondary" type="button" onclick="copyJson()">Copier le JSON</button>
-    <pre id="output"></pre>
-  </section>
-</main>
+    <section class="card">
+      <h2>Exporter / secours</h2>
+      <p class="card-desc">Si la publication automatique n'est pas encore configurée, téléchargez le fichier puis remplacez <strong>actus.json</strong> dans GitHub.</p>
+      <div class="btn-row">
+        <button class="btn-primary" type="button" onclick="downloadJson()">Télécharger actus.json</button>
+        <button class="secondary" type="button" onclick="copyJson()">Copier le JSON</button>
+      </div>
+      <pre id="output"></pre>
+    </section>
+  </main>
 
-<script>
+  <script>
 const data = {
   updated_at: new Date().toISOString().slice(0,10),
   socials:{
@@ -323,7 +514,7 @@ function refresh(){
     }else{
       list.innerHTML = data.items.map((item,index) => `
         <div class="item">
-          <strong>${escapeHtml(item.title)}</strong><br>
+          <strong>${escapeHtml(item.title)}</strong>
           <small>${escapeHtml(item.date)} · ${escapeHtml(item.category)}</small>
           <p>${escapeHtml(item.text)}</p>
           <button class="danger" type="button" onclick="removeItem(${index})">Supprimer</button>
@@ -425,7 +616,7 @@ async function testWorker(){
   const status = byId("publishStatus");
 
   if(!workerUrl){
-    status.textContent = "Statut : renseigne l’URL du Cloudflare Worker.";
+    status.textContent = "Statut : renseigne l'URL du Cloudflare Worker.";
     return;
   }
 
@@ -477,7 +668,7 @@ async function publishToCloudflare(){
   const status = byId("publishStatus");
 
   if(!workerUrl){
-    status.textContent = "Statut : renseigne l’URL du Cloudflare Worker.";
+    status.textContent = "Statut : renseigne l'URL du Cloudflare Worker.";
     return;
   }
 
@@ -524,6 +715,6 @@ async function publishToCloudflare(){
 });
 
 refresh();
-</script>
+  </script>
 </body>
 </html>
