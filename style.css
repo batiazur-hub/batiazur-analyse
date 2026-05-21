@@ -150,7 +150,7 @@ html, body { background: #0d4a8c; }
   -webkit-backdrop-filter: blur(56px) saturate(180%) brightness(1.03);
   border: none;
   box-shadow: none;
-  padding: calc(env(safe-area-inset-top) + 16px) 0 28px;
+  padding: env(safe-area-inset-top) 0 28px;
   min-height: 100dvh;
 }
 /* ── iOS Large Title ────────────────────────────────── */
@@ -1315,7 +1315,7 @@ a.choice-card.active:visited { color: #fff; }
     --glass-spec: rgba(48,48,58,.94);
     --glass-shad: rgba(0,0,0,.52);
 
-    --surface-screen:  rgba(10,12,20,.74);
+    --surface-screen:  rgba(8,20,52,.42);
     --surface-card:    rgba(34,34,38,.90);
     --border-card:     rgba(255,255,255,.08);
     --surface-cell:    rgba(44,44,50,.82);
@@ -1352,16 +1352,16 @@ a.choice-card.active:visited { color: #fff; }
       radial-gradient(ellipse 100% 50% at 16% -4%, rgba(0,56,160,.45), transparent 52%),
       radial-gradient(ellipse  58% 44% at 88% 108%, rgba(0,16,80,.68), transparent 52%),
       linear-gradient(162deg,
-        #06101e 0%,
-        #091a36 18%,
-        #082448 38%,
-        #051638 60%,
-        #030c28 80%,
+        #0d1e3c 0%,
+        #0d2248 18%,
+        #092858 38%,
+        #061a42 60%,
+        #040e30 80%,
         #020810 100%);
   }
 
   .app::before {
-    background: linear-gradient(180deg, rgba(6,20,44,.60), transparent);
+    background: linear-gradient(180deg, rgba(12,32,80,.28), transparent);
   }
 
   /* ── Screen container — full bleed, no shadow needed ── */
