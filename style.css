@@ -150,7 +150,9 @@ html, body { background: #0d4a8c; }
   -webkit-backdrop-filter: blur(56px) saturate(180%) brightness(1.03);
   border: none;
   box-shadow: none;
-  padding: env(safe-area-inset-top) 0 28px;
+  /* max() garantit un minimum de 16px même sans safe-area (Android, desktop) */
+  /* Empêche aussi le margin-collapse du h1 à travers le conteneur      */
+  padding: max(env(safe-area-inset-top), 16px) 0 28px;
   min-height: 100dvh;
 }
 /* ── iOS Large Title ────────────────────────────────── */
@@ -1315,7 +1317,7 @@ a.choice-card.active:visited { color: #fff; }
     --glass-spec: rgba(48,48,58,.94);
     --glass-shad: rgba(0,0,0,.52);
 
-    --surface-screen:  rgba(8,20,52,.42);
+    --surface-screen:  rgba(8,20,52,.32);
     --surface-card:    rgba(34,34,38,.90);
     --border-card:     rgba(255,255,255,.08);
     --surface-cell:    rgba(44,44,50,.82);
@@ -1349,14 +1351,15 @@ a.choice-card.active:visited { color: #fff; }
 
   .app {
     background:
-      radial-gradient(ellipse 100% 50% at 16% -4%, rgba(0,56,160,.45), transparent 52%),
+      radial-gradient(ellipse 110% 55% at 14% -2%, rgba(0,90,210,.50), transparent 52%),
       radial-gradient(ellipse  58% 44% at 88% 108%, rgba(0,16,80,.68), transparent 52%),
       linear-gradient(162deg,
-        #0d1e3c 0%,
-        #0d2248 18%,
-        #092858 38%,
-        #061a42 60%,
-        #040e30 80%,
+        #1a3a6e 0%,
+        #122e5e 12%,
+        #0d2450 26%,
+        #092858 44%,
+        #061a42 64%,
+        #040e30 82%,
         #020810 100%);
   }
 
