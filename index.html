@@ -14,7 +14,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="BatiAzur Analyse">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="stylesheet" href="./style.css?v=4" />
+  <link rel="stylesheet" href="./style.css?v=5" />
 </head>
 <body>
 <div class="app">
@@ -96,7 +96,22 @@
           </div>
         </div>
       </div>
-      <a href="https://www.google.com/search?q=BatiAzur%20Piscine%20horaires" target="_blank" rel="noopener" class="secondary-btn" style="margin:8px 16px 0;width:calc(100% - 32px);">Horaires sur Google</a>
+      <!-- Horaires d'ouverture (Google Places API) -->
+      <p class="section-header">Horaires d'ouverture</p>
+      <div class="card" id="horaireCard">
+        <div class="horaire-header" id="horaireHeader">
+          <span class="horaire-loading">
+            <span class="horaire-spinner"></span>Chargement des horaires…
+          </span>
+        </div>
+        <div class="horaire-days" id="horaireDays"></div>
+        <a href="https://g.page/r/CfwnXPUtWcjnEAE" target="_blank" rel="noopener" class="horaire-footer-link">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5 14.5 7.62 14.5 9 13.38 11.5 12 11.5z" fill="currentColor"/>
+          </svg>
+          Source : Google Maps
+        </a>
+      </div>
 
       <!-- Réseaux sociaux -->
       <p class="section-header">Réseaux &amp; avis</p>
@@ -390,6 +405,6 @@
   </div>
 
 </div><!-- /.app -->
-<script src="./app.js?v=4"></script>
+<script src="./app.js?v=5"></script>
 </body>
 </html>

@@ -671,6 +671,126 @@ a.choice-card.active:visited { color: #fff; }
 }
 .social-logo svg { width: 40px; height: 40px; display: block; }
 
+/* ── Horaires d'ouverture ────────────────────────────── */
+.horaire-header {
+  padding: 14px 16px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.horaire-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--label-2);
+}
+.horaire-spinner {
+  display: inline-block;
+  width: 14px; height: 14px;
+  border: 2px solid var(--label-3);
+  border-top-color: var(--ios-blue);
+  border-radius: 50%;
+  animation: horaireSpin 0.75s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes horaireSpin {
+  to { transform: rotate(360deg); }
+}
+.horaire-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+.horaire-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .01em;
+}
+.horaire-badge::before {
+  content: "";
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: .85;
+}
+.horaire-badge.horaire-ouvert {
+  background: rgba(52,199,89,.14);
+  color: #1a8c3a;
+}
+.horaire-badge.horaire-ferme {
+  background: rgba(255,59,48,.12);
+  color: #c0281e;
+}
+.horaire-next {
+  font-size: 12px;
+  color: var(--label-2);
+  flex: 1;
+  text-align: right;
+}
+.horaire-days {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--separator);
+}
+.horaire-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 16px;
+  font-size: 14px;
+  border-bottom: 1px solid var(--separator);
+  gap: 8px;
+}
+.horaire-row:last-child { border-bottom: none; }
+.horaire-day {
+  color: var(--label-2);
+  min-width: 90px;
+}
+.horaire-hours {
+  color: var(--label);
+  text-align: right;
+  flex: 1;
+}
+.horaire-today .horaire-day {
+  color: var(--ios-blue);
+  font-weight: 600;
+}
+.horaire-today .horaire-hours {
+  color: var(--ios-blue);
+  font-weight: 600;
+}
+.horaire-today {
+  background: rgba(0,122,255,.06);
+  border-radius: 0;
+}
+.horaire-footer-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--separator);
+  font-size: 12px;
+  color: var(--label-3);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color .15s;
+}
+.horaire-footer-link:active { opacity: .6; }
+.horaire-error {
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--label-2);
+}
+
 /* ── News list ───────────────────────────────────────── */
 .news-list { display: grid; gap: 12px; padding: 0 0 4px; }
 .news-card { overflow: hidden; }
@@ -1351,6 +1471,11 @@ a.choice-card.active:visited { color: #fff; }
     --nomatch-border: rgba(255,159,10,.28);
     --nomatch-text:   #FF9F0A;
   }
+
+  /* ── Horaires — dark mode badge overrides ───────────── */
+  .horaire-badge.horaire-ouvert { background: rgba(48,209,88,.16); color: #30D158; }
+  .horaire-badge.horaire-ferme  { background: rgba(255,69,58,.14);  color: #FF453A; }
+  .horaire-today                { background: rgba(10,132,255,.10); }
 
   /* ── App background — deep ocean dark ───────────────── */
   html, body { background: #020810; }

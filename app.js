@@ -1,3 +1,27 @@
+/* ═══════════════════════════════════════════════════════
+   Horaires BatiAzur — Configuration Google Places API
+   ───────────────────────────────────────────────────────
+   1. Créez une clé API Google Cloud (Places API activée)
+   2. Restreignez-la au domaine batiazur-hub.github.io
+   3. Renseignez les deux valeurs ci-dessous
+   ═══════════════════════════════════════════════════════ */
+var GOOGLE_API_KEY   = "";           // ex: "AIzaSy..."
+var BATIAZUR_PLACE_ID = "ChIJ7yNZLi1r5EcRBedcLfXXJ8w"; // Place ID Google Maps de BatiAzur
+
+/* Horaires de secours (utilisés si API non configurée ou échec réseau) */
+var HORAIRES_FALLBACK = {
+  /* 0=Dim, 1=Lun, 2=Mar, 3=Mer, 4=Jeu, 5=Ven, 6=Sam */
+  days: [
+    { label: "Lundi",    open: "09:00", close: "12:00", open2: "14:00", close2: "18:30" },
+    { label: "Mardi",    open: "09:00", close: "12:00", open2: "14:00", close2: "18:30" },
+    { label: "Mercredi", open: "09:00", close: "12:00", open2: "14:00", close2: "18:30" },
+    { label: "Jeudi",    open: "09:00", close: "12:00", open2: "14:00", close2: "18:30" },
+    { label: "Vendredi", open: "09:00", close: "12:00", open2: "14:00", close2: "18:30" },
+    { label: "Samedi",   open: "09:00", close: "12:00", open2: null,    close2: null     },
+    { label: "Dimanche", open: null,    close: null,     open2: null,    close2: null     }
+  ]
+};
+
 const state = {
   page: "home",
   shape: "rect",
@@ -415,6 +439,115 @@ function renderSocialLinks(socials) {
 
 function escapeHtml(value) {
   return String(value || "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+}
+
+/* ═══════════════════════════════════════════════════════
+   Horaires d'ouverture — Google Places API (New)
+   ═══════════════════════════════════════════════════════ */
+
+async function horairesInit() {
+  if (GOOGLE_API_KEY && BATIAZUR_PLACE_ID) {
+    try {
+      var url = "https://places.googleapis.com/v1/places/" + BATIAZUR_PLACE_ID
+              + "?fields=currentOpeningHours,regularOpeningHours"
+              + "&key=" + GOOGLE_API_KEY
+              + "&languageCode=fr";
+      var res = await fetch(url);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      var data = await res.json();
+      var hours = data.currentOpeningHours || data.regularOpeningHours;
+      if (hours) {
+        renderHorairesFromAPI(hours);
+        return;
+      }
+    } catch (e) {
+      console.warn("BatiAzur: Places API indisponible, utilisation des horaires de secours.", e);
+    }
+  }
+  renderHorairesFromFallback();
+}
+
+function renderHorairesFromAPI(hoursData) {
+  /* weekdayDescriptions = tableau de 7 chaînes, lundi en premier (index 0) */
+  var descriptions = hoursData.weekdayDescriptions || [];
+  var openNow = (hoursData.openNow === true);
+
+  /* Jour actuel : getDay() → 0=dim, 1=lun… ; API → 0=lun…6=dim */
+  var jsDay = new Date().getDay();
+  var apiTodayIdx = (jsDay === 0) ? 6 : jsDay - 1;
+
+  var rows = descriptions.map(function(desc, i) {
+    /* "Lundi : 09:00 – 12:00, 14:00 – 18:30" → séparer label & heures */
+    var colonIdx = desc.indexOf(" :");
+    if (colonIdx === -1) colonIdx = desc.indexOf(":");
+    var dayLabel  = colonIdx >= 0 ? desc.slice(0, colonIdx).trim() : desc;
+    var hoursText = colonIdx >= 0 ? desc.slice(colonIdx + 1).trim() : "";
+    /* Nettoyage des tirets spéciaux */
+    hoursText = hoursText.replace(/–|—/g, "–");
+    return { label: dayLabel, hours: hoursText || "Fermé", isToday: i === apiTodayIdx };
+  });
+
+  renderHorairesUI({ rows: rows, openNow: openNow, fromAPI: true });
+}
+
+function renderHorairesFromFallback() {
+  var now = new Date();
+  var jsDay = now.getDay(); /* 0=dim */
+  /* HORAIRES_FALLBACK.days est indexé 0=lun … 6=dim */
+  var fbIdx = (jsDay === 0) ? 6 : jsDay - 1;
+  var todayEntry = HORAIRES_FALLBACK.days[fbIdx];
+  var hhmm = now.getHours() * 60 + now.getMinutes();
+
+  function toMin(t) {
+    if (!t) return -1;
+    var p = t.split(":"); return parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
+  }
+  function isOpenNow(entry) {
+    if (!entry || !entry.open) return false;
+    var h = hhmm;
+    var inFirst  = h >= toMin(entry.open)  && h < toMin(entry.close);
+    var inSecond = entry.open2 ? (h >= toMin(entry.open2) && h < toMin(entry.close2)) : false;
+    return inFirst || inSecond;
+  }
+
+  var rows = HORAIRES_FALLBACK.days.map(function(entry, i) {
+    var label  = entry.label;
+    var hours;
+    if (!entry.open) {
+      hours = "Fermé";
+    } else if (entry.open2) {
+      hours = entry.open + " – " + entry.close + ", " + entry.open2 + " – " + entry.close2;
+    } else {
+      hours = entry.open + " – " + entry.close;
+    }
+    return { label: label, hours: hours, isToday: i === fbIdx };
+  });
+
+  renderHorairesUI({ rows: rows, openNow: isOpenNow(todayEntry), fromAPI: false });
+}
+
+function renderHorairesUI(data) {
+  var header = document.getElementById("horaireHeader");
+  var daysEl = document.getElementById("horaireDays");
+  if (!header || !daysEl) return;
+
+  /* Badge ouvert / fermé */
+  var badgeClass = data.openNow ? "horaire-badge horaire-ouvert" : "horaire-badge horaire-ferme";
+  var badgeText  = data.openNow ? "Ouvert maintenant" : "Fermé actuellement";
+
+  header.innerHTML =
+    '<div class="horaire-status">'
+    + '<span class="' + badgeClass + '">' + badgeText + '</span>'
+    + (!data.fromAPI ? '<span class="horaire-next" title="Configurer la clé API pour les horaires en temps réel">Horaires indicatifs</span>' : '')
+    + '</div>';
+
+  /* Lignes par jour */
+  daysEl.innerHTML = data.rows.map(function(row) {
+    return '<div class="horaire-row' + (row.isToday ? ' horaire-today' : '') + '">'
+      + '<span class="horaire-day">' + row.label + '</span>'
+      + '<span class="horaire-hours">' + row.hours + '</span>'
+      + '</div>';
+  }).join("");
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -898,4 +1031,5 @@ document.addEventListener("DOMContentLoaded", function() {
   renderParamFields();
   syncVolumeToDose();
   loadNews();
+  horairesInit();
 });
