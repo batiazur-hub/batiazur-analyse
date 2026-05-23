@@ -134,17 +134,7 @@ html, body { background: #0d4a8c; }
   background: linear-gradient(180deg, rgba(210,240,255,.55), transparent);
 }
 
-/* Bande de fond en bas — couvre la safe-area + bottom-gap sous la tab bar */
-.app::after {
-  content: "";
-  position: fixed; left: 0; right: 0; bottom: 0;
-  height: calc(var(--bottom-gap) + env(safe-area-inset-bottom, 0px));
-  background: var(--glass-bar);
-  backdrop-filter: blur(40px) saturate(200%) brightness(1.04);
-  -webkit-backdrop-filter: blur(40px) saturate(200%) brightness(1.04);
-  pointer-events: none;
-  z-index: 49; /* sous la tab bar (z-index: 50) */
-}
+/* Bande de fond en bas — supprimée : le dock est maintenant bottom:0 */
 
 /* Couche de verre fixe — entre le gradient et le contenu scrollable.
    position: fixed = immobile pendant le scroll, pas de décalage visuel. */
@@ -179,6 +169,8 @@ html, body { background: #0d4a8c; }
   padding: max(env(safe-area-inset-top), 16px) 0 28px;
   min-height: 100vh;
   min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
 }
 /* ── iOS Large Title ────────────────────────────────── */
 h1 {
@@ -198,7 +190,13 @@ h1 {
   letter-spacing: -0.24px;
 }
 .page { display: none; }
-.page.active { display: block; padding-bottom: 4px; }
+.page.active { display: block; flex: 1; padding-bottom: 4px; }
+
+/* FAQ : conversation poussée vers le bas comme iMessage */
+#page-faq.active {
+  display: flex;
+  flex-direction: column;
+}
 
 /* ── iOS Inset Grouped Sections (cards) ─────────────── */
 .card {
@@ -883,8 +881,9 @@ a.choice-card.active:visited { color: #fff; }
 /* ── iOS 26 Floating Glass Tab Bar ───────────────────── */
 .tabbar-dock {
   position: absolute; left: 0; right: 0;
-  bottom: calc(var(--bottom-gap) + env(safe-area-inset-bottom));
-  height: calc(var(--bar-h) + var(--dock-extra));
+  bottom: 0; /* s'étend jusqu'au bas de l'écran → plus de bande noire */
+  height: calc(var(--bar-h) + var(--dock-extra) + var(--bottom-gap) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(var(--bottom-gap) + env(safe-area-inset-bottom, 0px));
   z-index: 50;
   pointer-events: none;
   display: flex; align-items: flex-end; justify-content: center;
@@ -1193,10 +1192,12 @@ a.choice-card.active:visited { color: #fff; }
 
 /* ── FAQ messages list ───────────────────────────────── */
 .faq-messages {
-  padding: 8px 16px 16px;
+  flex: 1; /* remplit l'espace restant dans #page-faq */
   display: flex;
   flex-direction: column;
+  justify-content: flex-end; /* messages collés en bas comme iMessage */
   gap: 10px;
+  padding: 8px 16px 16px;
   min-height: 80px;
 }
 
@@ -1365,6 +1366,10 @@ a.choice-card.active:visited { color: #fff; }
 /* App extra bottom padding when FAQ input visible */
 .faq-active .app-scroll {
   padding-bottom: calc(var(--bar-h) + var(--dock-extra) + var(--bottom-gap) + 80px + env(safe-area-inset-bottom));
+}
+/* Réserve de l'espace sous les messages pour l'overlay d'input et la barre */
+.faq-active #page-faq .faq-messages {
+  padding-bottom: calc(var(--bar-h) + var(--dock-extra) + var(--bottom-gap) + env(safe-area-inset-bottom, 0px) + 66px);
 }
 
 /* No-match contact buttons */

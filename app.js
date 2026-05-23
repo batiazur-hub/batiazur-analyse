@@ -114,6 +114,16 @@ function showPage(page) {
     if (app) app.classList.remove("faq-active");
   }
 
+  /* Reset scroll au changement d'onglet — sauf FAQ si conversation en cours */
+  var scroll = document.querySelector(".app-scroll");
+  if (scroll) {
+    if (page === "faq" && state.faqReady) {
+      faqScrollBottom(); /* scroll vers le dernier message */
+    } else {
+      scroll.scrollTop = 0;
+    }
+  }
+
   if (page === "dosage") syncVolumeToDose();
   haptic();
 }
@@ -896,7 +906,7 @@ function faqScrollBottom() {
   }
 }
 
-function faqAddMessage(html, type) {
+function faqAddMessage(html, type, skipScroll) {
   var list = document.getElementById("faqMessages");
   if (!list) return;
   var div = document.createElement("div");
@@ -912,7 +922,7 @@ function faqAddMessage(html, type) {
     });
   });
 
-  faqScrollBottom();
+  if (!skipScroll) faqScrollBottom();
   return div;
 }
 
@@ -996,7 +1006,7 @@ function faqSend(text) {
 
 function faqInit() {
   var welcome = '<strong>Bonjour, je suis l\'assistant BatiAzur.</strong><div class="faq-body">Je réponds à vos questions sur l\'entretien de votre piscine : traitements, produits, désordres de l\'eau et dosages.<br><br>Tapez votre question ou choisissez un sujet ci-dessus.</div>';
-  faqAddMessage(welcome, "bot");
+  faqAddMessage(welcome, "bot", true); /* pas de scroll sur le message de bienvenue — déjà positionné en bas via CSS flex */
 
   // Bind suggestion chips
   $all("#faqChips .faq-chip").forEach(function(chip) {

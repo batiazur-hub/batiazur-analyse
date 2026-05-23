@@ -14,7 +14,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Bati Azur">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="stylesheet" href="./style.css?v=12" />
+  <link rel="stylesheet" href="./style.css?v=14" />
 </head>
 <body>
 <div class="app">
@@ -281,7 +281,7 @@
             </label>
           </div>
           <button class="primary-btn" id="calculateVolume" type="button">Calculer le volume</button>
-          <div class="result-box" id="volumeResult" style="margin-bottom:4px;">
+          <div class="result-box" id="volumeResult" style="margin-bottom:16px;">
             <span>Volume retenu</span>
             <strong>—</strong>
             <p>Renseigne les dimensions ci-dessus.</p>
@@ -327,7 +327,7 @@
             <p>Renseigne le volume et les paramètres.</p>
           </div>
           <a class="secondary-btn" id="mailResult" href="mailto:?subject=Analyse%20BatiAzur&body=Résultat%20à%20calculer">Envoyer par mail</a>
-          <button class="secondary-btn" id="copyResult" type="button" style="margin-bottom:4px;">Copier le résultat</button>
+          <button class="secondary-btn" id="copyResult" type="button" style="margin-bottom:16px;">Copier le résultat</button>
         </div>
 
       </div>
@@ -408,7 +408,7 @@
   </div>
 
 </div><!-- /.app -->
-<script src="./app.js?v=12"></script>
+<script src="./app.js?v=14"></script>
 <script>
   if ("serviceWorker" in navigator) {
     /* Mémorise s'il y avait déjà un SW actif AVANT cette session */
