@@ -526,11 +526,13 @@ function computeSmartStatus(periodList) {
     if (left <= 30) {
       return { state: "ferme-bientot",
                badgeText: "Ferme dans " + left + " min",
-               subText: "Ouvert jusqu'à " + fmt(currentPeriod.closeHour, currentPeriod.closeMin) };
+               subText: "Ouvert jusqu'à " + fmt(currentPeriod.closeHour, currentPeriod.closeMin),
+               relevantJsDay: today };
     }
     return { state: "ouvert",
              badgeText: "Ouvert actuellement",
-             subText: "Ferme à " + fmt(currentPeriod.closeHour, currentPeriod.closeMin) };
+             subText: "Ferme à " + fmt(currentPeriod.closeHour, currentPeriod.closeMin),
+             relevantJsDay: today };
   }
 
   /* Ferme — prochaine ouverture */
@@ -544,14 +546,16 @@ function computeSmartStatus(periodList) {
     if (nextDiff <= 60) {
       return { state: "ouvre-bientot",
                badgeText: "Ouvre dans " + nextDiff + " min",
-               subText: dayLabel + " : " + allHours };
+               subText: dayLabel + " : " + allHours,
+               relevantJsDay: openDay };
     }
     return { state: "ferme",
              badgeText: "Fermé",
-             subText: dayLabel + " : " + allHours };
+             subText: dayLabel + " : " + allHours,
+             relevantJsDay: openDay };
   }
 
-  return { state: "ferme", badgeText: "Fermé", subText: null };
+  return { state: "ferme", badgeText: "Fermé", subText: null, relevantJsDay: today };
 }
 
 /* Rendu depuis l'API Google Places */
@@ -560,16 +564,19 @@ function renderHorairesFromAPI(hoursData) {
   var periodList   = buildPeriodList(hoursData.periods || []);
   var status       = computeSmartStatus(periodList);
 
-  /* API index 0 = Lundi ; JS getDay() 0 = Dimanche */
+  /* API index 0=Lundi…6=Dimanche ; JS getDay() 0=Dimanche…6=Samedi */
+  /* apiIdx → jsDay : i===6 → 0 (dim), sinon i+1 */
   var jsDay    = new Date().getDay();
   var apiToday = jsDay === 0 ? 6 : jsDay - 1;
 
   var rows = descriptions.map(function(desc, i) {
-    var ci    = desc.indexOf(":");
-    var label = ci >= 0 ? desc.slice(0, ci).trim() : desc;
-    label     = label.charAt(0).toUpperCase() + label.slice(1);
-    var hours = ci >= 0 ? desc.slice(ci + 1).trim().replace(/–|—/g, "–") : "";
-    return { label: label, hours: hours || "Fermé", isToday: i === apiToday };
+    var ci      = desc.indexOf(":");
+    var label   = ci >= 0 ? desc.slice(0, ci).trim() : desc;
+    label       = label.charAt(0).toUpperCase() + label.slice(1);
+    var hours   = ci >= 0 ? desc.slice(ci + 1).trim().replace(/–|—/g, "–") : "";
+    var rowJsDay = i === 6 ? 0 : i + 1;
+    return { label: label, hours: hours || "Fermé",
+             isToday: i === apiToday, isRelevant: rowJsDay === status.relevantJsDay };
   });
 
   renderHorairesUI({ status: status, rows: rows, fromAPI: true });
@@ -597,10 +604,12 @@ function renderHorairesFromFallback() {
   var fbToday = jsDay === 0 ? 6 : jsDay - 1;
 
   var rows = HORAIRES_FALLBACK.days.map(function(d, i) {
+    var jd    = fbToJs[i];
     var hours = !d.open ? "Fermé"
       : d.open2 ? d.open + " – " + d.close + ", " + d.open2 + " – " + d.close2
       : d.open + " – " + d.close;
-    return { label: d.label, hours: hours, isToday: i === fbToday };
+    return { label: d.label, hours: hours, isToday: i === fbToday,
+             isRelevant: jd === status.relevantJsDay };
   });
 
   renderHorairesUI({ status: status, rows: rows, fromAPI: false });
@@ -627,12 +636,16 @@ function renderHorairesUI(data) {
     + (s.subText ? '<span class="horaire-subtext">' + s.subText + '</span>' : '')
     + '</div>';
 
-  daysEl.innerHTML = data.rows.map(function(row) {
-    return '<div class="horaire-row' + (row.isToday ? ' horaire-today' : '') + '">'
+  /* Afficher uniquement le jour pertinent (aujourd'hui ou prochain jour ouvert) */
+  var row = data.rows.find(function(r) { return r.isRelevant; })
+         || data.rows.find(function(r) { return r.isToday; });
+
+  daysEl.innerHTML = row
+    ? '<div class="horaire-row' + (row.isToday ? ' horaire-today' : ' horaire-next-day') + '">'
       + '<span class="horaire-day">'   + row.label + '</span>'
       + '<span class="horaire-hours">' + row.hours + '</span>'
-      + '</div>';
-  }).join("");
+      + '</div>'
+    : '';
 }
 
 /* ═══════════════════════════════════════════════════════

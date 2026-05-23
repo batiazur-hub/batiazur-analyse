@@ -766,6 +766,8 @@ a.choice-card.active:visited { color: #fff; }
   gap: 8px;
 }
 .horaire-row:last-child { border-bottom: none; }
+.horaire-next-day .horaire-day   { color: var(--label-2); font-weight: 500; }
+.horaire-next-day .horaire-hours { color: var(--label);   font-weight: 500; }
 .horaire-day {
   color: var(--label-2);
   min-width: 90px;

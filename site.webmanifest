@@ -1,6 +1,6 @@
 {
-  "name": "BatiAzur Analyse",
-  "short_name": "Analyse",
+  "name": "Bati Azur Analyse",
+  "short_name": "Bati Azur",
   "description": "Calculateur de volume, dosage et préconisations produits piscine BatiAzur.",
   "start_url": "./index.html",
   "scope": "./",
