@@ -102,26 +102,24 @@ function showPage(page) {
 
   var overlay = document.getElementById("faqInputOverlay");
   var app = document.querySelector(".app");
+  var scroll = document.querySelector(".app-scroll");
   if (page === "faq") {
     if (overlay) overlay.style.display = "flex";
     if (app) app.classList.add("faq-active");
     if (!state.faqReady) {
       state.faqReady = true;
       faqInit();
+      /* Première ouverture : rester en haut (header visible) */
+      if (scroll) scroll.scrollTop = 0;
+    } else {
+      /* Retour sur FAQ : montrer le dernier message */
+      faqScrollBottom();
     }
   } else {
     if (overlay) overlay.style.display = "none";
     if (app) app.classList.remove("faq-active");
-  }
-
-  /* Reset scroll au changement d'onglet — sauf FAQ si conversation en cours */
-  var scroll = document.querySelector(".app-scroll");
-  if (scroll) {
-    if (page === "faq" && state.faqReady) {
-      faqScrollBottom(); /* scroll vers le dernier message */
-    } else {
-      scroll.scrollTop = 0;
-    }
+    /* Autres onglets : revenir en haut */
+    if (scroll) scroll.scrollTop = 0;
   }
 
   if (page === "dosage") syncVolumeToDose();
@@ -1006,7 +1004,7 @@ function faqSend(text) {
 
 function faqInit() {
   var welcome = '<strong>Bonjour, je suis l\'assistant BatiAzur.</strong><div class="faq-body">Je réponds à vos questions sur l\'entretien de votre piscine : traitements, produits, désordres de l\'eau et dosages.<br><br>Tapez votre question ou choisissez un sujet ci-dessus.</div>';
-  faqAddMessage(welcome, "bot", true); /* pas de scroll sur le message de bienvenue — déjà positionné en bas via CSS flex */
+  faqAddMessage(welcome, "bot", true); /* skipScroll — le header reste visible */
 
   // Bind suggestion chips
   $all("#faqChips .faq-chip").forEach(function(chip) {
