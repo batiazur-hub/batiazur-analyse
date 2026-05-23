@@ -456,96 +456,180 @@ async function horairesInit() {
       if (!res.ok) throw new Error("HTTP " + res.status);
       var data = await res.json();
       var hours = data.currentOpeningHours || data.regularOpeningHours;
-      if (hours) {
-        renderHorairesFromAPI(hours);
-        return;
-      }
+      if (hours) { renderHorairesFromAPI(hours); return; }
     } catch (e) {
-      console.warn("BatiAzur: Places API indisponible, utilisation des horaires de secours.", e);
+      console.warn("BatiAzur: Places API indisponible, horaires de secours utilises.", e);
     }
   }
   renderHorairesFromFallback();
 }
 
-function renderHorairesFromAPI(hoursData) {
-  /* weekdayDescriptions = tableau de 7 chaînes, lundi en premier (index 0) */
-  var descriptions = hoursData.weekdayDescriptions || [];
-  var openNow = (hoursData.openNow === true);
+/* Re-fetch a chaque retour sur l'app */
+document.addEventListener("visibilitychange", function() {
+  if (!document.hidden) horairesInit();
+});
 
-  /* Jour actuel : getDay() → 0=dim, 1=lun… ; API → 0=lun…6=dim */
-  var jsDay = new Date().getDay();
-  var apiTodayIdx = (jsDay === 0) ? 6 : jsDay - 1;
+/* Conversion periods API -> liste normalisee */
+function buildPeriodList(periods) {
+  return (periods || []).map(function(p) {
+    return {
+      openDay:  p.open.day,   openHour:  p.open.hour,   openMin:  p.open.minute,
+      closeDay: p.close.day,  closeHour: p.close.hour,  closeMin: p.close.minute
+    };
+  });
+}
+
+/* Logique intelligente : calcule le statut exact et les prochains horaires */
+function computeSmartStatus(periodList) {
+  var now      = new Date();
+  var today    = now.getDay();
+  var nowTotal = today * 1440 + now.getHours() * 60 + now.getMinutes();
+  var weekLen  = 7 * 1440;
+
+  var DAY_NAMES = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
+
+  function fmt(h, m) {
+    return String(h).padStart(2,"0") + "h" + (m ? String(m).padStart(2,"0") : "");
+  }
+  function fmtPeriod(p) {
+    return fmt(p.openHour, p.openMin) + " – " + fmt(p.closeHour, p.closeMin);
+  }
+  function fmtDayPeriods(day) {
+    return periodList.filter(function(p) { return p.openDay === day; }).map(fmtPeriod).join(", ");
+  }
+
+  var currentPeriod = null;
+  var nextPeriod    = null;
+  var nextDiff      = Infinity;
+  var nextWrap      = null;
+  var nextDiffWrap  = Infinity;
+
+  periodList.forEach(function(p) {
+    var oT = p.openDay  * 1440 + p.openHour  * 60 + p.openMin;
+    var cT = p.closeDay * 1440 + p.closeHour * 60 + p.closeMin;
+    if (nowTotal >= oT && nowTotal < cT) {
+      currentPeriod = Object.assign({}, p, { minutesLeft: cT - nowTotal });
+    }
+    if (oT > nowTotal) {
+      var d = oT - nowTotal;
+      if (d < nextDiff) { nextDiff = d; nextPeriod = p; }
+    }
+    var dw = weekLen - nowTotal + oT;
+    if (dw < nextDiffWrap) { nextDiffWrap = dw; nextWrap = p; }
+  });
+
+  if (!nextPeriod) { nextPeriod = nextWrap; nextDiff = nextDiffWrap; }
+
+  /* Ouvert en ce moment */
+  if (currentPeriod) {
+    var left = currentPeriod.minutesLeft;
+    if (left <= 30) {
+      return { state: "ferme-bientot",
+               badgeText: "Ferme dans " + left + " min",
+               subText: "Ouvert jusqu'à " + fmt(currentPeriod.closeHour, currentPeriod.closeMin) };
+    }
+    return { state: "ouvert",
+             badgeText: "Ouvert actuellement",
+             subText: "Ferme à " + fmt(currentPeriod.closeHour, currentPeriod.closeMin) };
+  }
+
+  /* Ferme — prochaine ouverture */
+  if (nextPeriod) {
+    var openDay    = nextPeriod.openDay;
+    var isToday    = openDay === today;
+    var isTomorrow = openDay === (today + 1) % 7;
+    var dayLabel   = isToday ? "Aujourd'hui" : (isTomorrow ? "Demain" : DAY_NAMES[openDay]);
+    var allHours   = fmtDayPeriods(openDay);
+
+    if (nextDiff <= 60) {
+      return { state: "ouvre-bientot",
+               badgeText: "Ouvre dans " + nextDiff + " min",
+               subText: dayLabel + " : " + allHours };
+    }
+    return { state: "ferme",
+             badgeText: "Fermé",
+             subText: dayLabel + " : " + allHours };
+  }
+
+  return { state: "ferme", badgeText: "Fermé", subText: null };
+}
+
+/* Rendu depuis l'API Google Places */
+function renderHorairesFromAPI(hoursData) {
+  var descriptions = hoursData.weekdayDescriptions || [];
+  var periodList   = buildPeriodList(hoursData.periods || []);
+  var status       = computeSmartStatus(periodList);
+
+  /* API index 0 = Lundi ; JS getDay() 0 = Dimanche */
+  var jsDay    = new Date().getDay();
+  var apiToday = jsDay === 0 ? 6 : jsDay - 1;
 
   var rows = descriptions.map(function(desc, i) {
-    /* "Lundi : 09:00 – 12:00, 14:00 – 18:30" → séparer label & heures */
-    var colonIdx = desc.indexOf(" :");
-    if (colonIdx === -1) colonIdx = desc.indexOf(":");
-    var dayLabel  = colonIdx >= 0 ? desc.slice(0, colonIdx).trim() : desc;
-    dayLabel = dayLabel.charAt(0).toUpperCase() + dayLabel.slice(1);
-    var hoursText = colonIdx >= 0 ? desc.slice(colonIdx + 1).trim() : "";
-    /* Nettoyage des tirets spéciaux */
-    hoursText = hoursText.replace(/–|—/g, "–");
-    return { label: dayLabel, hours: hoursText || "Fermé", isToday: i === apiTodayIdx };
+    var ci    = desc.indexOf(":");
+    var label = ci >= 0 ? desc.slice(0, ci).trim() : desc;
+    label     = label.charAt(0).toUpperCase() + label.slice(1);
+    var hours = ci >= 0 ? desc.slice(ci + 1).trim().replace(/–|—/g, "–") : "";
+    return { label: label, hours: hours || "Fermé", isToday: i === apiToday };
   });
 
-  renderHorairesUI({ rows: rows, openNow: openNow, fromAPI: true });
+  renderHorairesUI({ status: status, rows: rows, fromAPI: true });
 }
 
+/* Rendu depuis les horaires de secours */
 function renderHorairesFromFallback() {
-  var now = new Date();
-  var jsDay = now.getDay(); /* 0=dim */
-  /* HORAIRES_FALLBACK.days est indexé 0=lun … 6=dim */
-  var fbIdx = (jsDay === 0) ? 6 : jsDay - 1;
-  var todayEntry = HORAIRES_FALLBACK.days[fbIdx];
-  var hhmm = now.getHours() * 60 + now.getMinutes();
-
-  function toMin(t) {
-    if (!t) return -1;
-    var p = t.split(":"); return parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
-  }
-  function isOpenNow(entry) {
-    if (!entry || !entry.open) return false;
-    var h = hhmm;
-    var inFirst  = h >= toMin(entry.open)  && h < toMin(entry.close);
-    var inSecond = entry.open2 ? (h >= toMin(entry.open2) && h < toMin(entry.close2)) : false;
-    return inFirst || inSecond;
-  }
-
-  var rows = HORAIRES_FALLBACK.days.map(function(entry, i) {
-    var label  = entry.label;
-    var hours;
-    if (!entry.open) {
-      hours = "Fermé";
-    } else if (entry.open2) {
-      hours = entry.open + " – " + entry.close + ", " + entry.open2 + " – " + entry.close2;
-    } else {
-      hours = entry.open + " – " + entry.close;
+  var fbToJs = [1,2,3,4,5,6,0];
+  var periodList = [];
+  HORAIRES_FALLBACK.days.forEach(function(d, i) {
+    var jd = fbToJs[i];
+    function toHM(t) { var p = t.split(":"); return { h: +p[0], m: +p[1] }; }
+    if (d.open) {
+      var o = toHM(d.open), c = toHM(d.close);
+      periodList.push({ openDay:jd, openHour:o.h, openMin:o.m, closeDay:jd, closeHour:c.h, closeMin:c.m });
     }
-    return { label: label, hours: hours, isToday: i === fbIdx };
+    if (d.open2) {
+      var o2 = toHM(d.open2), c2 = toHM(d.close2);
+      periodList.push({ openDay:jd, openHour:o2.h, openMin:o2.m, closeDay:jd, closeHour:c2.h, closeMin:c2.m });
+    }
   });
 
-  renderHorairesUI({ rows: rows, openNow: isOpenNow(todayEntry), fromAPI: false });
+  var status  = computeSmartStatus(periodList);
+  var jsDay   = new Date().getDay();
+  var fbToday = jsDay === 0 ? 6 : jsDay - 1;
+
+  var rows = HORAIRES_FALLBACK.days.map(function(d, i) {
+    var hours = !d.open ? "Fermé"
+      : d.open2 ? d.open + " – " + d.close + ", " + d.open2 + " – " + d.close2
+      : d.open + " – " + d.close;
+    return { label: d.label, hours: hours, isToday: i === fbToday };
+  });
+
+  renderHorairesUI({ status: status, rows: rows, fromAPI: false });
 }
 
+/* Construction du HTML de la card */
 function renderHorairesUI(data) {
   var header = document.getElementById("horaireHeader");
   var daysEl = document.getElementById("horaireDays");
   if (!header || !daysEl) return;
 
-  /* Badge ouvert / fermé */
-  var badgeClass = data.openNow ? "horaire-badge horaire-ouvert" : "horaire-badge horaire-ferme";
-  var badgeText  = data.openNow ? "Ouvert maintenant" : "Fermé actuellement";
+  var s   = data.status;
+  var cls = "horaire-badge "
+    + (s.state === "ouvert" ? "horaire-ouvert"
+     : s.state === "ferme"  ? "horaire-ferme"
+     :                        "horaire-bientot");
 
   header.innerHTML =
     '<div class="horaire-status">'
-    + '<span class="' + badgeClass + '">' + badgeText + '</span>'
-    + (!data.fromAPI ? '<span class="horaire-next" title="Configurer la clé API pour les horaires en temps réel">Horaires indicatifs</span>' : '')
+    + '<div class="horaire-status-top">'
+    +   '<span class="' + cls + '">' + s.badgeText + '</span>'
+    +   (!data.fromAPI ? '<span class="horaire-indicatif">Indicatif</span>' : '')
+    + '</div>'
+    + (s.subText ? '<span class="horaire-subtext">' + s.subText + '</span>' : '')
     + '</div>';
 
-  /* Lignes par jour */
   daysEl.innerHTML = data.rows.map(function(row) {
     return '<div class="horaire-row' + (row.isToday ? ' horaire-today' : '') + '">'
-      + '<span class="horaire-day">' + row.label + '</span>'
+      + '<span class="horaire-day">'   + row.label + '</span>'
       + '<span class="horaire-hours">' + row.hours + '</span>'
       + '</div>';
   }).join("");
