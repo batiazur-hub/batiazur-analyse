@@ -3,13 +3,13 @@
    Version: 8  ← incrémenter à chaque déploiement
    ═══════════════════════════════════════════════════════ */
 
-const CACHE_NAME = "batiazur-v11";
+const CACHE_NAME = "batiazur-v12";
 
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./style.css?v=11",
-  "./app.js?v=11",
+  "./style.css?v=12",
+  "./app.js?v=12",
   "./site.webmanifest",
   "./favicon.ico",
   "./favicon-16x16.png",

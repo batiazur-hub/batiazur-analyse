@@ -14,10 +14,13 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Bati Azur">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="stylesheet" href="./style.css?v=11" />
+  <link rel="stylesheet" href="./style.css?v=12" />
 </head>
 <body>
 <div class="app">
+
+  <!-- Couche verre fixe — ne scrolle jamais -->
+  <div class="app-glass" aria-hidden="true"></div>
 
   <!-- ── Splash ──────────────────────────────────────── -->
   <div class="splash-screen" id="splashScreen" aria-hidden="true">
@@ -405,7 +408,7 @@
   </div>
 
 </div><!-- /.app -->
-<script src="./app.js?v=11"></script>
+<script src="./app.js?v=12"></script>
 <script>
   if ("serviceWorker" in navigator) {
     /* Mémorise s'il y avait déjà un SW actif AVANT cette session */
