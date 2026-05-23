@@ -81,10 +81,15 @@
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
 }
-html, body {
-  margin: 0; width: 100%; height: 100%;
+html {
+  margin: 0; padding: 0;
+  height: 100%; height: -webkit-fill-available;
+  overflow: hidden;
+}
+body {
+  margin: 0; padding: 0;
+  height: 100%; height: -webkit-fill-available;
   overflow: hidden; overscroll-behavior: none;
-  position: fixed; inset: 0;
 }
 body {
   font-family: var(--sf);
@@ -102,10 +107,10 @@ button { cursor: pointer; border: 0; }
 html, body { background: #0d4a8c; }
 
 .app {
+  /* position: fixed + inset: 0 = remplit exactement le viewport,
+     plus fiable que 100vw/100dvh sur iOS Safari et Android Chrome */
   position: fixed; inset: 0;
-  width: 100vw; height: 100dvh;
   overflow: hidden;
-  padding-top: env(safe-area-inset-top);
 
   /* Refined pool gradient — less saturated, more premium */
   background:
@@ -153,7 +158,8 @@ html, body { background: #0d4a8c; }
   /* max() garantit un minimum de 16px même sans safe-area (Android, desktop) */
   /* Empêche aussi le margin-collapse du h1 à travers le conteneur      */
   padding: max(env(safe-area-inset-top), 16px) 0 28px;
-  min-height: 100dvh;
+  min-height: 100vh;            /* fallback universel */
+  min-height: 100dvh;           /* moderne — adaptatif */
 }
 /* ── iOS Large Title ────────────────────────────────── */
 h1 {
