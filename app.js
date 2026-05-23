@@ -5,19 +5,19 @@
    2. Restreignez-la au domaine batiazur-hub.github.io
    3. Renseignez les deux valeurs ci-dessous
    ═══════════════════════════════════════════════════════ */
-var GOOGLE_API_KEY   = "";           // ex: "AIzaSy..."
-var BATIAZUR_PLACE_ID = "ChIJ7yNZLi1r5EcRBedcLfXXJ8w"; // Place ID Google Maps de BatiAzur
+var GOOGLE_API_KEY   = "AIzaSyAjllQCkN-0XuEYwC8kSM5I9L0_XPLFcYA";
+var BATIAZUR_PLACE_ID = "ChIJt0auf_wd8UcR_Cdc9S1ZyOc"; // Place ID Google Maps de BatiAzur
 
 /* Horaires de secours (utilisés si API non configurée ou échec réseau) */
 var HORAIRES_FALLBACK = {
-  /* 0=Dim, 1=Lun, 2=Mar, 3=Mer, 4=Jeu, 5=Ven, 6=Sam */
+  /* 0=Lun … 6=Dim */
   days: [
-    { label: "Lundi",    open: "09:00", close: "12:00", open2: "14:00", close2: "18:30" },
-    { label: "Mardi",    open: "09:00", close: "12:00", open2: "14:00", close2: "18:30" },
-    { label: "Mercredi", open: "09:00", close: "12:00", open2: "14:00", close2: "18:30" },
-    { label: "Jeudi",    open: "09:00", close: "12:00", open2: "14:00", close2: "18:30" },
-    { label: "Vendredi", open: "09:00", close: "12:00", open2: "14:00", close2: "18:30" },
-    { label: "Samedi",   open: "09:00", close: "12:00", open2: null,    close2: null     },
+    { label: "Lundi",    open: null,    close: null,     open2: null,    close2: null     },
+    { label: "Mardi",    open: null,    close: null,     open2: null,    close2: null     },
+    { label: "Mercredi", open: "14:00", close: "19:00",  open2: null,    close2: null     },
+    { label: "Jeudi",    open: null,    close: null,     open2: null,    close2: null     },
+    { label: "Vendredi", open: "14:00", close: "19:00",  open2: null,    close2: null     },
+    { label: "Samedi",   open: "10:00", close: "12:00",  open2: "14:00", close2: "19:00" },
     { label: "Dimanche", open: null,    close: null,     open2: null,    close2: null     }
   ]
 };
@@ -481,6 +481,7 @@ function renderHorairesFromAPI(hoursData) {
     var colonIdx = desc.indexOf(" :");
     if (colonIdx === -1) colonIdx = desc.indexOf(":");
     var dayLabel  = colonIdx >= 0 ? desc.slice(0, colonIdx).trim() : desc;
+    dayLabel = dayLabel.charAt(0).toUpperCase() + dayLabel.slice(1);
     var hoursText = colonIdx >= 0 ? desc.slice(colonIdx + 1).trim() : "";
     /* Nettoyage des tirets spéciaux */
     hoursText = hoursText.replace(/–|—/g, "–");
