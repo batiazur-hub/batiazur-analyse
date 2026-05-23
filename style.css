@@ -147,7 +147,6 @@ html, body { background: #0d4a8c; }
 }
 
 /* ── Scroll ─────────────────────────────────────────── */
-/* ── Scroll ─────────────────────────────────────────── */
 .app-scroll {
   position: absolute; inset: 0; top: 0;
   overflow-y: auto;
@@ -155,6 +154,11 @@ html, body { background: #0d4a8c; }
   overscroll-behavior: contain;
   padding: 0 0 calc(var(--bar-h) + var(--dock-extra) + var(--bottom-gap) + 20px + env(safe-area-inset-bottom));
   scroll-behavior: smooth;
+  /* Le fond verre est ici — position absolute = fixe par rapport au gradient,
+     ne scrolle pas avec le contenu → plus de décalage visuel au scroll */
+  background: var(--surface-screen);
+  backdrop-filter: blur(56px) saturate(180%) brightness(1.03);
+  -webkit-backdrop-filter: blur(56px) saturate(180%) brightness(1.03);
 }
 
 /* ── iOS App Screen container — full bleed ──────────── */
@@ -162,16 +166,14 @@ html, body { background: #0d4a8c; }
   width: 100%;
   margin: 0;
   border-radius: 0;
-  background: var(--surface-screen);
-  backdrop-filter: blur(56px) saturate(180%) brightness(1.03);
-  -webkit-backdrop-filter: blur(56px) saturate(180%) brightness(1.03);
+  background: transparent;      /* fond géré par .app-scroll */
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   border: none;
   box-shadow: none;
-  /* max() garantit un minimum de 16px même sans safe-area (Android, desktop) */
-  /* Empêche aussi le margin-collapse du h1 à travers le conteneur      */
   padding: max(env(safe-area-inset-top), 16px) 0 28px;
-  min-height: 100vh;            /* fallback universel */
-  min-height: 100dvh;           /* moderne — adaptatif */
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 /* ── iOS Large Title ────────────────────────────────── */
 h1 {
