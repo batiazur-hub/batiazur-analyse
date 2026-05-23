@@ -14,7 +14,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="BatiAzur Analyse">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="stylesheet" href="./style.css?v=7" />
+  <link rel="stylesheet" href="./style.css?v=8" />
 </head>
 <body>
 <div class="app">
@@ -405,6 +405,21 @@
   </div>
 
 </div><!-- /.app -->
-<script src="./app.js?v=7"></script>
+<script src="./app.js?v=8"></script>
+<script>
+  if ("serviceWorker" in navigator) {
+    /* Mémorise s'il y avait déjà un SW actif AVANT cette session */
+    var swHadController = !!navigator.serviceWorker.controller;
+
+    navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" })
+      .then(function(reg) { reg.update(); })
+      .catch(function(e) { console.warn("SW:", e); });
+
+    /* Rechargement uniquement si c'est une MISE À JOUR (pas la 1ère install) */
+    navigator.serviceWorker.addEventListener("controllerchange", function() {
+      if (swHadController) window.location.reload();
+    });
+  }
+</script>
 </body>
 </html>
