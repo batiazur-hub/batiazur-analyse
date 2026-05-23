@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════
-   BatiAzur Analyse — v18
+   BatiAzur Analyse — v19
    Apple iOS 26 · HIG + Liquid Glass
    -apple-system · SF Pro · iOS system colors
    ═══════════════════════════════════════════════════════ */
@@ -72,7 +72,7 @@
   --bubble-top: -26px;
   --icon-size:  22px;
   --label-size: 10px;
-  --bottom-gap: 16px;
+  --bottom-gap: 4px;
   --dock-extra: 46px;
 }
 
@@ -104,7 +104,7 @@ input, button, select, a { font: inherit; }
 button { cursor: pointer; border: 0; }
 
 /* ── App background — pool vibrancy ─────────────────── */
-html, body { background: #062472; } /* correspond à la fin du gradient clair */
+html, body { background: #0e5ac8; } /* correspond à la fin du gradient clair */
 
 .app {
   /* position: fixed + inset: 0 = remplit exactement le viewport,
@@ -121,8 +121,8 @@ html, body { background: #062472; } /* correspond à la fin du gradient clair */
       #a8d4f5 16%,
       #4ea8e8 36%,
       #1268c0 58%,
-      #0848a0 78%,
-      #062472 100%);
+      #1060be 78%,
+      #0e5ac8 100%);
 }
 
 /* Status bar safe area overlay */
@@ -1514,20 +1514,20 @@ a.choice-card.active:visited { color: #fff; }
   .horaire-today                 { background: rgba(10,132,255,.10); }
 
   /* ── App background — deep ocean dark ───────────────── */
-  html, body { background: #061a42; } /* correspond à la fin du gradient sombre */
+  html, body { background: #0a2e74; } /* correspond à la fin du gradient sombre */
 
   .app {
     background:
       radial-gradient(ellipse 110% 55% at 14% -2%, rgba(0,90,210,.50), transparent 52%),
-      radial-gradient(ellipse  58% 44% at 88% 108%, rgba(0,16,80,.68), transparent 52%),
+      radial-gradient(ellipse  58% 44% at 88% 108%, rgba(0,40,140,.50), transparent 52%),
       linear-gradient(162deg,
         #1a3a6e 0%,
         #122e5e 12%,
         #0d2450 26%,
-        #092858 44%,
-        #061a42 64%,
-        #081e4a 82%,
-        #061a42 100%);
+        #0e3068 44%,
+        #0c2e6a 64%,
+        #0a2e74 82%,
+        #0a2e74 100%);
   }
 
   .app::before {
