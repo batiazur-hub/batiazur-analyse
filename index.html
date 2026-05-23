@@ -14,7 +14,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Bati Azur">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="stylesheet" href="./style.css?v=16" />
+  <link rel="stylesheet" href="./style.css?v=17" />
 </head>
 <body>
 <div class="app">
@@ -370,6 +370,8 @@
 
   <!-- ══ TAB BAR iOS 26 ═══════════════════════════════════ -->
   <div class="tabbar-dock">
+    <!-- Remplissage safe-area : vrai div pour que backdrop-filter fonctionne -->
+    <div class="dock-safe-fill" aria-hidden="true"></div>
     <nav class="tabbar" id="tabbar">
       <div class="bubble"></div>
       <button class="tab active" type="button" data-page="home">
@@ -408,7 +410,7 @@
   </div>
 
 </div><!-- /.app -->
-<script src="./app.js?v=16"></script>
+<script src="./app.js?v=17"></script>
 <script>
   if ("serviceWorker" in navigator) {
     /* Mémorise s'il y avait déjà un SW actif AVANT cette session */
