@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════
-   BatiAzur Analyse — v19
+   BatiAzur Analyse — v18
    Apple iOS 26 · HIG + Liquid Glass
    -apple-system · SF Pro · iOS system colors
    ═══════════════════════════════════════════════════════ */
@@ -104,7 +104,7 @@ input, button, select, a { font: inherit; }
 button { cursor: pointer; border: 0; }
 
 /* ── App background — pool vibrancy ─────────────────── */
-html, body { background: #0d4a8c; }
+html, body { background: #062472; } /* correspond à la fin du gradient clair */
 
 .app {
   /* position: fixed + inset: 0 = remplit exactement le viewport,
@@ -132,18 +132,6 @@ html, body { background: #0d4a8c; }
   height: max(env(safe-area-inset-top), 20px);
   pointer-events: none; z-index: 100;
   background: linear-gradient(180deg, rgba(210,240,255,.55), transparent);
-}
-
-/* Remplissage safe-area sous la tab bar — vrai div (backdrop-filter marche sur les éléments réels) */
-.dock-safe-fill {
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  height: calc(var(--bottom-gap) + env(safe-area-inset-bottom, 0px));
-  background: var(--glass-bar);
-  backdrop-filter: blur(40px) saturate(200%) brightness(1.04);
-  -webkit-backdrop-filter: blur(40px) saturate(200%) brightness(1.04);
-  pointer-events: none;
-  z-index: 0;
 }
 
 /* Couche de verre fixe — entre le gradient et le contenu scrollable.
@@ -891,9 +879,8 @@ a.choice-card.active:visited { color: #fff; }
 /* ── iOS 26 Floating Glass Tab Bar ───────────────────── */
 .tabbar-dock {
   position: absolute; left: 0; right: 0;
-  bottom: 0; /* s'étend jusqu'au bas de l'écran → plus de bande noire */
-  height: calc(var(--bar-h) + var(--dock-extra) + var(--bottom-gap) + env(safe-area-inset-bottom, 0px));
-  padding-bottom: calc(var(--bottom-gap) + env(safe-area-inset-bottom, 0px));
+  bottom: calc(var(--bottom-gap) + env(safe-area-inset-bottom, 0px));
+  height: calc(var(--bar-h) + var(--dock-extra));
   z-index: 50;
   pointer-events: none;
   display: flex; align-items: flex-end; justify-content: center;
@@ -1527,7 +1514,7 @@ a.choice-card.active:visited { color: #fff; }
   .horaire-today                 { background: rgba(10,132,255,.10); }
 
   /* ── App background — deep ocean dark ───────────────── */
-  html, body { background: #020810; }
+  html, body { background: #061a42; } /* correspond à la fin du gradient sombre */
 
   .app {
     background:
@@ -1539,8 +1526,8 @@ a.choice-card.active:visited { color: #fff; }
         #0d2450 26%,
         #092858 44%,
         #061a42 64%,
-        #040e30 82%,
-        #020810 100%);
+        #081e4a 82%,
+        #061a42 100%);
   }
 
   .app::before {
