@@ -14,7 +14,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Bati Azur">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="stylesheet" href="./style.css?v=19" />
+  <link rel="stylesheet" href="./style.css?v=20" />
 </head>
 <body>
 <div class="app">
@@ -368,6 +368,9 @@
   </section><!-- /.screen -->
   </main>
 
+  <!-- Fondu bas d'écran : les éléments disparaissent dans le verre -->
+  <div class="scroll-fade" aria-hidden="true"></div>
+
   <!-- ══ TAB BAR iOS 26 ═══════════════════════════════════ -->
   <div class="tabbar-dock">
     <nav class="tabbar" id="tabbar">
@@ -408,7 +411,7 @@
   </div>
 
 </div><!-- /.app -->
-<script src="./app.js?v=19"></script>
+<script src="./app.js?v=20"></script>
 <script>
   if ("serviceWorker" in navigator) {
     /* Mémorise s'il y avait déjà un SW actif AVANT cette session */

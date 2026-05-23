@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════
-   BatiAzur Analyse — v19
+   BatiAzur Analyse — v20
    Apple iOS 26 · HIG + Liquid Glass
    -apple-system · SF Pro · iOS system colors
    ═══════════════════════════════════════════════════════ */
@@ -104,7 +104,18 @@ input, button, select, a { font: inherit; }
 button { cursor: pointer; border: 0; }
 
 /* ── App background — pool vibrancy ─────────────────── */
-html, body { background: #0e5ac8; } /* correspond à la fin du gradient clair */
+/* html reçoit le même gradient fixe que .app : toute zone non couverte
+   par .app (gap iOS safe-area) affiche la même image = seamless */
+html {
+  background:
+    radial-gradient(ellipse 110% 52% at 14% -4%, rgba(168,214,255,.52), transparent 50%),
+    radial-gradient(ellipse  58% 42% at 86% 108%, rgba(0,48,168,.22),   transparent 52%),
+    linear-gradient(162deg,
+      #e2f2ff 0%, #a8d4f5 16%, #4ea8e8 36%,
+      #1268c0 58%, #1060be 78%, #0e5ac8 100%);
+  background-attachment: fixed;
+}
+body { background: transparent; }
 
 .app {
   /* position: fixed + inset: 0 = remplit exactement le viewport,
@@ -143,6 +154,23 @@ html, body { background: #0e5ac8; } /* correspond à la fin du gradient clair */
   -webkit-backdrop-filter: blur(56px) saturate(180%) brightness(1.03);
   pointer-events: none;
   z-index: 1;
+}
+
+/* ── Fondu bas d'écran : contenu disparaît avant la navbar ─ */
+/* backdrop-filter adapte la couleur au fond réel ; mask-image
+   crée la transition transparent → opaque de haut en bas */
+.scroll-fade {
+  position: fixed;
+  left: 0; right: 0;
+  bottom: 0;
+  height: calc(var(--bar-h) + var(--dock-extra) + var(--bottom-gap) + env(safe-area-inset-bottom, 0px) + 56px);
+  backdrop-filter: blur(24px) saturate(160%) brightness(1.02);
+  -webkit-backdrop-filter: blur(24px) saturate(160%) brightness(1.02);
+  background: transparent;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 52%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 52%);
+  pointer-events: none;
+  z-index: 35; /* dessus contenu (2), dessous navbar (50) */
 }
 
 /* ── Scroll ─────────────────────────────────────────── */
@@ -1514,7 +1542,16 @@ a.choice-card.active:visited { color: #fff; }
   .horaire-today                 { background: rgba(10,132,255,.10); }
 
   /* ── App background — deep ocean dark ───────────────── */
-  html, body { background: #0a2e74; } /* correspond à la fin du gradient sombre */
+  html {
+    background:
+      radial-gradient(ellipse 110% 55% at 14% -2%, rgba(0,90,210,.50),  transparent 52%),
+      radial-gradient(ellipse  58% 44% at 88% 108%, rgba(0,40,140,.50), transparent 52%),
+      linear-gradient(162deg,
+        #1a3a6e 0%, #122e5e 12%, #0d2450 26%,
+        #0e3068 44%, #0c2e6a 64%, #0a2e74 82%, #0a2e74 100%);
+    background-attachment: fixed;
+  }
+  body { background: transparent; }
 
   .app {
     background:
