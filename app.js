@@ -837,6 +837,153 @@ var FAQ_KB = [
     answer: "Voici les valeurs idéales à maintenir pour une eau saine et équilibrée :\n\n• pH : 7,2\n• Chlore : 2,5 ppm\n• TAC : 150 ppm\n• Sel : 5 g/L\n• Stabilisant : 30 ppm\n\nCes valeurs sont les cibles que nous utilisons chez BatiAzur pour analyser votre eau. Si l'un de ces paramètres est hors norme, les autres peuvent être affectes en cascade.\n\nPour une analyse précise de tous vos paramètres, apportez un échantillon d'eau chez BatiAzur — c'est gratuit et ça prend 5 minutes.",
     followUp: ["Corriger le pH", "TAC alcalinité", "Stabilisant"]
   }
+
+  /* ── Équipements & dépannage ────────────────────────── */
+
+  {
+    id: "pompe-ne-demarre-pas",
+    tags: ["pompe","démarre","demarre","démarrage","marche pas","ne tourne","ne fonctionne","arrêtée","stoppe","filtration ne marche","pompe silencieuse","pompe bloquée"],
+    question: "Ma pompe ne démarre plus ?",
+    title: "Pompe qui ne démarre pas : identifier le cas",
+    answer: "Avant d'appeler, identifiez ce qui se passe :\n\nA. Pompe totalement silencieuse\n• Vérifiez que le bouton filtration est activé\n• Vérifiez que le coffret est alimenté et que le disjoncteur est enclenché\n• Vérifiez l'horloge de programmation\n\nB. Pompe qui bourdonne mais ne tourne pas\n• Coupez la filtration immédiatement, n'insistez pas\n• Condensateur, moteur bloqué ou problème électrique probable\n• Chaque relance inutile aggrave la panne\n\nC. Pompe qui démarre puis s'arrête\n• Surchauffe, condensateur ou défaut moteur\n• Ne relancez pas en boucle\n\nD. Disjoncteur qui saute\n• Ne réarmez pas plusieurs fois\n• Si odeur de chaud ou humidité visible : ne touchez pas au coffret",
+    followUp: ["Pompe fait du bruit", "Pompe se désamorce", "Disjoncteur pompe"],
+    cta: "phone"
+  },
+  {
+    id: "pompe-bruit",
+    tags: ["bruit pompe","grogne","bourdonne","vibre","grincement","roulement","sifflement","cailloux","bruit air","bourdonnement","vibration","pompe bruyante"],
+    question: "Pompe qui fait un bruit anormal ?",
+    title: "Bruit anormal sur la pompe : ne pas ignorer",
+    answer: "La nature du bruit vous donne l'indice :\n\nBourdonnement sans rotation :\n• Coupez la filtration immédiatement, n'insistez pas\n• Condensateur ou moteur bloqué — relancer aggrave la panne\n\nBruit de roulement ou grincement :\n• Usure mécanique probable\n• Évitez de laisser tourner longtemps\n• Envoyez une vidéo à BatiAzur\n\nBruit d'air, sifflement ou de cailloux :\n• Prise d'air probable — vérifiez le niveau d'eau, les paniers de skimmer, le couvercle de pompe et son joint\n\nVibrations importantes :\n• Vérifiez que la pompe est bien fixée et que les tuyaux ne forcent pas",
+    followUp: ["Pompe ne démarre plus", "Pompe se désamorce"],
+    cta: "phone"
+  },
+  {
+    id: "pompe-desamorce",
+    tags: ["désamorce","desamorce","air panier","bulles panier","panier vide","prise air","aspire pas","n'aspire","air buses","refoulement air","pompe air","se vide"],
+    question: "Pompe qui se désamorce ?",
+    title: "Pompe qui se désamorce : vérifications simples",
+    answer: "Une pompe qui se désamorce indique souvent une prise d'air ou un manque d'eau.\n\nVérifications dans l'ordre :\n• Niveau d'eau au milieu des skimmers — remplissez si trop bas\n• Paniers de skimmer et de pompe : propres et bien remis en place\n• Couvercle de pompe : bien serré, joint propre et non abîmé\n• Vannes côté aspiration : toutes correctement ouvertes\n\nSi de l'air sort par les buses de refoulement :\n• La prise d'air est côté aspiration\n• Suspect principal : joint de couvercle, raccord ou tuyau\n\nSi le problème revient à chaque démarrage, il faut un diagnostic pour trouver l'entrée d'air.",
+    followUp: ["Pompe ne démarre plus", "Pompe fait du bruit"],
+    cta: "phone"
+  },
+  {
+    id: "pompe-fuite",
+    tags: ["fuite pompe","fuit pompe","eau coule pompe","couvercle fuit","sous pompe","local technique eau","raccord fuit","tuyau fuit","local inonde","eau local"],
+    question: "Fuite sur la pompe ou dans le local technique ?",
+    title: "Fuite pompe : sécuriser en premier",
+    answer: "La priorité dépend de l'importance de la fuite.\n\nSi de l'eau touche un coffret électrique :\n• Arrêtez la filtration et ne touchez pas aux éléments électriques\n\nFuite au couvercle transparent :\n• Vérifiez couvercle bien fermé et joint propre, bien positionné et non abîmé\n\nFuite sous la pompe :\n• Garniture mécanique probable — ne laissez pas tourner longtemps, l'eau peut atteindre le moteur\n\nFuite sur un raccord ou tuyau :\n• Prenez une photo de la zone et précisez si la fuite est côté aspiration ou refoulement\n\nFuite même filtration arrêtée :\n• La fuite vient d'un élément sous le niveau d'eau — une vanne peut isoler la zone",
+    followUp: ["Pompe ne démarre plus", "Disjoncteur pompe"],
+    cta: "phone"
+  },
+  {
+    id: "disjoncteur-pompe",
+    tags: ["disjoncteur","disjoncte","saute","déclenche","différentiel","coffret électrique","court-circuit","disj","déclenchement","disjoncteur pompe","disjoncteur général"],
+    question: "Le disjoncteur saute avec la pompe ?",
+    title: "Disjoncteur qui saute : risque électrique, ne pas forcer",
+    answer: "Si un disjoncteur saute quand la pompe démarre, ne le réarmez pas plusieurs fois.\n\nQuel disjoncteur saute ?\n• Celui de la pompe uniquement : problème probablement localisé sur la pompe\n• Le disjoncteur général : peut indiquer un problème plus large\n\nDéclenchement immédiat ?\n• Court-circuit, moteur bloqué ou condensateur probable\n\nDéclenchement après quelques minutes ?\n• Surchauffe probable — ne relancez pas en boucle\n\nAprès pluie ou humidité ?\n• De l'humidité peut être entrée dans le moteur ou le coffret\n• Risque électrique réel — ne touchez pas au coffret\n\nNe démontez pas le coffret, ne touchez pas aux câbles. Contactez BatiAzur.",
+    followUp: ["Pompe ne démarre plus", "Fuite sur la pompe"],
+    cta: "phone"
+  },
+  {
+    id: "filtre-pression-haute",
+    tags: ["pression haute","pression élevée","manomètre","filtre encrassé","débit faible","buses faible","lavage filtre","rinçage","pression monte","filtre bouché"],
+    question: "Pression du filtre trop haute ?",
+    title: "Pression filtre haute : signe d'encrassement",
+    answer: "Une pression haute signifie que l'eau circule mal dans le filtre.\n\nVérifications dans l'ordre :\n1. Videz les paniers de skimmer et de pompe\n2. Effectuez un lavage puis un rinçage du filtre (pompe coupée entre chaque position de vanne)\n3. Vérifiez que la vanne 6 voies est bien sur la position filtration\n\nSi la pression reste haute après lavage :\n• Le média filtrant peut être colmaté ou trop ancien\n• Une vanne peut être partiellement fermée\n\nSi la pression est montée d'un coup :\n• Vérifiez d'abord les vannes — une fermeture accidentelle est souvent la cause\n\nLa valeur normale après lavage doit revenir proche de la valeur habituelle.",
+    followUp: ["Sable dans la piscine", "Pompe ne démarre plus"],
+    cta: "phone"
+  },
+  {
+    id: "sable-dans-piscine",
+    tags: ["sable piscine","sable bassin","média filtrant","verre filtrant","retour sale","eau retour","crépine","vanne 6 voies","sable fond","sable après lavage"],
+    question: "Du sable dans la piscine ?",
+    title: "Sable ou média dans le bassin : crépine ou vanne",
+    answer: "Du sable ou du média filtrant dans le bassin peut venir de :\n\nAprès un lavage ou rinçage :\n• La vanne 6 voies n'était pas bien positionnée\n• Toujours couper la pompe avant de changer la position de la vanne\n\nEn filtration normale :\n• Une crépine (diffuseur interne) est cassée ou fendue et laisse passer le média\n• Nécessite une inspection du filtre ouvert\n\nDans les deux cas, envoyez une photo et décrivez le moment où cela arrive — BatiAzur pourra orienter vers la bonne cause.",
+    followUp: ["Pression filtre haute"],
+    cta: "phone"
+  },
+  {
+    id: "robot-panne",
+    tags: ["robot","robot piscine","robot ne fonctionne","robot arrêt","robot clignote","voyant robot","robot rouge","robot ne monte","robot coincé","robot nettoie mal","robot ne charge","robot ne bouge","aspirateur piscine"],
+    question: "Robot de piscine en panne ?",
+    title: "Robot en panne : il faut la marque et le modèle",
+    answer: "Pour diagnostiquer correctement, il faut la marque et le modèle exact.\n\nVérifications préalables (toutes marques) :\n• Panier ou filtre du robot : propre et bien remis en place\n• Brosses : rien de coincé dedans\n• Hélice ou aspiration : pas de débris\n• Robot sans fil : dernière charge complète récente\n• Robot filaire : câble non tordu, enrouleur OK\n\nSi un voyant rouge clignote :\n• Chaque marque a son propre code d'erreur — sans le modèle exact, il m'est impossible de vous donner la bonne procédure\n\nEnvoyez une photo de l'étiquette du robot et décrivez ce que vous observez. BatiAzur vérifiera la procédure adaptée.",
+    followUp: [],
+    cta: "phone"
+  },
+  {
+    id: "volet-bloque",
+    tags: ["volet","volet piscine","volet bloqué","volet coincé","volet travers","volet ne s'ouvre","volet ne ferme","tablier","lame volet","moteur volet","fin de course","commande volet","volet force"],
+    question: "Volet roulant bloqué ou de travers ?",
+    title: "Volet bloqué : arrêtez immédiatement",
+    answer: "Si le volet force, se met de travers ou reste bloqué, arrêtez de l'actionner.\n\nPremières observations à faire :\n• Y a-t-il une lame cassée ou sortie de son axe ?\n• Le tablier est-il bien aligné dans les deux rails ?\n• Le moteur fait-il du bruit ou est-il silencieux ?\n• Le tablier bouge-t-il légèrement ou pas du tout ?\n\nSi le volet se met de travers :\n• N'actionnez plus — risque d'abîmer le moteur et les lames\n• Une photo de l'axe et du tablier aide beaucoup\n\nFin de course déréglée :\n• Ne modifiez pas les fins de course sans connaître le modèle du moteur — un mauvais réglage peut casser le tablier",
+    followUp: [],
+    cta: "phone"
+  },
+  {
+    id: "fuite-baisse-niveau",
+    tags: ["fuite","baisse niveau","niveau baisse","perd eau","perte eau","eau baisse","fuite bassin","fuite canalisation","évaporation","eau disparaît","baisse eau","trop d'évaporation"],
+    question: "La piscine perd de l'eau ?",
+    title: "Baisse de niveau : évaporation ou fuite ?",
+    answer: "Une baisse de niveau peut venir de plusieurs sources.\n\nTest simple à faire chez vous :\n• Remplissez un seau et posez-le sur une marche\n• Marquez le niveau dans le seau et dans le bassin\n• Attendez 24 h — filtration arrêtée\n• Si le bassin baisse beaucoup plus que le seau → c'est une fuite\n• Si les deux baissent pareil → c'est l'évaporation\n\nSi la fuite est visible dans le local technique :\n• Arrêtez la filtration et envoyez une photo ou vidéo de la zone concernée\n\nInformations utiles à nous transmettre :\n• Combien de cm perdus par jour\n• La perte continue-t-elle filtration arrêtée\n• La fuite semble-t-elle venir du bassin, du local technique ou des canalisations",
+    followUp: ["Fuite sur la pompe", "Pompe ne démarre plus"],
+    cta: "phone"
+  },
+  {
+    id: "electrolyseur-probleme",
+    tags: ["électrolyseur","electrolyseur","sel trop bas","manque sel","alarme sel","cellule","entartrage","production chlore faible","alarme débit","sonde électrolyseur","voyant rouge electrolyseur","chlore bloqué sel"],
+    question: "Problème sur l'électrolyseur au sel ?",
+    title: "Électrolyseur : identifier l'alarme",
+    answer: "Un électrolyseur peut se mettre en alarme pour plusieurs raisons.\n\nAlarme manque de sel :\n• Mesurez la salinité de l'eau ou faites-la mesurer\n• Vérifiez que le taux cible de votre appareil est correct\n\nAlarme débit :\n• Vérifiez la filtration, les paniers et les vannes\n• Un filtre encrassé réduit le débit et déclenche cette alarme\n\nCellule entartrée :\n• Visible à l'œil sur la cellule (dépôt blanc)\n• Suivez la procédure du fabricant — n'utilisez pas un produit non adapté\n\nAlarme cellule ou voyant rouge :\n• Il faut la marque, le modèle et le code affiché pour confirmer\n• La cellule peut être en fin de vie",
+    followUp: ["Le sel dans la piscine", "Valeurs idéales piscine"],
+    cta: "phone"
+  },
+  {
+    id: "pac-ne-chauffe-pas",
+    tags: ["pompe chaleur","pac","ne chauffe pas","chauffe pas","eau froide","PAC piscine","chauffage piscine","compresseur","erreur PAC","code erreur pac","ventilateur PAC","givre PAC","PAC arrêtée"],
+    question: "La pompe à chaleur ne chauffe pas ?",
+    title: "PAC qui ne chauffe pas : vérifications courantes",
+    answer: "Plusieurs causes fréquentes peuvent empêcher la PAC de chauffer.\n\nVérifications rapides :\n• La filtration tourne-t-elle correctement ? (La PAC ne démarre pas sans débit d'eau)\n• La température extérieure est-elle au-dessus de 10°C ?\n• La consigne est-elle réglée au-dessus de la température actuelle de l'eau ?\n• Y a-t-il un code erreur affiché ?\n• Le ventilateur de la PAC tourne-t-il ?\n\nSi un code erreur est affiché :\n• Il faut la marque, le modèle et le code exact\n\nGivre sur l'échangeur :\n• Parfois normal (dégivrage automatique) — attendez 15 min et vérifiez si ça reprend",
+    followUp: ["Pression filtre haute", "Pompe ne démarre plus"],
+    cta: "phone"
+  },
+  {
+    id: "devis-travaux",
+    tags: ["devis","construction","construire","prix piscine","tarif piscine","combien coûte","nouvelle piscine","projet piscine","budget piscine","demande devis","faire construire","piscine neuve"],
+    question: "Je veux un devis pour ma piscine ?",
+    title: "Demande de devis : parlons de votre projet",
+    answer: "BatiAzur peut étudier votre projet de :\n• Construction de piscine neuve (coque, liner, béton)\n• Rénovation d'une piscine existante\n• Remplacement ou ajout d'équipements\n• Entretien ou contrat d'entretien\n\nPour préparer une réponse précise, il nous faut :\n• Votre commune\n• Le type de prestation souhaitée\n• Pour une construction : dimensions souhaitées, accès terrain, délai\n• Pour une rénovation : photos du bassin et du local technique\n• Pour un équipement : marque/modèle actuel si remplacement\n\nImpossible de donner un prix sans étude — trop de facteurs jouent sur le coût. Contactez-nous pour qu'on échange sur votre projet.",
+    followUp: ["Rénovation piscine", "SAV et garantie matériel"],
+    cta: "phone"
+  },
+  {
+    id: "renovation-piscine",
+    tags: ["rénovation","renovation","rénover","liner usé","liner vieux","fissure","fissure bassin","taches parois","margelles","terrasse piscine","revêtement","rénover bassin"],
+    question: "Rénovation de piscine ?",
+    title: "Rénovation : photo et diagnostic terrain",
+    answer: "BatiAzur intervient pour tous types de rénovations :\n• Remplacement de liner usé ou abîmé\n• Traitement ou réparation de fissures\n• Reprise des margelles et terrasse\n• Remplacement de pièces à sceller (skimmer, buses, projecteur)\n• Mise à jour ou remplacement de la filtration\n\nSi vous observez une fissure :\n• Ne faites pas de réparation provisoire si le niveau d'eau baisse ou si la fissure évolue\n• Une fissure peut être esthétique ou structurelle — seul un diagnostic sur place peut trancher\n\nPour préparer un devis : envoyez des photos du bassin, des margelles et du local technique avec votre commune.",
+    followUp: ["Devis travaux piscine", "Fuite baisse niveau eau"],
+    cta: "phone"
+  },
+  {
+    id: "sav-garantie",
+    tags: ["SAV","garantie","service après vente","matériel défectueux","dossier SAV","panne récente","réparation garantie","facture","sous garantie","garantie constructeur"],
+    question: "SAV ou garantie sur un équipement ?",
+    title: "SAV / Garantie : constituer le dossier",
+    answer: "Pour ouvrir un dossier SAV ou garantie, il faut :\n• La facture ou la date d'achat / installation\n• La marque et le modèle du matériel\n• Une description précise du problème\n• Des photos ou une vidéo\n\nImportant :\n• La prise en garantie dépend du fabricant, de la date d'achat et du diagnostic\n• BatiAzur peut vous aider à constituer le dossier et faire l'interface avec le fabricant\n• La décision finale revient au fabricant selon ses conditions\n\nContactez-nous avec ces informations et l'équipe prendra en charge votre demande.",
+    followUp: [],
+    cta: "phone"
+  },
+  {
+    id: "rendez-vous-intervention",
+    tags: ["rendez-vous","rendez vous","rdv","intervention","technicien","visite","prise en charge","appeler batiazur","contact batiazur","organiser intervention","demander intervention"],
+    question: "Prendre rendez-vous ou demander une intervention ?",
+    title: "Rendez-vous et interventions BatiAzur",
+    answer: "Pour organiser une intervention, BatiAzur a besoin de :\n• Votre nom et prénom\n• Votre commune\n• Votre numéro de téléphone\n• Le sujet de l'intervention\n• Quelques photos si possible\n\nEn cas d'urgence (fuite importante, risque électrique, équipement qui force) :\n• Mettez l'installation en sécurité\n• Appelez directement BatiAzur au 04 70 34 21 96\n\nL'équipe rappelle pour confirmer le créneau selon la saison et l'urgence.",
+    followUp: ["Devis travaux piscine", "SAV et garantie matériel"],
+    cta: "phone"
+  }
 ];
 
 /* ── FAQ engine ──────────────────────────────────────── */
@@ -951,10 +1098,13 @@ function faqBuildBotHtml(entry) {
   var html = "<strong>" + escapeHtml(entry.title) + "</strong>";
   html += '<div class="faq-body"><ul style="padding:0;margin:0;list-style:none;">' + bodyLines + "</ul></div>";
 
-  // Footer BatiAzur systematique
+  // Footer BatiAzur — adapté selon le type de réponse
+  var ctaText = (entry.cta === "phone")
+    ? 'Pour un diagnostic ou une intervention, contactez <strong>BatiAzur</strong> au <a href="tel:+33470342196">04 70 34 21 96</a>'
+    : 'Pour une analyse précise de votre eau, rendez-vous chez <strong>BatiAzur</strong> à Avermes — <a href="tel:+33470342196">04 70 34 21 96</a>';
   html += '<div class="faq-batiazur-cta">';
   html += '<svg viewBox="0 0 20 20"><path d="M10 2a6 6 0 0 1 6 6c0 4-6 10-6 10S4 12 4 8a6 6 0 0 1 6-6z"/><circle cx="10" cy="8" r="2"/></svg>';
-  html += '<span>Pour une analyse précise de votre eau, rendez-vous chez <strong>BatiAzur</strong> à Avermes — <a href="tel:+33470342196">04 70 34 21 96</a></span>';
+  html += '<span>' + ctaText + '</span>';
   html += "</div>";
 
   if (entry.followUp && entry.followUp.length) {
@@ -1003,7 +1153,7 @@ function faqSend(text) {
 }
 
 function faqInit() {
-  var welcome = '<strong>Bonjour, je suis l\'assistant BatiAzur.</strong><div class="faq-body">Je réponds à vos questions sur l\'entretien de votre piscine : traitements, produits, désordres de l\'eau et dosages.<br><br>Tapez votre question ou choisissez un sujet ci-dessus.</div>';
+  var welcome = '<strong>Bonjour, je suis l\'assistant BatiAzur.</strong><div class="faq-body">Je réponds à vos questions sur votre piscine : eau, traitements, pompe, filtre, robot, volet, fuite, devis et plus encore.<br><br>Tapez votre question ou choisissez un sujet ci-dessous.</div>';
   faqAddMessage(welcome, "bot", true); /* skipScroll — le header reste visible */
 
   // Bind suggestion chips

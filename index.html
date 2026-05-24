@@ -14,7 +14,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Bati Azur">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="stylesheet" href="./style.css?v=20" />
+  <link rel="stylesheet" href="./style.css?v=22" />
 </head>
 <body>
 <div class="app">
@@ -348,16 +348,16 @@
 
       <div class="faq-chips-wrap">
         <div class="faq-chips" id="faqChips">
+          <button class="faq-chip" data-q="Ma pompe ne démarre plus">Pompe en panne</button>
+          <button class="faq-chip" data-q="Volet roulant bloqué">Volet bloqué</button>
+          <button class="faq-chip" data-q="La piscine perd de l'eau">Fuite eau</button>
+          <button class="faq-chip" data-q="Robot de piscine en panne">Robot</button>
+          <button class="faq-chip" data-q="La pompe à chaleur ne chauffe pas">PAC</button>
           <button class="faq-chip" data-q="Mon eau est verte">Eau verte</button>
           <button class="faq-chip" data-q="Eau trouble ou laiteuse">Eau trouble</button>
           <button class="faq-chip" data-q="Corriger le pH">pH</button>
-          <button class="faq-chip" data-q="Valeurs ideales piscine">Valeurs cibles</button>
-          <button class="faq-chip" data-q="Chlore choc traitement">Chlore choc</button>
-          <button class="faq-chip" data-q="Algicide utilisation">Algicide</button>
-          <button class="faq-chip" data-q="Flocculant clarifier eau">Flocculant</button>
           <button class="faq-chip" data-q="Hivernage fermeture piscine">Hivernage</button>
-          <button class="faq-chip" data-q="Taux de sel electrolyseur">Sel</button>
-          <button class="faq-chip" data-q="Combien d'heures filtrer">Filtration</button>
+          <button class="faq-chip" data-q="Je veux un devis">Devis</button>
         </div>
       </div>
 
@@ -367,9 +367,6 @@
 
   </section><!-- /.screen -->
   </main>
-
-  <!-- Fondu bas d'écran : les éléments disparaissent dans le verre -->
-  <div class="scroll-fade" aria-hidden="true"></div>
 
   <!-- ══ TAB BAR iOS 26 ═══════════════════════════════════ -->
   <div class="tabbar-dock">
@@ -411,7 +408,7 @@
   </div>
 
 </div><!-- /.app -->
-<script src="./app.js?v=20"></script>
+<script src="./app.js?v=22"></script>
 <script>
   if ("serviceWorker" in navigator) {
     /* Mémorise s'il y avait déjà un SW actif AVANT cette session */
