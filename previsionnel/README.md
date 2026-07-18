@@ -19,7 +19,7 @@ du 01/01/2022 au 17/07/2026 (7 268 lignes).
 ## Chiffres clés
 
 - CA TTC réel : 38,8 k€ (2022) · 39,3 k€ (2023) · 50,9 k€ (2024) · 75,5 k€ (2025) · 59,1 k€ (2026 estimé)
-- **Prévisionnel 2027 (scénario central) : ≈ 65,7 k€ TTC** — fourchette 55,9 k€ (météo défavorable) à 78,9 k€ (été type 2025)
+- **Prévisionnel 2027 (scénario central) : ≈ 65,8 k€ TTC** — fourchette 56,0 k€ (météo défavorable) à 79,0 k€ (été type 2025)
 - Pic de saison : semaines 20 à 26 (mi-mai → fin juin), ≈ 3 à 4 k€/semaine
 - La saisonnalité hebdomadaire calculée sur 4,5 ans de ventes intègre l'effet météo moyen local (Avermes, Allier)
 
