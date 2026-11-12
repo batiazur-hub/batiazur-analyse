@@ -1,6 +1,6 @@
 /* Réinitialisation du cache si la version change (chargé avant tout le reste) */
 (function(){
-    var SW_VER="53";
+    var SW_VER="54";
     try{
       if(localStorage.getItem("batiazur_sw_ver")!==SW_VER){
         localStorage.setItem("batiazur_sw_ver",SW_VER);

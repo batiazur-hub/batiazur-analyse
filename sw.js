@@ -3,20 +3,20 @@
    Version: 8  ← incrémenter à chaque déploiement
    ═══════════════════════════════════════════════════════ */
 
-const CACHE_NAME = "batiazur-v53";
+const CACHE_NAME = "batiazur-v54";
 
 /* L'OCR (vendor/tesseract, ~8 Mo) n'est pas pré-chargé : il est mis en
    cache à la première lecture d'étiquette. */
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./style.css?v=53",
-  "./app.js?v=53",
-  "./account.js?v=53",
-  "./label-reader.js?v=53",
-  "./onboarding.js?v=53",
-  "./sw-reset.js?v=53",
-  "./register-sw.js?v=53",
+  "./style.css?v=54",
+  "./app.js?v=54",
+  "./account.js?v=54",
+  "./label-reader.js?v=54",
+  "./onboarding.js?v=54",
+  "./sw-reset.js?v=54",
+  "./register-sw.js?v=54",
   "./site.webmanifest",
   "./favicon.svg",
   "./favicon.ico",

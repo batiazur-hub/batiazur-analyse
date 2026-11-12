@@ -1908,3 +1908,17 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
 [tabindex="-1"]:focus-visible { outline: none !important; }
 .field span small.unit { color: var(--label-2); font-size: 14px; }
 .quick-grid > :last-child:nth-child(odd) { width: 100%; justify-self: stretch; min-height: 0; }
+
+/* v54 — Barre d'onglets : même animation quel que soit l'onglet.
+   La bulle met toujours le même temps à arriver (même pour aller de
+   Accueil à Espace) ; l'icône active ne monte et ne devient blanche
+   qu'une fois la bulle arrivée dessous. */
+.bubble { transition: transform .32s cubic-bezier(.3,.85,.25,1); }
+.icon { transition: top .22s cubic-bezier(.3,.85,.25,1), color .12s ease; }
+.tab.active .icon {
+  transition: top .26s cubic-bezier(.2,.9,.18,1) .14s, color .14s ease .2s;
+}
+.tab-label { transition: transform .26s cubic-bezier(.2,.9,.18,1), color .14s ease; }
+.tab.active .tab-label { transition: transform .26s cubic-bezier(.2,.9,.18,1) .14s, color .14s ease .14s; }
+.tabbar .icon svg.i, .tabbar .icon svg { width: var(--icon-size); height: var(--icon-size); vertical-align: 0; }
+.tab:focus-visible { outline-offset: -4px; border-radius: 999px; }
