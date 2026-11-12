@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════
-   BatiAzur Analyse — v22
+   BatiAzur Analyse — v52
    Apple iOS 26 · HIG + Liquid Glass
    -apple-system · SF Pro · iOS system colors
    ═══════════════════════════════════════════════════════ */
@@ -1631,3 +1631,129 @@ a.choice-card.active:visited { color: #fff; }
   background: rgba(255,255,255,.08) !important;
   box-shadow: 0 1px 4px rgba(0,0,0,.40) !important;
 }
+
+/* ═══ Mon espace : comptes, bassins, produits (v52) ═══════ */
+.segmented {
+  display: flex;
+  gap: 2px;
+  margin: 14px 16px 8px;
+  padding: 2px;
+  border-radius: 10px;
+  background: var(--fill-3);
+}
+.segmented .seg {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--label);
+  border-radius: 8px;
+  padding: 8px 6px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  cursor: pointer;
+  transition: background .18s ease;
+}
+.segmented .seg.active {
+  background: var(--ios-blue);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0,122,255,.32);
+}
+.card .note a, .space-p a { color: var(--ios-blue); text-decoration: none; font-weight: 600; }
+.field select {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: var(--ios-blue);
+  font-size: 17px;
+  text-align: right;
+  text-align-last: right;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+.field select option { color: #000; }
+.field input[type="checkbox"] { flex: 0 0 auto; width: 22px; height: 22px; margin-left: auto; accent-color: var(--ios-blue); }
+.check-field { border-top: 0.5px solid var(--separator); }
+.product-pick { border-bottom: 0.5px solid var(--separator); }
+.product-pick .field span { min-width: 0; }
+.link-btn {
+  margin-left: auto;
+  border: none;
+  background: none;
+  color: var(--ios-blue);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+}
+.link-btn.block { display: block; margin: 6px auto 14px; }
+.form-msg { margin: 0 16px; font-size: 14px; line-height: 1.4; min-height: 0; }
+.form-msg.ko { margin-top: 10px; color: #FF453A; }
+.form-msg.ok { margin-top: 10px; color: #30D158; }
+.space-p { padding: 14px 16px; margin: 0; color: var(--label-2); font-size: 15px; line-height: 1.45; }
+.space-p strong { color: var(--label); }
+.space-cat {
+  margin: 0;
+  padding: 14px 16px 4px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--label-2);
+}
+.space-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 11px 16px;
+  border-bottom: 0.5px solid var(--separator);
+}
+.space-row div:first-child { min-width: 0; }
+.space-row strong { display: block; color: var(--label); font-size: 16px; font-weight: 600; overflow-wrap: anywhere; }
+.space-row small { display: block; color: var(--label-2); font-size: 13px; margin-top: 2px; }
+.row-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.row-del, .row-edit {
+  border: none;
+  border-radius: 999px;
+  padding: 6px 11px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.row-edit { background: var(--ios-tint); color: var(--ios-blue); }
+.row-del { background: rgba(255,69,58,.14); color: #FF453A; }
+.space-details { border-top: 0.5px solid var(--separator); }
+.space-details > summary {
+  padding: 13px 16px;
+  color: var(--ios-blue);
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  list-style: none;
+}
+.space-details > summary::-webkit-details-marker { display: none; }
+.space-details[open] > summary { padding-bottom: 4px; }
+.space-details .secondary-btn { margin-bottom: 4px; }
+.danger-btn {
+  display: block;
+  width: calc(100% - 32px);
+  margin: 14px 16px 0;
+  min-height: 44px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255,69,58,.14);
+  color: #FF453A;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+}
+.sync-state.ok { color: #30D158 !important; }
+.sync-state.pending, .sync-state.saving { color: var(--label-2) !important; }
+.sync-state.error { color: var(--warn-text) !important; }
+#homeSpaceText { line-height: 1.5; }
+#page-compte .primary-btn:disabled, #page-compte .secondary-btn:disabled { opacity: .6; }

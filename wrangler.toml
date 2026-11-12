@@ -1,0 +1,20 @@
+# BatiAzur Analyse — Cloudflare Worker (site statique + API comptes clients)
+name = "batiazuranalyse"
+main = "worker/worker.js"
+compatibility_date = "2025-09-01"
+workers_dev = true
+
+[assets]
+directory = "."
+binding = "ASSETS"
+
+# Comptes clients (bassins, produits). Remplacer l'id par celui de l'espace KV créé.
+[[kv_namespaces]]
+binding = "KV"
+id = "REMPLACER_PAR_ID_KV"
+
+[vars]
+GMAIL_USER = "bati.azur03@gmail.com"
+
+# Secret facultatif (mot de passe oublié par e-mail) :
+#   GMAIL_APP_PASSWORD  (même mot de passe d'application Gmail que Bati Azur Terrain)

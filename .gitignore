@@ -3,3 +3,5 @@ test-playwright.js
 test-results/
 package.json
 package-lock.json
+
+.wrangler/

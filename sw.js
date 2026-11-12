@@ -3,13 +3,14 @@
    Version: 8  ← incrémenter à chaque déploiement
    ═══════════════════════════════════════════════════════ */
 
-const CACHE_NAME = "batiazur-v51";
+const CACHE_NAME = "batiazur-v52";
 
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./style.css?v=51",
-  "./app.js?v=51",
+  "./style.css?v=52",
+  "./app.js?v=52",
+  "./account.js?v=52",
   "./site.webmanifest",
   "./favicon.ico",
   "./favicon-16x16.png",
@@ -46,6 +47,9 @@ self.addEventListener("activate", function(e) {
 /* ── Fetch : stratégies par type de ressource ──────────── */
 self.addEventListener("fetch", function(e) {
   var url = e.request.url;
+
+  /* API comptes → toujours le réseau, jamais en cache */
+  if (url.includes("/api/") || e.request.method !== "GET") return;
 
   /* Google Places API → réseau uniquement (jamais en cache) */
   if (url.includes("places.googleapis.com")) return;

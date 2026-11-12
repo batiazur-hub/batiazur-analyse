@@ -1,0 +1,12 @@
+.git
+.git/*
+.claude
+.DS_Store
+node_modules
+worker
+wrangler.toml
+.wrangler
+*.md
+worker-cloudflare.js
+package.json
+package-lock.json

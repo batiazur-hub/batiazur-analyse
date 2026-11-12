@@ -7,7 +7,7 @@
        Cela corrige tout état corrompu après un changement de version.
   ════════════════════════════════════════════════════════════════ -->
   <script>(function(){
-    var SW_VER="51";
+    var SW_VER="52";
     try{
       if(localStorage.getItem("batiazur_sw_ver")!==SW_VER){
         localStorage.setItem("batiazur_sw_ver",SW_VER);
@@ -38,7 +38,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Bati Azur">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="stylesheet" href="./style.css?v=51" />
+  <link rel="stylesheet" href="./style.css?v=52" />
 </head>
 <body>
 <div class="app">
@@ -63,7 +63,7 @@
     <section class="page active" id="page-home">
 
       <h1>Accueil</h1>
-      <p class="lead">Volume &amp; dosage piscine — produits BatiAzur exclusivement.</p>
+      <p class="lead">Volume &amp; dosage piscine — produits Bati Azur ou vos propres produits.</p>
 
       <!-- Actions rapides -->
       <div class="quick-grid">
@@ -76,6 +76,11 @@
           <svg viewBox="0 0 48 28"><path d="M24 4s10 9.5 10 16a10 10 0 0 1-20 0C14 13.5 24 4 24 4z"/></svg>
           <strong>Dosage</strong>
           <small>pH, TAC, sel, stabilisant…</small>
+        </button>
+        <button class="choice-card" data-go="compte">
+          <svg viewBox="0 0 48 28"><circle cx="24" cy="10" r="5"/><path d="M14 25c1.5-5 5.5-8 10-8s8.5 3 10 8"/></svg>
+          <strong>Mon espace</strong>
+          <small>Compte, bassins, produits</small>
         </button>
         <button class="choice-card" data-go="actualites">
           <svg viewBox="0 0 48 28"><path d="M9 6h30v18H9z"/><path d="M15 12h18"/><path d="M15 17h12"/></svg>
@@ -98,6 +103,13 @@
       <p class="section-header">Dernier volume</p>
       <div class="card">
         <p id="homeVolumeText">Calcule un volume dans l'onglet Volume — il s'affichera ici.</p>
+      </div>
+
+      <!-- Mon espace -->
+      <p class="section-header">Mon espace</p>
+      <div class="card">
+        <p id="homeSpaceText">Sans compte — données sur cet appareil</p>
+        <button class="secondary-btn" type="button" data-go="compte" style="margin-bottom:14px;">Ouvrir Mon espace</button>
       </div>
 
       <!-- Contact -->
@@ -205,6 +217,26 @@
     </section>
 
     <!-- ══ ACTUALITÉS ════════════════════════════════════ -->
+    <!-- ══ MON ESPACE ═════════════════════════════════════ -->
+    <section class="page" id="page-compte">
+      <button class="back-btn" type="button" data-go="home">
+        <svg viewBox="0 0 20 20"><path d="M12 5l-5 5 5 5"/></svg>
+        Retour
+      </button>
+      <h1>Mon espace</h1>
+      <p class="lead">Enregistrez vos bassins et vos propres produits. Sans compte, tout reste sur cet appareil ; avec un compte, vous les retrouvez sur tous vos appareils.</p>
+
+      <p class="section-header" id="accountSection">Compte</p>
+      <div class="card" id="accountBox"></div>
+
+      <p class="section-header">Mes bassins</p>
+      <div class="card" id="poolsList"></div>
+
+      <p class="section-header" id="productsSection">Mes produits</p>
+      <div class="card" id="productsList"></div>
+      <p class="note" style="margin-bottom:24px!important;">Les dosages « Mes produits » sont calculés à partir des informations que vous saisissez. Vérifiez toujours les consignes du fabricant. Pour un doute, apportez un échantillon d'eau chez Bati Azur.</p>
+    </section>
+
     <section class="page" id="page-actualites">
       <button class="back-btn" type="button" data-go="home">
         <svg viewBox="0 0 20 20"><path d="M12 5l-5 5 5 5"/></svg>
@@ -310,6 +342,7 @@
             <strong>—</strong>
             <p>Renseigne les dimensions ci-dessus.</p>
           </div>
+          <div id="savePoolBox" style="margin-bottom:16px;"></div>
         </div>
 
       </div>
@@ -321,6 +354,9 @@
       <p class="lead">Volume repris automatiquement ou saisi directement.</p>
 
       <div class="responsive-grid">
+
+        <p class="section-header">Produits utilisés</p>
+        <div class="card" id="productModeBox"></div>
 
         <p class="section-header">Paramètre</p>
         <div class="card">
@@ -344,6 +380,7 @@
               <input id="doseVolume" type="number" inputmode="decimal" step="0.1" placeholder="48">
             </label>
           </div>
+          <div id="poolPicker" class="hidden"></div>
           <div id="paramFields"></div>
           <button class="primary-btn" id="calculateDose" type="button">Calculer le dosage</button>
           <div class="result-box" id="doseResult">
@@ -433,7 +470,8 @@
   </div>
 
 </div><!-- /.app -->
-<script src="./app.js?v=51"></script>
+<script src="./app.js?v=52"></script>
+<script src="./account.js?v=52"></script>
 <script>
   if ("serviceWorker" in navigator) {
     /* Mémorise s'il y avait déjà un SW actif AVANT cette session */

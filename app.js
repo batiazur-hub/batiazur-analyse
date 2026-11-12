@@ -167,6 +167,8 @@ function setResult(id, title, text) {
   if (!box) return;
   var strong = box.querySelector("strong");
   var p = box.querySelector("p");
+  var label = box.querySelector("span");
+  if (label && id === "doseResult") label.textContent = "Résultat";
   if (strong) strong.textContent = title;
   if (p) p.textContent = text;
   box.classList.remove("is-fresh");
@@ -192,6 +194,7 @@ function calculateVolume() {
     fmt(volume, 1) + " m³",
     "Volume repris automatiquement dans la page Dosage. Si le client connait deja son volume, il peut aussi le saisir directement dans Dosage."
   );
+  if (window.BA) BA.renderSavePoolBox();
 }
 
 function syncVolumeToDose() {
@@ -285,6 +288,7 @@ function renderParamFields() {
       });
     });
   }
+  if (window.BA) BA.decorateParamFields(state.param, root);
 }
 
 function renderShockProducts() {
@@ -328,6 +332,18 @@ function calculateDose() {
   if (volume <= 0) {
     setResult("doseResult", "Volume manquant", "Renseigne le volume du bassin ou calcule-le dans l'onglet Volume.");
     return;
+  }
+
+  /* Mode « Mes produits » : calcul avec les produits du client */
+  if (window.BA && state.param !== "plan") {
+    var custom = BA.customDose(state.param, volume);
+    if (custom) {
+      setResult("doseResult", custom.title, custom.text);
+      state.lastResultText = "BatiAzur Analyse\nVolume : " + fmt(volume, 1) + " m³\nResultat : " + custom.title + "\n" + custom.text;
+      var mailC = $("#mailResult");
+      if (mailC) mailC.href = "mailto:?subject=Analyse%20BatiAzur%20Analyse&body=" + encodeURIComponent(state.lastResultText);
+      return;
+    }
   }
   var title = "";
   var text = "";
@@ -445,6 +461,8 @@ function calculateDose() {
     // helper: pH dose string
     var phDoseStr = function(current, targetPh) {
       var d = targetPh - current;
+      var customLine = window.BA && BA.planLine(d > 0 ? "ph_plus" : "ph_minus", volume, Math.abs(d));
+      if (customLine) return customLine;
       var prod = d > 0 ? "pH plus" : "pH moins";
       var corr = Math.abs(d);
       var st = Math.ceil((corr - 0.0001) / 0.2);
@@ -454,12 +472,16 @@ function calculateDose() {
     // helper: TAC dose string
     var tacDoseStr = function(current) {
       var inc = 150 - current;
+      var customLine = window.BA && BA.planLine("tac", volume, inc);
+      if (customLine) return customLine;
       var g = (volume / 10) * 170 * (inc / 10);
       return "TAC+ : " + mass(g) + " (bicarbonate de soude, +" + fmt(inc, 0) + " ppm)";
     };
     // helper: stab dose string
     var stabDoseStr = function(current) {
       var inc = 30 - current;
+      var customLine = window.BA && BA.planLine("stab", volume, inc);
+      if (customLine) return customLine;
       var g = (volume / 10) * 100 * (inc / 10);
       return "Stabilisant (acide cyanurique) : " + mass(g) + " (+" + fmt(inc, 0) + " ppm)";
     };
@@ -1506,6 +1528,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
   startSplash();
+  if (window.BA) BA.init();
   bindEvents();
   updateVolumeFields();
   renderParamFields();
