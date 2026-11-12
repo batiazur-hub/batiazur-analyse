@@ -1907,3 +1907,4 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
 .btn-row .primary-btn, .btn-row .secondary-btn { flex: 1; white-space: nowrap; }
 [tabindex="-1"]:focus-visible { outline: none !important; }
 .field span small.unit { color: var(--label-2); font-size: 14px; }
+.quick-grid > :last-child:nth-child(odd) { width: 100%; justify-self: stretch; min-height: 0; }

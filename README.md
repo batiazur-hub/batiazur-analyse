@@ -130,4 +130,5 @@ Depuis Safari :
 - Nouveau logo (`brand/`), icônes Lucide (`tools/build-icons.py`), barre à 5 onglets.
 - Audits sécurité et accessibilité : voir `docs/AUDIT.md`.
 - Déploiement : `wrangler.toml` (Worker `batiazuranalyse`, assets = racine du dépôt, `.assetsignore`), en-têtes de sécurité dans `_headers`.
-- Secrets Cloudflare : `GOOGLE_PLACES_KEY` (horaires), `GMAIL_APP_PASSWORD` (mot de passe oublié).
+- Horaires et actualités supprimés de l'app publique.
+- Secret Cloudflare facultatif : `GMAIL_APP_PASSWORD` (mot de passe oublié).

@@ -3,7 +3,7 @@
 Usage : python3 tools/build-icons.py <dossier lucide-static/icons>
 Les icônes listées ci-dessous sont insérées entre <!--ICONS--> et <!--/ICONS-->."""
 import re, sys, pathlib
-ICONS = """house ruler-dimension-line droplet message-circle-question user-round newspaper phone mail
+ICONS = """house ruler-dimension-line droplet message-circle-question user-round phone mail
 map-pin navigation camera share-2 copy send chevron-left chevron-right check x circle-help book-open
 waves flask-conical test-tube sparkles user-plus log-out trash-2 pencil plus clock star lock
 cloud-check calculator list-checks shield-check scan-text info triangle-alert compass""".split()

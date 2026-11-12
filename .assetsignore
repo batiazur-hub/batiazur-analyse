@@ -7,7 +7,6 @@ worker
 wrangler.toml
 .wrangler
 *.md
-worker-cloudflare.js
 package.json
 package-lock.json
 docs

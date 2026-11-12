@@ -13,8 +13,3 @@
 
 /sw.js
   Cache-Control: no-cache
-
-/admin-actus.html
-  ! Content-Security-Policy
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https://*.workers.dev; object-src 'none'; base-uri 'self'; frame-ancestors 'none'
-  X-Robots-Tag: noindex, nofollow

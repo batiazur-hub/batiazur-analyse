@@ -6,11 +6,10 @@
 
 | # | Gravité | Problème | Correction |
 |---|---|---|---|
-| S1 | **Élevée** | La clé Google (horaires du magasin) était écrite en clair dans `app.js`, donc lisible par n'importe qui et réutilisable sur le compte Google de Bati Azur. | La clé est retirée du code public. Les horaires passent par le Worker (`/api/horaires`), qui garde la clé en secret (`GOOGLE_PLACES_KEY`) et ne renvoie que les horaires, avec un cache de 30 min. **À faire :** la clé reste dans l'historique GitHub (dépôt public) et sur l'ancienne copie GitHub Pages : il faut la régénérer dans la console Google, puis mettre la nouvelle dans Cloudflare. |
-| S2 | Moyenne | Actualités : un lien `javascript:` dans `actus.json` aurait été exécuté au clic (si le compte admin était piraté). | Seuls les liens `https://`, `tel:`, `mailto:` et les chemins du site sont acceptés. |
-| S3 | Moyenne | Horaires et plan de traitement : du texte venant de Google ou saisi par l'utilisateur était inséré dans la page sans être échappé. | Tout est échappé avant l'affichage. |
+| S1 | **Élevée** | La clé Google (horaires du magasin) était écrite en clair dans `app.js`, donc lisible par n'importe qui et réutilisable sur le compte Google de Bati Azur. | Les horaires sont supprimés de l'app et la clé retirée du code. **À faire :** la clé reste dans l'historique GitHub (dépôt public) et sur l'ancienne copie GitHub Pages : il faut la supprimer (ou la régénérer) dans la console Google Cloud. |
+| S2 | Moyenne | Actualités : un lien `javascript:` dans `actus.json` aurait pu être exécuté au clic, et la page d'administration était publique. | Les actualités sont supprimées de l'app publique (page, `actus.json`, `admin-actus.html`, Worker de publication). **À faire :** supprimer le Worker `batiazur-actus-worker` et son jeton GitHub dans Cloudflare/GitHub. |
+| S3 | Moyenne | Plan de traitement : des noms de produits saisis par l'utilisateur étaient insérés dans la page sans être échappés. | Tout est échappé avant l'affichage. |
 | S4 | Moyenne | Aucun en-tête de sécurité sur le site. | Fichier `_headers` : CSP stricte (scripts du site uniquement, pas de script en ligne), interdiction d'intégrer l'app dans une autre page (anti-clickjacking), HSTS, `nosniff`, `Referrer-Policy`, `Permissions-Policy`. Les scripts en ligne de `index.html` sont passés dans des fichiers (`sw-reset.js`, `register-sw.js`) pour être compatibles avec la CSP. |
-| S5 | Moyenne | Worker des actualités : mot de passe admin comparé de façon non constante et sans freinage des essais. | Comparaison en temps constant + 1,5 s d'attente après chaque échec. CORS mis à jour pour l'adresse Cloudflare. **À faire :** redéployer ce Worker (`worker-cloudflare.js`). |
 | S6 | Faible | Le service worker mettait en cache toutes les réponses, y compris celles d'autres sites. | `/api/*` et les autres sites ne sont jamais mis en cache. |
 
 ### Comptes clients (nouveaux) — mesures en place
@@ -28,7 +27,6 @@
 - Le jeton de session est stocké dans le navigateur (`localStorage`). La CSP stricte et l'échappement systématique limitent fortement le risque XSS qui permettrait de le voler.
 - À l'inscription, le message « un compte existe déjà » révèle qu'une adresse est inscrite (choix courant pour la facilité d'usage ; limité à 10 essais / 15 min).
 - `style-src 'unsafe-inline'` reste nécessaire (styles en ligne existants) : risque faible.
-- La page `admin-actus.html` publie sur la branche `main` de GitHub : la version Cloudflare de l'app ne reçoit pas ces actualités tant que le site Cloudflare n'est pas redéployé (déjà le cas avant cette version).
 
 ## 2. Audit d'accessibilité (référence WCAG 2.1 niveau AA)
 

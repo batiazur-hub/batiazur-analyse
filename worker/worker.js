@@ -20,8 +20,6 @@
  * Variables / secrets (facultatifs, pour le mot de passe oublié) :
  *   GMAIL_USER          bati.azur03@gmail.com
  *   GMAIL_APP_PASSWORD  secret (même mot de passe d'application que Terrain)
- *   GOOGLE_PLACES_KEY   secret : clé Google Places (horaires du magasin)
- *   PLACE_ID            identifiant Google Maps du magasin
  *
  * Sécurité :
  *   - mots de passe : PBKDF2-SHA256 100 000 itérations, sel aléatoire
@@ -39,7 +37,6 @@ const RESET_TTL = 60 * 15;                 // 15 minutes
 const PBKDF2_ITER = 100000;                // maximum accepté par Workers
 const MAX_DATA_BYTES = 200 * 1024;
 const MAX_BODY_BYTES = 256 * 1024;
-const DEFAULT_PLACE_ID = "ChIJt0auf_wd8UcR_Cdc9S1ZyOc";
 const SEC_HEADERS = {
   "X-Content-Type-Options": "nosniff",
   "Referrer-Policy": "no-referrer",
@@ -225,28 +222,8 @@ async function sendMail(env, to, subject, html) {
 }
 
 /* ── routes ─────────────────────────────────────────────── */
-async function horaires(env, ctx) {
-  if (!env.GOOGLE_PLACES_KEY) return json({ ok: false, error: "Horaires en ligne non configurés." });
-  const cache = caches.default;
-  const key = new Request("https://cache.batiazur/horaires");
-  const hit = await cache.match(key);
-  if (hit) return hit;
-  const placeId = env.PLACE_ID || DEFAULT_PLACE_ID;
-  const r = await fetch("https://places.googleapis.com/v1/places/" + encodeURIComponent(placeId) + "?languageCode=fr", {
-    headers: { "X-Goog-Api-Key": env.GOOGLE_PLACES_KEY, "X-Goog-FieldMask": "currentOpeningHours,regularOpeningHours" }
-  });
-  if (!r.ok) return err("Horaires indisponibles.", 502);
-  const g = await r.json();
-  /* On ne renvoie que les horaires (jamais la clé ni autre chose) */
-  const pick = (h) => h ? { periods: h.periods || [], weekdayDescriptions: h.weekdayDescriptions || [], openNow: !!h.openNow } : undefined;
-  const res = json({ ok: true, currentOpeningHours: pick(g.currentOpeningHours), regularOpeningHours: pick(g.regularOpeningHours) }, 200, { "Cache-Control": "public, max-age=1800" });
-  ctx && ctx.waitUntil(cache.put(key, res.clone()));
-  return res;
-}
-
 async function handleApi(req, env, path, ctx) {
   const method = req.method;
-  if (path === "/api/horaires" && method === "GET") return horaires(env, ctx);
   if (!env.KV) return err("Stockage des comptes non configuré", 503);
 
   if (path === "/api/health") {

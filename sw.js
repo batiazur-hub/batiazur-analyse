@@ -62,20 +62,6 @@ self.addEventListener("fetch", function(e) {
   /* Autres sites (réseaux sociaux, images externes) → navigateur, sans cache */
   if (new URL(url).origin !== self.location.origin) return;
 
-  /* actus.json → réseau d'abord, cache en secours */
-  if (url.includes("actus.json")) {
-    e.respondWith(
-      fetch(e.request).then(function(res) {
-        var copy = res.clone();
-        caches.open(CACHE_NAME).then(function(c) { c.put(e.request, copy); });
-        return res;
-      }).catch(function() {
-        return caches.match(e.request);
-      })
-    );
-    return;
-  }
-
   /* index.html → réseau d'abord (toujours la version la plus fraîche) */
   if (e.request.mode === "navigate" || url.endsWith("/") || url.endsWith("index.html")) {
     e.respondWith(
