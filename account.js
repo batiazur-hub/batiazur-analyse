@@ -36,6 +36,16 @@
     brome:    { name: "Brome choc",         param: "brome",      effect: null,  def: { qty: 150, unit: "g", per: 10 } },
     metaux:   { name: "Séquestrant métaux", param: "metals",     effect: null,  def: { qty: 0.5, unit: "L", per: 100 } }
   };
+  var TIPS = {
+    ph_plus:  "Cherchez « Mode d'emploi » ou « Dosage » : ex. « 100 g pour 10 m³ augmentent le pH de 0,1 ».",
+    ph_minus: "Cherchez « Mode d'emploi » ou « Dosage » : ex. « 100 g pour 10 m³ diminuent le pH de 0,1 ».",
+    tac:      "Ex. « 200 g pour 10 m³ augmentent le TAC de 10 ppm (1 °f) ». Ou le % de bicarbonate de sodium.",
+    stab:     "Ex. « 1 kg pour 100 m³ = +10 mg/L ». Ou le % d'acide cyanurique.",
+    salt:     "Ex. « 1 kg par m³ = 1 g/L ». Ou la pureté en % (souvent 99 %).",
+    chlore:   "Cherchez la dose « traitement choc » : ex. « 15 g par m³ ». Ou le % de chlore disponible.",
+    brome:    "Cherchez la dose « traitement choc » : ex. « 150 g pour 10 m³ ».",
+    metaux:   "Ex. « 0,5 L pour 100 m³ » ou « 25 cL pour 10 m³ »."
+  };
   var CAT_ORDER = ["ph_plus", "ph_minus", "tac", "stab", "salt", "chlore", "brome", "metaux"];
   var UNITS = ["g", "kg", "mL", "L", "pastilles"];
   var PARAM_CATS = { ph: ["ph_plus", "ph_minus"], tac: ["tac"], salt: ["salt"], stabilizer: ["stab"], shock: ["chlore"], brome: ["brome"], metals: ["metaux"] };
@@ -441,6 +451,9 @@
     var el = q("#homeSpaceText");
     if (!el) return;
     var who = token() ? "Connecté : " + esc(email()) : "Sans compte — données sur cet appareil";
+    var ap = data.pools.find(function(p) { return p.id === data.prefs.activePool; });
+    var hv = q("#homeVolumeText");
+    if (hv && ap) hv.textContent = ap.name + " · " + f(ap.volume, 1) + " m³";
     el.innerHTML = who + "<br>" + data.pools.length + " bassin" + (data.pools.length > 1 ? "s" : "") + " · " + data.products.length + " produit" + (data.products.length > 1 ? "s" : "") + " · mode " + (isCustom() ? "Mes produits" : "Produits Bati Azur");
   }
 
@@ -454,6 +467,7 @@
     if (!el) return;
     el.textContent = text || "";
     el.className = "form-msg" + (text ? (ok ? " ok" : " ko") : "");
+    if (text && !ok) el.setAttribute("role", "alert"); else el.removeAttribute("role");
   }
   function busy(btn, on, label) {
     if (!btn) return;
@@ -500,7 +514,7 @@
       q("#btnPw").addEventListener("click", function(e) {
         var btn = e.currentTarget; tap(btn); busy(btn, true);
         call("password", "POST", { current: q("#pwCurrent").value, password: q("#pwNew").value })
-          .then(function() { msg("pwMsg", "Mot de passe modifié.", true); q("#pwCurrent").value = ""; q("#pwNew").value = ""; })
+          .then(function(j) { if (j && j.token) setSession(j.token, email()); msg("pwMsg", "Mot de passe modifié. Vos autres appareils ont été déconnectés.", true); q("#pwCurrent").value = ""; q("#pwNew").value = ""; })
           .catch(function(err) { msg("pwMsg", err.message); })
           .then(function() { busy(btn, false); });
       });
@@ -610,7 +624,7 @@
     } else {
       html += data.pools.map(function(p) {
         return '<div class="space-row"><div><strong>' + esc(p.name) + "</strong><small>" + f(p.volume, 1) + ' m³</small></div>' +
-          '<button type="button" class="row-del" data-del-pool="' + esc(p.id) + '" aria-label="Supprimer">Supprimer</button></div>';
+          '<button type="button" class="row-del" data-del-pool="' + esc(p.id) + '" aria-label="Supprimer le bassin ' + esc(p.name) + '">Supprimer</button></div>';
       }).join("");
     }
     html +=
@@ -646,8 +660,8 @@
       html += '<p class="space-cat">' + esc(CATS[cat].name) + "</p>";
       html += list.map(function(p) {
         return '<div class="space-row"><div><strong>' + esc(p.name) + "</strong><small>" + esc(describe(p)) + "</small></div>" +
-          '<div class="row-actions"><button type="button" class="row-edit" data-edit-prod="' + esc(p.id) + '">Modifier</button>' +
-          '<button type="button" class="row-del" data-del-prod="' + esc(p.id) + '">Supprimer</button></div></div>';
+          '<div class="row-actions"><button type="button" class="row-edit" data-edit-prod="' + esc(p.id) + '" aria-label="Modifier ' + esc(p.name) + '">Modifier</button>' +
+          '<button type="button" class="row-del" data-del-prod="' + esc(p.id) + '" aria-label="Supprimer ' + esc(p.name) + '">Supprimer</button></div></div>';
       }).join("");
     });
     html += '<button type="button" class="primary-btn" id="addProductBtn" style="margin-bottom:16px;">Ajouter un produit</button>';
@@ -664,7 +678,7 @@
         if (p && window.confirm("Supprimer le produit « " + p.name + " » ?")) deleteProduct(p.id);
       });
     });
-    q("#addProductBtn").addEventListener("click", function(e) { tap(e.currentTarget); startEditor("ph_minus"); });
+    q("#addProductBtn").addEventListener("click", function(e) { tap(e.currentTarget); startEditor("ph_minus"); editor.generic = true; renderProductsList(); });
   }
 
   function startEditor(cat) {
@@ -690,6 +704,13 @@
     html += '<div class="chip-row">' + CAT_ORDER.map(function(cat) {
       return '<button type="button" class="chip' + (cat === e.cat ? " active" : "") + '" data-ecat="' + cat + '">' + esc(CATS[cat].name) + "</button>";
     }).join("") + "</div>";
+    html += '<div class="scan-box">' +
+      '<label class="secondary-btn scan-btn" for="labelPhoto">' + icon("camera") + ' Photographier l\'étiquette</label>' +
+      '<input id="labelPhoto" type="file" accept="image/*" capture="environment" class="visually-hidden">' +
+      '<p class="scan-tip">' + esc(TIPS[e.cat] || "") + ' La lecture se fait sur votre téléphone : la photo n\'est envoyée nulle part.</p>' +
+      (e.scan ? '<p class="form-msg ' + (e.scan.ok ? "ok" : "ko") + '" role="status">' + esc(e.scan.msg) + '</p>' +
+        (e.scan.text ? '<details class="space-details scan-text"><summary>Texte lu sur l\'étiquette</summary><pre>' + esc(e.scan.text.slice(0, 1500)) + '</pre></details>' : "") : '<p class="form-msg" id="scanMsg" role="status"></p>') +
+      '</div>';
     html += '<div class="form-grid"><label class="field"><span>Nom du produit</span><input id="pName" type="text" maxlength="60" placeholder="Ex. ' + esc(c.name) + ' marque X" value="' + esc(e.name) + '"></label></div>';
     if (c.conc) {
       html += '<div class="segmented" style="margin:12px 16px 0;">' +
@@ -728,6 +749,44 @@
     });
     qa("[data-emode]", box).forEach(function(b) {
       b.addEventListener("click", function() { tap(b); readEditor(); editor.mode = b.dataset.emode; renderProductsList(); });
+    });
+    var photo = q("#labelPhoto");
+    if (photo) photo.addEventListener("change", function() {
+      var file = photo.files && photo.files[0];
+      if (!file || !window.LabelReader) return;
+      readEditor();
+      var status = q("#scanMsg") || q(".scan-box .form-msg");
+      var lbl = q(".scan-btn");
+      if (lbl) lbl.classList.add("is-busy");
+      var say = function(t) { if (status) { status.className = "form-msg"; status.textContent = t; } };
+      say("Lecture de l'étiquette… (la première fois, téléchargement du module ~5 Mo)");
+      LabelReader.read(file, editor.generic ? null : editor.cat, function(st, pr) {
+        say("Lecture de l'étiquette… " + Math.round((pr || 0) * 100) + " %");
+      }).then(function(r) {
+        if (!editor) return;
+        if (editor.generic && r.cat && r.cat !== editor.cat) {
+          var keep = { name: editor.name, id: editor.id };
+          startEditor(r.cat);
+          editor.name = keep.name; editor.id = keep.id;
+        }
+        var cc = CATS[editor.cat], found = [];
+        if (r.qty > 0 && r.per > 0) {
+          editor.mode = "label";
+          editor.qty = r.qty; editor.unit = r.unit; editor.per = r.per;
+          found.push(amountText(r.qty, r.unit) + " pour " + f(r.per, 1) + " m³");
+          if (cc.effect && r.eff > 0) { editor.eff = r.eff; found.push("effet " + String(r.eff).replace(".", ",") + " " + cc.effect); }
+        } else if (r.conc > 0 && cc.conc) {
+          editor.mode = "conc"; editor.conc = r.conc;
+          found.push(f(r.conc, 1) + " % de " + cc.conc.what);
+        }
+        editor.scan = found.length
+          ? { ok: true, msg: "Lu sur l'étiquette (" + cc.name + ") : " + found.join(", ") + ". Vérifiez ces valeurs avant d'enregistrer." + (cc.effect && editor.mode === "label" && !(r.eff > 0) ? " L'effet n'a pas été trouvé : complétez-le." : ""), text: r.text }
+          : { ok: false, msg: "Aucune dose reconnue. Reprenez la photo de près, à plat et bien éclairée, ou saisissez la dose à la main.", text: r.text };
+        editor.generic = false;
+        renderProductsList();
+      }).catch(function(err) {
+        say(err && err.message ? err.message : "Lecture impossible.");
+      }).then(function() { if (lbl) lbl.classList.remove("is-busy"); });
     });
     q("#cancelProdBtn").addEventListener("click", function(ev) { tap(ev.currentTarget); editor = null; renderProductsList(); });
     q("#saveProdBtn").addEventListener("click", function(ev) {

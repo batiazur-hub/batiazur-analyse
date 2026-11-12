@@ -1,23 +1,19 @@
 {
+  "id": "./",
   "name": "Bati Azur Analyse",
-  "short_name": "Bati Azur",
-  "description": "Calculateur de volume, dosage et préconisations produits piscine BatiAzur.",
+  "short_name": "BA Analyse",
+  "description": "Volume, dosage et analyse de l'eau de piscine — produits Bati Azur ou vos propres produits.",
+  "lang": "fr",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#FDFAEF",
-  "theme_color": "#5284CB",
+  "background_color": "#0B1A3A",
+  "theme_color": "#0E5AC8",
   "icons": [
-    {
-      "src": "./android-chrome-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "./android-chrome-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
+    { "src": "./android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "./android-chrome-512x512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "./maskable-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "./favicon.svg", "sizes": "any", "type": "image/svg+xml" }
   ]
 }

@@ -3,21 +3,29 @@
    Version: 8  ← incrémenter à chaque déploiement
    ═══════════════════════════════════════════════════════ */
 
-const CACHE_NAME = "batiazur-v52";
+const CACHE_NAME = "batiazur-v53";
 
+/* L'OCR (vendor/tesseract, ~8 Mo) n'est pas pré-chargé : il est mis en
+   cache à la première lecture d'étiquette. */
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./style.css?v=52",
-  "./app.js?v=52",
-  "./account.js?v=52",
+  "./style.css?v=53",
+  "./app.js?v=53",
+  "./account.js?v=53",
+  "./label-reader.js?v=53",
+  "./onboarding.js?v=53",
+  "./sw-reset.js?v=53",
+  "./register-sw.js?v=53",
   "./site.webmanifest",
+  "./favicon.svg",
   "./favicon.ico",
   "./favicon-16x16.png",
   "./favicon-32x32.png",
   "./apple-touch-icon.png",
   "./android-chrome-192x192.png",
-  "./android-chrome-512x512.png"
+  "./android-chrome-512x512.png",
+  "./maskable-512x512.png"
 ];
 
 /* ── Installation : mise en cache de l'app shell ───────── */
@@ -51,8 +59,8 @@ self.addEventListener("fetch", function(e) {
   /* API comptes → toujours le réseau, jamais en cache */
   if (url.includes("/api/") || e.request.method !== "GET") return;
 
-  /* Google Places API → réseau uniquement (jamais en cache) */
-  if (url.includes("places.googleapis.com")) return;
+  /* Autres sites (réseaux sociaux, images externes) → navigateur, sans cache */
+  if (new URL(url).origin !== self.location.origin) return;
 
   /* actus.json → réseau d'abord, cache en secours */
   if (url.includes("actus.json")) {

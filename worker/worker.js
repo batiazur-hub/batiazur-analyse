@@ -20,6 +20,16 @@
  * Variables / secrets (facultatifs, pour le mot de passe oublié) :
  *   GMAIL_USER          bati.azur03@gmail.com
  *   GMAIL_APP_PASSWORD  secret (même mot de passe d'application que Terrain)
+ *   GOOGLE_PLACES_KEY   secret : clé Google Places (horaires du magasin)
+ *   PLACE_ID            identifiant Google Maps du magasin
+ *
+ * Sécurité :
+ *   - mots de passe : PBKDF2-SHA256 100 000 itérations, sel aléatoire
+ *   - sessions : jeton aléatoire 256 bits, seul son SHA-256 est stocké,
+ *     invalidées au changement / réinitialisation du mot de passe
+ *   - tentatives limitées (connexion, inscription, code de réinitialisation)
+ *   - pas de cookie (jeton en en-tête Authorization) → pas de CSRF
+ *   - en-têtes de sécurité sur toutes les réponses de l'API
  */
 
 import { connect } from "cloudflare:sockets";
@@ -28,13 +38,22 @@ const SESSION_TTL = 60 * 60 * 24 * 180;   // 180 jours
 const RESET_TTL = 60 * 15;                 // 15 minutes
 const PBKDF2_ITER = 100000;                // maximum accepté par Workers
 const MAX_DATA_BYTES = 200 * 1024;
+const MAX_BODY_BYTES = 256 * 1024;
+const DEFAULT_PLACE_ID = "ChIJt0auf_wd8UcR_Cdc9S1ZyOc";
+const SEC_HEADERS = {
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "no-referrer",
+  "X-Frame-Options": "DENY",
+  "Cross-Origin-Resource-Policy": "same-origin",
+  "Strict-Transport-Security": "max-age=31536000; includeSubDomains"
+};
 const enc = new TextEncoder();
 
 /* ── utilitaires ─────────────────────────────────────────── */
 function json(data, status = 200, extra = {}) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", ...extra }
+    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", ...SEC_HEADERS, ...extra }
   });
 }
 const err = (msg, status = 400) => json({ ok: false, error: msg }, status);
@@ -80,7 +99,11 @@ function validPassword(p) {
   return typeof p === "string" && p.length >= 8 && p.length <= 200;
 }
 async function readJson(req) {
-  try { return await req.json(); } catch { return {}; }
+  try {
+    const raw = await req.text();
+    if (raw.length > MAX_BODY_BYTES) return {};
+    return JSON.parse(raw);
+  } catch { return {}; }
 }
 function clientIp(req) {
   return req.headers.get("CF-Connecting-IP") || "local";
@@ -101,10 +124,23 @@ async function getUser(env, email) {
 async function putUser(env, user) {
   await env.KV.put("user:" + user.email, JSON.stringify(user));
 }
-async function newSession(env, email) {
+async function newSession(env, user) {
   const token = randomToken(32);
-  await env.KV.put("sess:" + (await sha256(token)), email, { expirationTtl: SESSION_TTL });
+  await env.KV.put("sess:" + (await sha256(token)), user.email + "|" + (user.gen || 0), { expirationTtl: SESSION_TTL });
   return token;
+}
+/* Nouveau mot de passe : toutes les sessions existantes deviennent invalides */
+async function setPassword(user, password) {
+  user.salt = b64(crypto.getRandomValues(new Uint8Array(16)));
+  user.iter = PBKDF2_ITER;
+  user.hash = await hashPassword(password, user.salt);
+  user.gen = (user.gen || 0) + 1;
+}
+/* Hachage factice : même durée de réponse, que le compte existe ou non */
+const DUMMY_SALT = "AAAAAAAAAAAAAAAAAAAAAA==";
+async function checkPassword(user, password) {
+  if (!user) { await hashPassword(String(password || ""), DUMMY_SALT); return false; }
+  return safeEqual(await hashPassword(String(password || ""), user.salt, user.iter), user.hash);
 }
 function bearer(req) {
   const h = req.headers.get("Authorization") || "";
@@ -113,10 +149,12 @@ function bearer(req) {
 async function sessionUser(env, req) {
   const token = bearer(req);
   if (!token || token.length > 128) return null;
-  const email = await env.KV.get("sess:" + (await sha256(token)));
-  if (!email) return null;
+  const val = await env.KV.get("sess:" + (await sha256(token)));
+  if (!val) return null;
+  const [email, gen] = val.split("|");
   const user = await getUser(env, email);
-  return user ? { user, token } : null;
+  if (!user || String(user.gen || 0) !== String(gen || 0)) return null;
+  return { user, token };
 }
 function publicUser(u) {
   return { email: u.email, data: u.data || null, updatedAt: u.updatedAt || null };
@@ -187,9 +225,29 @@ async function sendMail(env, to, subject, html) {
 }
 
 /* ── routes ─────────────────────────────────────────────── */
-async function handleApi(req, env, path) {
-  if (!env.KV) return err("Stockage des comptes non configuré", 503);
+async function horaires(env, ctx) {
+  if (!env.GOOGLE_PLACES_KEY) return json({ ok: false, error: "Horaires en ligne non configurés." });
+  const cache = caches.default;
+  const key = new Request("https://cache.batiazur/horaires");
+  const hit = await cache.match(key);
+  if (hit) return hit;
+  const placeId = env.PLACE_ID || DEFAULT_PLACE_ID;
+  const r = await fetch("https://places.googleapis.com/v1/places/" + encodeURIComponent(placeId) + "?languageCode=fr", {
+    headers: { "X-Goog-Api-Key": env.GOOGLE_PLACES_KEY, "X-Goog-FieldMask": "currentOpeningHours,regularOpeningHours" }
+  });
+  if (!r.ok) return err("Horaires indisponibles.", 502);
+  const g = await r.json();
+  /* On ne renvoie que les horaires (jamais la clé ni autre chose) */
+  const pick = (h) => h ? { periods: h.periods || [], weekdayDescriptions: h.weekdayDescriptions || [], openNow: !!h.openNow } : undefined;
+  const res = json({ ok: true, currentOpeningHours: pick(g.currentOpeningHours), regularOpeningHours: pick(g.regularOpeningHours) }, 200, { "Cache-Control": "public, max-age=1800" });
+  ctx && ctx.waitUntil(cache.put(key, res.clone()));
+  return res;
+}
+
+async function handleApi(req, env, path, ctx) {
   const method = req.method;
+  if (path === "/api/horaires" && method === "GET") return horaires(env, ctx);
+  if (!env.KV) return err("Stockage des comptes non configuré", 503);
 
   if (path === "/api/health") {
     return json({ ok: true, accounts: true, reset: !!(env.GMAIL_USER && env.GMAIL_APP_PASSWORD) });
@@ -202,17 +260,17 @@ async function handleApi(req, env, path) {
     if (!validPassword(b.password)) return err("Le mot de passe doit faire au moins 8 caractères.");
     if (await tooMany(env, "signup:" + clientIp(req), 10)) return err("Trop de tentatives, réessayez dans 15 minutes.", 429);
     if (await getUser(env, email)) return err("Un compte existe déjà avec cette adresse. Connectez-vous.", 409);
-    const salt = b64(crypto.getRandomValues(new Uint8Array(16)));
     const user = {
-      email, salt, iter: PBKDF2_ITER,
-      hash: await hashPassword(b.password, salt),
+      email, gen: 0,
       createdAt: new Date().toISOString(),
       data: b.data && typeof b.data === "object" ? b.data : null,
       updatedAt: new Date().toISOString()
     };
     if (JSON.stringify(user.data || {}).length > MAX_DATA_BYTES) user.data = null;
+    await setPassword(user, b.password);
+    user.gen = 0;
     await putUser(env, user);
-    return json({ ok: true, token: await newSession(env, email), user: publicUser(user) });
+    return json({ ok: true, token: await newSession(env, user), user: publicUser(user) });
   }
 
   if (path === "/api/login" && method === "POST") {
@@ -221,10 +279,9 @@ async function handleApi(req, env, path) {
     if (await tooMany(env, "login:" + email, 8) || await tooMany(env, "loginip:" + clientIp(req), 30)) {
       return err("Trop de tentatives, réessayez dans 15 minutes.", 429);
     }
-    const user = await getUser(env, email);
-    const ok = user && safeEqual(await hashPassword(String(b.password || ""), user.salt, user.iter), user.hash);
-    if (!ok) return err("E-mail ou mot de passe incorrect.", 401);
-    return json({ ok: true, token: await newSession(env, email), user: publicUser(user) });
+    const user = validEmail(email) ? await getUser(env, email) : null;
+    if (!(await checkPassword(user, b.password))) return err("E-mail ou mot de passe incorrect.", 401);
+    return json({ ok: true, token: await newSession(env, user), user: publicUser(user) });
   }
 
   if (path === "/api/reset/request" && method === "POST") {
@@ -266,12 +323,10 @@ async function handleApi(req, env, path) {
     }
     const user = await getUser(env, email);
     if (!user) return err("Compte introuvable.", 404);
-    user.salt = b64(crypto.getRandomValues(new Uint8Array(16)));
-    user.iter = PBKDF2_ITER;
-    user.hash = await hashPassword(b.password, user.salt);
+    await setPassword(user, b.password);
     await putUser(env, user);
     await env.KV.delete("reset:" + email);
-    return json({ ok: true, token: await newSession(env, email), user: publicUser(user) });
+    return json({ ok: true, token: await newSession(env, user), user: publicUser(user) });
   }
 
   /* ── routes authentifiées ── */
@@ -291,7 +346,8 @@ async function handleApi(req, env, path) {
     if (raw.length > MAX_DATA_BYTES) return err("Données trop volumineuses.", 413);
     let b;
     try { b = JSON.parse(raw); } catch { return err("JSON invalide."); }
-    if (!b.data || typeof b.data !== "object") return err("Données manquantes.");
+    if (!b.data || typeof b.data !== "object" || Array.isArray(b.data)) return err("Données manquantes.");
+    if ((b.data.pools || []).length > 100 || (b.data.products || []).length > 300) return err("Trop d'éléments enregistrés.", 413);
     user.data = b.data;
     user.updatedAt = new Date().toISOString();
     await putUser(env, user);
@@ -300,18 +356,19 @@ async function handleApi(req, env, path) {
 
   if (path === "/api/password" && method === "POST") {
     const b = await readJson(req);
-    if (!safeEqual(await hashPassword(String(b.current || ""), user.salt, user.iter), user.hash)) return err("Mot de passe actuel incorrect.", 401);
+    if (await tooMany(env, "pw:" + user.email, 8)) return err("Trop de tentatives, réessayez dans 15 minutes.", 429);
+    if (!(await checkPassword(user, b.current))) return err("Mot de passe actuel incorrect.", 401);
     if (!validPassword(b.password)) return err("Le mot de passe doit faire au moins 8 caractères.");
-    user.salt = b64(crypto.getRandomValues(new Uint8Array(16)));
-    user.iter = PBKDF2_ITER;
-    user.hash = await hashPassword(b.password, user.salt);
+    await setPassword(user, b.password);
     await putUser(env, user);
-    return json({ ok: true });
+    /* les autres appareils sont déconnectés ; celui-ci reçoit une nouvelle session */
+    return json({ ok: true, token: await newSession(env, user) });
   }
 
   if (path === "/api/account" && method === "DELETE") {
     const b = await readJson(req);
-    if (!safeEqual(await hashPassword(String(b.password || ""), user.salt, user.iter), user.hash)) return err("Mot de passe incorrect.", 401);
+    if (await tooMany(env, "pw:" + user.email, 8)) return err("Trop de tentatives, réessayez dans 15 minutes.", 429);
+    if (!(await checkPassword(user, b.password))) return err("Mot de passe incorrect.", 401);
     await env.KV.delete("user:" + user.email);
     await env.KV.delete("sess:" + (await sha256(s.token)));
     return json({ ok: true });
@@ -321,11 +378,11 @@ async function handleApi(req, env, path) {
 }
 
 export default {
-  async fetch(req, env) {
+  async fetch(req, env, ctx) {
     const url = new URL(req.url);
     if (url.pathname.startsWith("/api/")) {
       try {
-        return await handleApi(req, env, url.pathname);
+        return await handleApi(req, env, url.pathname, ctx);
       } catch (e) {
         console.error(e);
         return err("Erreur serveur.", 500);

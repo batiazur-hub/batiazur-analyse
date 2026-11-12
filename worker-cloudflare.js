@@ -18,12 +18,10 @@ const FILE_PATH = "actus.json";
 function corsHeaders(origin) {
   const allowedOrigins = [
     "https://batiazur-hub.github.io",
-    "https://batiazur-hub.github.io/batiazur-analyse"
+    "https://batiazuranalyse.batiazur-mail.workers.dev"
   ];
-
-  const allowOrigin = origin && origin.startsWith("https://batiazur-hub.github.io")
-    ? origin
-    : "https://batiazur-hub.github.io";
+  const ok = allowedOrigins.includes(origin) || /^https:\/\/[a-z0-9-]+\.batiazurportail\.site$/.test(origin);
+  const allowOrigin = ok ? origin : allowedOrigins[0];
 
   return {
     "Access-Control-Allow-Origin": allowOrigin,
@@ -43,6 +41,19 @@ function jsonResponse(data, status = 200, origin = "") {
   });
 }
 
+/* Comparaison en temps constant (via SHA-256) */
+async function sameSecret(a, b) {
+  const enc = new TextEncoder();
+  const [ha, hb] = await Promise.all([
+    crypto.subtle.digest("SHA-256", enc.encode(String(a))),
+    crypto.subtle.digest("SHA-256", enc.encode(String(b)))
+  ]);
+  const x = new Uint8Array(ha), y = new Uint8Array(hb);
+  let r = 0;
+  for (let i = 0; i < x.length; i++) r |= x[i] ^ y[i];
+  return r === 0;
+}
+
 function toBase64Utf8(str) {
   return btoa(unescape(encodeURIComponent(str)));
 }
@@ -60,7 +71,9 @@ export default {
     }
 
     const adminPassword = request.headers.get("X-Admin-Password") || "";
-    if (!env.ADMIN_PASSWORD || adminPassword !== env.ADMIN_PASSWORD) {
+    if (!env.ADMIN_PASSWORD || !(await sameSecret(adminPassword, env.ADMIN_PASSWORD))) {
+      /* ralentit les essais de mot de passe à la chaîne */
+      await new Promise(r => setTimeout(r, 1500));
       return jsonResponse({ ok: false, error: "Mot de passe admin incorrect" }, 401, origin);
     }
 

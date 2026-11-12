@@ -10,3 +10,7 @@ wrangler.toml
 worker-cloudflare.js
 package.json
 package-lock.json
+docs
+tools
+brand
+_headers.bak

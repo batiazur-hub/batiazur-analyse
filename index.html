@@ -1,33 +1,12 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <!-- ═══ SW cache reset — runs before any other script ════════
-       Si le localStorage ne correspond pas à SW_VER, on désinstalle
-       tous les SW + on vide tous les caches + on recharge une seule fois.
-       Cela corrige tout état corrompu après un changement de version.
-  ════════════════════════════════════════════════════════════════ -->
-  <script>(function(){
-    var SW_VER="52";
-    try{
-      if(localStorage.getItem("batiazur_sw_ver")!==SW_VER){
-        localStorage.setItem("batiazur_sw_ver",SW_VER);
-        if("serviceWorker" in navigator){
-          navigator.serviceWorker.getRegistrations().then(function(regs){
-            var tasks=regs.map(function(r){return r.unregister();});
-            if("caches" in window){
-              tasks.push(caches.keys().then(function(keys){
-                return Promise.all(keys.map(function(k){return caches.delete(k);}));
-              }));
-            }
-            if(regs.length>0){Promise.all(tasks).then(function(){window.location.reload();});}
-          });
-        }
-      }
-    }catch(e){}
-  })();</script>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
-  <title>BatiAzur Analyse</title>
+  <script src="./sw-reset.js?v=53"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>BatiAzur Analyse — volume et dosage piscine</title>
+  <meta name="description" content="Calculez le volume de votre piscine et le dosage des produits (pH, TAC, chlore, sel…) avec les produits Bati Azur ou les vôtres.">
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
   <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
   <link rel="icon" href="./favicon.ico">
@@ -38,9 +17,10 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Bati Azur">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="stylesheet" href="./style.css?v=52" />
+  <link rel="stylesheet" href="./style.css?v=53" />
 </head>
 <body>
+<!--ICONS--><svg xmlns="http://www.w3.org/2000/svg" class="icon-sprite" aria-hidden="true" focusable="false"><!-- Icônes Lucide (lucide.dev) — licence ISC --><symbol id="i-house" viewBox="0 0 24 24"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" /> <path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></symbol><symbol id="i-ruler-dimension-line" viewBox="0 0 24 24"><path d="M10 15v-3" /> <path d="M14 15v-3" /> <path d="M18 15v-3" /> <path d="M2 8V4" /> <path d="M22 6H2" /> <path d="M22 8V4" /> <path d="M6 15v-3" /> <rect x="2" y="12" width="20" height="8" rx="2" /></symbol><symbol id="i-droplet" viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z" /></symbol><symbol id="i-message-circle-question" viewBox="0 0 24 24"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719" /> <path d="M9 9.5a3 2.5 0 016 0c0 2-2 2-3 3.5" /> <path d="M12 17h.01" /></symbol><symbol id="i-user-round" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5" /> <path d="M20 21a8 8 0 0 0-16 0" /></symbol><symbol id="i-newspaper" viewBox="0 0 24 24"><path d="M15 18h-5" /> <path d="M18 14h-8" /> <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-4 0v-9a2 2 0 0 1 2-2h2" /> <rect width="8" height="4" x="10" y="6" rx="1" /></symbol><symbol id="i-phone" viewBox="0 0 24 24"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384" /></symbol><symbol id="i-mail" viewBox="0 0 24 24"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" /> <rect x="2" y="4" width="20" height="16" rx="2" /></symbol><symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /> <circle cx="12" cy="10" r="3" /></symbol><symbol id="i-navigation" viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11" /></symbol><symbol id="i-camera" viewBox="0 0 24 24"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z" /> <circle cx="12" cy="13" r="3" /></symbol><symbol id="i-share-2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3" /> <circle cx="6" cy="12" r="3" /> <circle cx="18" cy="19" r="3" /> <line x1="8.59" x2="15.42" y1="13.51" y2="17.49" /> <line x1="15.41" x2="8.59" y1="6.51" y2="10.49" /></symbol><symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /> <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></symbol><symbol id="i-send" viewBox="0 0 24 24"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" /> <path d="m21.854 2.147-10.94 10.939" /></symbol><symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" /></symbol><symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></symbol><symbol id="i-circle-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <path d="M9 9.5a3 2.5 0 016 0c0 2-2 2-3 3.5" /> <path d="M12 17h.01" /></symbol><symbol id="i-book-open" viewBox="0 0 24 24"><path d="M12 5v16" /> <path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z" /></symbol><symbol id="i-waves" viewBox="0 0 24 24"><path d="M2 12q2.5 2 5 0t5 0 5 0 5 0" /> <path d="M2 19q2.5 2 5 0t5 0 5 0 5 0" /> <path d="M2 5q2.5 2 5 0t5 0 5 0 5 0" /></symbol><symbol id="i-flask-conical" viewBox="0 0 24 24"><path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2" /> <path d="M6.453 15h11.094" /> <path d="M8.5 2h7" /></symbol><symbol id="i-test-tube" viewBox="0 0 24 24"><path d="M14.5 2v17.5c0 1.4-1.1 2.5-2.5 2.5c-1.4 0-2.5-1.1-2.5-2.5V2" /> <path d="M8.5 2h7" /> <path d="M14.5 16h-5" /></symbol><symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z" /> <path d="M20 2v4" /> <path d="M22 4h-4" /> <circle cx="4" cy="20" r="2" /></symbol><symbol id="i-user-plus" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /> <circle cx="9" cy="7" r="4" /> <line x1="19" x2="19" y1="8" y2="14" /> <line x1="22" x2="16" y1="11" y2="11" /></symbol><symbol id="i-log-out" viewBox="0 0 24 24"><path d="m16 17 5-5-5-5" /> <path d="M21 12H9" /> <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /></symbol><symbol id="i-trash-2" viewBox="0 0 24 24"><path d="M10 11v6" /> <path d="M14 11v6" /> <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" /> <path d="M3 6h18" /> <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></symbol><symbol id="i-pencil" viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /> <path d="m15 5 4 4" /></symbol><symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14" /> <path d="M12 5v14" /></symbol><symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <path d="M12 6v6l4 2" /></symbol><symbol id="i-star" viewBox="0 0 24 24"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></symbol><symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /> <path d="M7 11V7a5 5 0 0 1 10 0v4" /></symbol><symbol id="i-cloud-check" viewBox="0 0 24 24"><path d="m17 15-5.5 5.5L9 18" /> <path d="M5.516 16.07A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 3.501 7.327" /></symbol><symbol id="i-calculator" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2" /> <line x1="8" x2="16" y1="6" y2="6" /> <line x1="16" x2="16" y1="14" y2="18" /> <path d="M16 10h.01" /> <path d="M12 10h.01" /> <path d="M8 10h.01" /> <path d="M12 14h.01" /> <path d="M8 14h.01" /> <path d="M12 18h.01" /> <path d="M8 18h.01" /></symbol><symbol id="i-list-checks" viewBox="0 0 24 24"><path d="M13 5h8" /> <path d="M13 12h8" /> <path d="M13 19h8" /> <path d="m3 17 2 2 4-4" /> <path d="m3 7 2 2 4-4" /></symbol><symbol id="i-shield-check" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /> <path d="m9 12 2 2 4-4" /></symbol><symbol id="i-scan-text" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2" /> <path d="M17 3h2a2 2 0 0 1 2 2v2" /> <path d="M21 17v2a2 2 0 0 1-2 2h-2" /> <path d="M7 21H5a2 2 0 0 1-2-2v-2" /> <path d="M7 8h8" /> <path d="M7 12h10" /> <path d="M7 16h6" /></symbol><symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <path d="M12 16v-4" /> <path d="M12 8h.01" /></symbol><symbol id="i-triangle-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" /> <path d="M12 9v4" /> <path d="M12 17h.01" /></symbol><symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z" /></symbol></svg><!--/ICONS-->
 <div class="app">
 
   <!-- Couche verre fixe — ne scrolle jamais -->
@@ -50,7 +30,7 @@
   <div class="splash-screen" id="splashScreen" aria-hidden="true">
     <div class="splash-glow"></div>
     <div class="splash-content">
-      <img src="./android-chrome-512x512.png" alt="" class="splash-logo" width="112" height="112" loading="eager" decoding="sync">
+      <img src="./favicon.svg" alt="" class="splash-logo" width="112" height="112" loading="eager" decoding="sync">
       <div class="splash-title">BatiAzur Analyse</div>
       <div class="splash-subtitle">Analyse &amp; dosage piscine</div>
     </div>
@@ -62,54 +42,53 @@
     <!-- ══ ACCUEIL ══════════════════════════════════════ -->
     <section class="page active" id="page-home">
 
-      <h1>Accueil</h1>
-      <p class="lead">Volume &amp; dosage piscine — produits Bati Azur ou vos propres produits.</p>
+      <header class="home-hero">
+        <img src="./favicon.svg" alt="" width="56" height="56" class="home-logo">
+        <div>
+          <h1>BatiAzur Analyse</h1>
+          <p class="lead">Volume et dosage de votre piscine — produits Bati Azur ou vos propres produits.</p>
+        </div>
+      </header>
+
+      <!-- Mon bassin -->
+      <div class="card pool-card">
+        <div class="pool-card-head">
+          <span class="pool-card-icon"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-waves"/></svg></span>
+          <div>
+            <p class="pool-card-label">Mon bassin</p>
+            <p class="pool-card-value" id="homeVolumeText">Aucun volume calculé</p>
+          </div>
+        </div>
+        <p class="pool-card-meta" id="homeSpaceText">Sans compte — données sur cet appareil</p>
+        <div class="btn-row">
+          <button class="primary-btn" type="button" data-go="dosage"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-droplet"/></svg> Dosage</button>
+          <button class="secondary-btn" type="button" data-go="volume"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-ruler-dimension-line"/></svg> Volume</button>
+        </div>
+      </div>
 
       <!-- Actions rapides -->
+      <p class="section-header">Raccourcis</p>
       <div class="quick-grid">
-        <button class="choice-card" data-go="volume">
-          <svg viewBox="0 0 48 28"><path d="M5 23h38"/><path d="M11 21 24 4l13 17"/><path d="M15 16h18"/></svg>
-          <strong>Volume</strong>
-          <small>Forme + fond + dimensions</small>
+        <button class="choice-card" type="button" data-go="compte">
+          <svg class="i cc-icon" aria-hidden="true" focusable="false"><use href="#i-flask-conical"/></svg>
+          <strong>Mes produits</strong>
+          <small>Vos produits, photo d'étiquette</small>
         </button>
-        <button class="choice-card" data-go="dosage">
-          <svg viewBox="0 0 48 28"><path d="M24 4s10 9.5 10 16a10 10 0 0 1-20 0C14 13.5 24 4 24 4z"/></svg>
-          <strong>Dosage</strong>
-          <small>pH, TAC, sel, stabilisant…</small>
+        <button class="choice-card" type="button" data-go="faq">
+          <svg class="i cc-icon" aria-hidden="true" focusable="false"><use href="#i-message-circle-question"/></svg>
+          <strong>Assistant</strong>
+          <small>Eau verte, pompe, hivernage…</small>
         </button>
-        <button class="choice-card" data-go="compte">
-          <svg viewBox="0 0 48 28"><circle cx="24" cy="10" r="5"/><path d="M14 25c1.5-5 5.5-8 10-8s8.5 3 10 8"/></svg>
-          <strong>Mon espace</strong>
-          <small>Compte, bassins, produits</small>
-        </button>
-        <button class="choice-card" data-go="actualites">
-          <svg viewBox="0 0 48 28"><path d="M9 6h30v18H9z"/><path d="M15 12h18"/><path d="M15 17h12"/></svg>
+        <button class="choice-card" type="button" data-go="actualites">
+          <svg class="i cc-icon" aria-hidden="true" focusable="false"><use href="#i-newspaper"/></svg>
           <strong>Actualités</strong>
-          <small>Conseils & nouveautés</small>
+          <small>Conseils &amp; nouveautés</small>
         </button>
-        <a class="choice-card" href="https://www.instagram.com/bati_azur03/" target="_blank" rel="noopener">
-          <svg viewBox="0 0 48 28"><rect x="10" y="5" width="28" height="18" rx="6"/><circle cx="24" cy="14" r="5"/><circle cx="32" cy="10" r="1.5"/></svg>
-          <strong>Instagram</strong>
-          <small>Suivre BatiAzur</small>
-        </a>
-        <a class="choice-card" href="https://www.facebook.com/profile.php?id=61589950888126" target="_blank" rel="noopener">
-          <svg viewBox="0 0 48 28"><circle cx="24" cy="14" r="11"/><path d="M26.5 9h-2.1c-1.3 0-2.2.9-2.2 2.2V14h-2.1v3.1h2.1V24h3.3v-6.9h2.5l.5-3.1h-3v-2c0-.6.3-1 1-1h2V9z"/></svg>
-          <strong>Facebook</strong>
-          <small>Page officielle</small>
-        </a>
-      </div>
-
-      <!-- Volume retenu -->
-      <p class="section-header">Dernier volume</p>
-      <div class="card">
-        <p id="homeVolumeText">Calcule un volume dans l'onglet Volume — il s'affichera ici.</p>
-      </div>
-
-      <!-- Mon espace -->
-      <p class="section-header">Mon espace</p>
-      <div class="card">
-        <p id="homeSpaceText">Sans compte — données sur cet appareil</p>
-        <button class="secondary-btn" type="button" data-go="compte" style="margin-bottom:14px;">Ouvrir Mon espace</button>
+        <button class="choice-card" type="button" id="openGuideHome">
+          <svg class="i cc-icon" aria-hidden="true" focusable="false"><use href="#i-book-open"/></svg>
+          <strong>Guide</strong>
+          <small>Prise en main pas à pas</small>
+        </button>
       </div>
 
       <!-- Contact -->
@@ -145,7 +124,7 @@
         </div>
         <div class="horaire-days" id="horaireDays"></div>
         <a href="https://g.page/r/CfwnXPUtWcjnEAE" target="_blank" rel="noopener" class="horaire-footer-link">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5 14.5 7.62 14.5 9 13.38 11.5 12 11.5z" fill="currentColor"/>
           </svg>
           Source : Google Maps
@@ -159,7 +138,7 @@
         <!-- Facebook -->
         <a class="social-card" href="https://www.facebook.com/profile.php?id=61589950888126" target="_blank" rel="noopener">
           <span class="social-logo">
-            <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
               <rect width="40" height="40" rx="10" fill="#1877F2"/>
               <path d="M24 20.5h-2.7V30h-3.8V20.5H15V17h2.5v-2.2c0-3 1.5-4.8 4.6-4.8h2.9v3.5h-1.9c-1.1 0-1.4.5-1.4 1.5V17H25l-.5 3.5z" fill="white"/>
             </svg>
@@ -173,7 +152,7 @@
         <!-- Instagram -->
         <a class="social-card" href="https://www.instagram.com/bati_azur03/" target="_blank" rel="noopener">
           <span class="social-logo">
-            <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <linearGradient id="ig" x1="0%" y1="100%" x2="100%" y2="0%">
                   <stop offset="0%"   stop-color="#f09433"/>
@@ -198,7 +177,7 @@
         <!-- Google Avis -->
         <a class="social-card" href="https://g.page/r/CfwnXPUtWcjnEAE/review" target="_blank" rel="noopener" style="border-bottom:none;">
           <span class="social-logo" style="background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.14);">
-            <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
               <rect width="40" height="40" rx="10" fill="white"/>
               <path d="M32 20.4c0-.8-.07-1.6-.2-2.35H20.5v4.44h6.5c-.28 1.5-1.13 2.77-2.4 3.62v3.01h3.88C30.8 27.25 32 24.1 32 20.4z" fill="#4285F4"/>
               <path d="M20.5 33c3.27 0 6.01-1.08 8.01-2.93l-3.88-3.01c-1.08.72-2.46 1.15-4.13 1.15-3.17 0-5.86-2.14-6.82-5.02H9.7v3.11C11.69 30.44 15.84 33 20.5 33z" fill="#34A853"/>
@@ -219,10 +198,6 @@
     <!-- ══ ACTUALITÉS ════════════════════════════════════ -->
     <!-- ══ MON ESPACE ═════════════════════════════════════ -->
     <section class="page" id="page-compte">
-      <button class="back-btn" type="button" data-go="home">
-        <svg viewBox="0 0 20 20"><path d="M12 5l-5 5 5 5"/></svg>
-        Retour
-      </button>
       <h1>Mon espace</h1>
       <p class="lead">Enregistrez vos bassins et vos propres produits. Sans compte, tout reste sur cet appareil ; avec un compte, vous les retrouvez sur tous vos appareils.</p>
 
@@ -234,12 +209,13 @@
 
       <p class="section-header" id="productsSection">Mes produits</p>
       <div class="card" id="productsList"></div>
+      <button class="secondary-btn" type="button" id="openGuideSpace" style="margin:16px 0 0;width:100%;"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-book-open"/></svg> Revoir le guide de démarrage</button>
       <p class="note" style="margin-bottom:24px!important;">Les dosages « Mes produits » sont calculés à partir des informations que vous saisissez. Vérifiez toujours les consignes du fabricant. Pour un doute, apportez un échantillon d'eau chez Bati Azur.</p>
     </section>
 
     <section class="page" id="page-actualites">
       <button class="back-btn" type="button" data-go="home">
-        <svg viewBox="0 0 20 20"><path d="M12 5l-5 5 5 5"/></svg>
+        <svg aria-hidden="true" focusable="false" viewBox="0 0 20 20"><path d="M12 5l-5 5 5 5"/></svg>
         Retour
       </button>
       <h1>Actualités</h1>
@@ -261,23 +237,23 @@
         <div class="card">
           <div class="choice-grid" style="padding:14px 14px 14px;">
             <button class="choice-card active" data-shape="rect" style="min-height:72px;">
-              <svg viewBox="0 0 48 28"><rect x="6" y="6" width="36" height="16" rx="2"/></svg>
+              <svg aria-hidden="true" focusable="false" viewBox="0 0 48 28"><rect x="6" y="6" width="36" height="16" rx="2"/></svg>
               <strong>Rectangulaire</strong><small>Bassin classique</small>
             </button>
             <button class="choice-card" data-shape="oval" style="min-height:72px;">
-              <svg viewBox="0 0 48 28"><ellipse cx="24" cy="14" rx="18" ry="9"/></svg>
+              <svg aria-hidden="true" focusable="false" viewBox="0 0 48 28"><ellipse cx="24" cy="14" rx="18" ry="9"/></svg>
               <strong>Ovoïde</strong><small>Ovale type piscine</small>
             </button>
             <button class="choice-card" data-shape="round" style="min-height:72px;">
-              <svg viewBox="0 0 48 28"><circle cx="24" cy="14" r="10"/></svg>
+              <svg aria-hidden="true" focusable="false" viewBox="0 0 48 28"><circle cx="24" cy="14" r="10"/></svg>
               <strong>Rond</strong><small>Diamètre</small>
             </button>
             <button class="choice-card" data-shape="hex" style="min-height:72px;">
-              <svg viewBox="0 0 48 28"><path d="M15 5h18l9 9-9 9H15l-9-9z"/></svg>
+              <svg aria-hidden="true" focusable="false" viewBox="0 0 48 28"><path d="M15 5h18l9 9-9 9H15l-9-9z"/></svg>
               <strong>Hexagonal</strong><small>Approximation</small>
             </button>
             <button class="choice-card" data-shape="free" style="min-height:72px;">
-              <svg viewBox="0 0 48 28"><path d="M7 16c3-9 12-11 18-7 6 4 13 0 16 7-2 8-12 9-18 5-6-4-13 2-16-5z"/></svg>
+              <svg aria-hidden="true" focusable="false" viewBox="0 0 48 28"><path d="M7 16c3-9 12-11 18-7 6 4 13 0 16 7-2 8-12 9-18 5-6-4-13 2-16-5z"/></svg>
               <strong>Forme libre</strong><small>Coeff. 0,85</small>
             </button>
           </div>
@@ -285,16 +261,16 @@
           <h2 class="spaced-title">Fond</h2>
           <div class="choice-grid three" style="padding:4px 14px 14px;">
             <button class="choice-card active" data-floor="flat" style="min-height:64px;">
-              <svg viewBox="0 0 48 28"><path d="M7 18h34"/></svg>
+              <svg aria-hidden="true" focusable="false" viewBox="0 0 48 28"><path d="M7 18h34"/></svg>
               <strong>Plat</strong>
             </button>
             <button class="choice-card" data-floor="slope" style="min-height:64px;">
-              <svg viewBox="0 0 48 28"><path d="M7 12h12l14 8h8"/></svg>
-              <strong>Pente</strong>
+              <svg aria-hidden="true" focusable="false" viewBox="0 0 48 28"><path d="M7 12h12l14 8h8"/></svg>
+              <strong>Pente composée</strong>
             </button>
             <button class="choice-card" data-floor="diamond" style="min-height:64px;">
-              <svg viewBox="0 0 48 28"><path d="M7 10h10l7 10 7-10h10"/></svg>
-              <strong>Diamant</strong>
+              <svg aria-hidden="true" focusable="false" viewBox="0 0 48 28"><path d="M7 10h10l7 10 7-10h10"/></svg>
+              <strong>Pointe de diamant</strong>
             </button>
           </div>
         </div>
@@ -304,40 +280,58 @@
         <div class="card">
           <div class="form-grid" id="volumeFields">
             <label class="field field-rect">
-              <span>Longueur</span>
+              <span>Longueur <small class="unit">(m)</small></span>
               <input id="length" type="number" inputmode="decimal" step="0.01" placeholder="8 m">
             </label>
             <label class="field field-rect">
-              <span>Largeur</span>
+              <span>Largeur <small class="unit">(m)</small></span>
               <input id="width" type="number" inputmode="decimal" step="0.01" placeholder="4 m">
             </label>
             <label class="field field-round hidden">
-              <span>Diamètre</span>
+              <span>Diamètre <small class="unit">(m)</small></span>
               <input id="diameter" type="number" inputmode="decimal" step="0.01" placeholder="4,5 m">
             </label>
             <label class="field depth-flat">
-              <span>Profondeur</span>
+              <span>Profondeur <small class="unit">(m)</small></span>
               <input id="depth" type="number" inputmode="decimal" step="0.01" placeholder="1,5 m">
             </label>
             <label class="field depth-slope hidden">
-              <span>Prof. mini</span>
-              <input id="depthMin" type="number" inputmode="decimal" step="0.01" placeholder="1,2 m">
+              <span>Prof. petit bain <small class="unit">(m)</small></span>
+              <input id="depthMin" type="number" inputmode="decimal" step="0.01" placeholder="1,00 m">
             </label>
             <label class="field depth-slope hidden">
-              <span>Prof. maxi</span>
-              <input id="depthMax" type="number" inputmode="decimal" step="0.01" placeholder="1,8 m">
+              <span>Prof. grand bain <small class="unit">(m)</small></span>
+              <input id="depthMax" type="number" inputmode="decimal" step="0.01" placeholder="1,80 m">
+            </label>
+            <label class="field depth-slope hidden">
+              <span>Long. du plat <small class="unit">(m)</small></span>
+              <input id="lenFlat" type="number" inputmode="decimal" step="0.01" placeholder="3 m">
+            </label>
+            <label class="field depth-slope hidden">
+              <span>Long. de la pente <small class="unit">(m)</small></span>
+              <input id="lenSlope" type="number" inputmode="decimal" step="0.01" placeholder="2 m">
+            </label>
+            <label class="field depth-slope hidden">
+              <span>Long. partie basse <small class="unit">(m)</small></span>
+              <input id="lenDeep" type="number" inputmode="decimal" step="0.01" placeholder="3 m">
             </label>
             <label class="field depth-diamond hidden">
-              <span>Prof. bords</span>
-              <input id="depthEdge" type="number" inputmode="decimal" step="0.01" placeholder="1,2 m">
+              <span>Prof. plateforme <small class="unit">(m)</small></span>
+              <input id="depthEdge" type="number" inputmode="decimal" step="0.01" placeholder="1,20 m">
             </label>
             <label class="field depth-diamond hidden">
-              <span>Prof. centre</span>
-              <input id="depthCenter" type="number" inputmode="decimal" step="0.01" placeholder="1,8 m">
+              <span>Long. plateforme <small class="unit">(m)</small></span>
+              <input id="lenPlatform" type="number" inputmode="decimal" step="0.01" placeholder="3 m">
+            </label>
+            <label class="field depth-diamond hidden">
+              <span>Prof. à la pointe <small class="unit">(m)</small></span>
+              <input id="depthCenter" type="number" inputmode="decimal" step="0.01" placeholder="2,00 m">
             </label>
           </div>
+          <div class="profile-box" id="profileBox" aria-hidden="true"></div>
+          <p class="note" id="volumeHint" aria-live="polite"></p>
           <button class="primary-btn" id="calculateVolume" type="button">Calculer le volume</button>
-          <div class="result-box" id="volumeResult" style="margin-bottom:16px;">
+          <div class="result-box" id="volumeResult" role="status" aria-live="polite">
             <span>Volume retenu</span>
             <strong>—</strong>
             <p>Renseigne les dimensions ci-dessus.</p>
@@ -383,13 +377,16 @@
           <div id="poolPicker" class="hidden"></div>
           <div id="paramFields"></div>
           <button class="primary-btn" id="calculateDose" type="button">Calculer le dosage</button>
-          <div class="result-box" id="doseResult">
+          <div class="result-box" id="doseResult" role="status" aria-live="polite">
             <span>Résultat</span>
             <strong>—</strong>
             <p>Renseigne le volume et les paramètres.</p>
           </div>
-          <a class="secondary-btn" id="mailResult" href="mailto:?subject=Analyse%20BatiAzur&body=Résultat%20à%20calculer">Envoyer par mail</a>
-          <button class="secondary-btn" id="copyResult" type="button" style="margin-bottom:16px;">Copier le résultat</button>
+          <div class="result-actions">
+            <button class="secondary-btn" id="shareResult" type="button"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-share-2"/></svg> Partager</button>
+            <a class="secondary-btn" id="mailResult" href="mailto:?subject=Analyse%20BatiAzur&body=Résultat%20à%20calculer"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-mail"/></svg> Mail</a>
+            <button class="secondary-btn" id="copyResult" type="button"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-copy"/></svg> <span>Copier</span></button>
+          </div>
         </div>
 
       </div>
@@ -400,7 +397,7 @@
 
       <div class="faq-header">
         <div class="faq-avatar">
-          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 10h8M8 14h5"/></svg>
+          <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 10h8M8 14h5"/></svg>
         </div>
         <div>
           <h1 style="margin:0;font-size:26px;">Assistant BatiAzur</h1>
@@ -432,31 +429,27 @@
 
   <!-- ══ TAB BAR iOS 26 ═══════════════════════════════════ -->
   <div class="tabbar-dock">
-    <nav class="tabbar" id="tabbar">
-      <div class="bubble"></div>
-      <button class="tab active" type="button" data-page="home">
-        <span class="icon">
-          <svg viewBox="0 0 24 24"><path d="M4 11.5 12 5l8 6.5"/><path d="M6.5 10.5V20h4.2v-5.2h2.6V20h4.2v-9.5"/></svg>
-        </span>
+    <nav class="tabbar" id="tabbar" data-active="home" aria-label="Navigation principale">
+      <div class="bubble" aria-hidden="true"></div>
+      <button class="tab active" type="button" data-page="home" aria-current="page">
+        <span class="icon"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-house"/></svg></span>
         <span class="tab-label">Accueil</span>
       </button>
       <button class="tab" type="button" data-page="volume">
-        <span class="icon">
-          <svg viewBox="0 0 24 24"><path d="M4 17.5h16"/><path d="M6 15.5 12 5l6 10.5"/><path d="M8.5 13h7"/></svg>
-        </span>
+        <span class="icon"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-ruler-dimension-line"/></svg></span>
         <span class="tab-label">Volume</span>
       </button>
       <button class="tab" type="button" data-page="dosage">
-        <span class="icon">
-          <svg viewBox="0 0 24 24"><path d="M12 3.8s5.5 5.8 5.5 10.2a5.5 5.5 0 0 1-11 0C6.5 9.6 12 3.8 12 3.8Z"/></svg>
-        </span>
+        <span class="icon"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-droplet"/></svg></span>
         <span class="tab-label">Dosage</span>
       </button>
       <button class="tab" type="button" data-page="faq">
-        <span class="icon">
-          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 10h8M8 14h5"/></svg>
-        </span>
-        <span class="tab-label">FAQ</span>
+        <span class="icon"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-message-circle-question"/></svg></span>
+        <span class="tab-label">Assistant</span>
+      </button>
+      <button class="tab" type="button" data-page="compte">
+        <span class="icon"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-user-round"/></svg></span>
+        <span class="tab-label">Espace</span>
       </button>
     </nav>
   </div>
@@ -465,27 +458,15 @@
   <div id="faqInputOverlay" class="faq-input-overlay" style="display:none;" role="search" aria-label="Poser une question">
     <input id="faqInput" type="text" placeholder="Posez votre question…" autocomplete="off" autocorrect="on" autocapitalize="sentences" aria-label="Question">
     <button id="faqSend" type="button" aria-label="Envoyer">
-      <svg viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+      <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
     </button>
   </div>
 
 </div><!-- /.app -->
-<script src="./app.js?v=52"></script>
-<script src="./account.js?v=52"></script>
-<script>
-  if ("serviceWorker" in navigator) {
-    /* Mémorise s'il y avait déjà un SW actif AVANT cette session */
-    var swHadController = !!navigator.serviceWorker.controller;
-
-    navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" })
-      .then(function(reg) { reg.update(); })
-      .catch(function(e) { console.warn("SW:", e); });
-
-    /* Rechargement uniquement si c'est une MISE À JOUR (pas la 1ère install) */
-    navigator.serviceWorker.addEventListener("controllerchange", function() {
-      if (swHadController) window.location.reload();
-    });
-  }
-</script>
+<script src="./app.js?v=53"></script>
+<script src="./account.js?v=53"></script>
+<script src="./label-reader.js?v=53"></script>
+<script src="./onboarding.js?v=53"></script>
+<script src="./register-sw.js?v=53"></script>
 </body>
 </html>

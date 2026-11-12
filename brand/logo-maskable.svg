@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2E9BFF"/><stop offset="1" stop-color="#0A3FA8"/></linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5AC8FA"/><stop offset="1" stop-color="#0A84FF"/></linearGradient>
+    <clipPath id="drop"><path d="M256 130C256 130 166 230 166 296a90 90 0 0 0 180 0C346 230 256 130 256 130Z"/></clipPath>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <path d="M256 130C256 130 166 230 166 296a90 90 0 0 0 180 0C346 230 256 130 256 130Z" fill="#fff"/>
+  <g clip-path="url(#drop)">
+    <path d="M150 299c25-16 49-16 74 0s49 16 74 0 33-13 51-6V420H150Z" fill="url(#water)"/>
+    <path d="M150 331c25-15 49-15 74 0s49 15 74 0 33-12 51-4" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="9" stroke-linecap="round"/>
+  </g>
+  <g stroke="#0A84FF" stroke-opacity=".45" stroke-width="9" stroke-linecap="round"><path d="M226 210h26"/><path d="M213 238h39"/><path d="M206 266h26"/></g>
+</svg>

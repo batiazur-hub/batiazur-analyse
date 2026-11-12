@@ -1,4 +1,4 @@
-# BatiAzur Analyse — V17
+# BatiAzur Analyse — v53
 
 ## Contenu
 - `index.html` : structure de l'application
@@ -121,3 +121,13 @@ Depuis Safari :
 
 ## Modification V17
 - Ajout du bouton Facebook dans le bloc d’accueil “Suivre & donner un avis”.
+
+## Version 53 (novembre 2026)
+- Mon espace : comptes clients (Worker Cloudflare + KV), bassins et produits enregistrés, synchro multi-appareils.
+- Mode « Mes produits » : dose de l'étiquette, concentration ou **photo de l'étiquette** (OCR Tesseract sur l'appareil, `vendor/tesseract`).
+- Volume : pente composée (plat / pente / partie basse) et pointe de diamant (plateforme + profondeur à la pointe), avec schéma du profil.
+- Guide de démarrage au premier lancement (`onboarding.js`).
+- Nouveau logo (`brand/`), icônes Lucide (`tools/build-icons.py`), barre à 5 onglets.
+- Audits sécurité et accessibilité : voir `docs/AUDIT.md`.
+- Déploiement : `wrangler.toml` (Worker `batiazuranalyse`, assets = racine du dépôt, `.assetsignore`), en-têtes de sécurité dans `_headers`.
+- Secrets Cloudflare : `GOOGLE_PLACES_KEY` (horaires), `GMAIL_APP_PASSWORD` (mot de passe oublié).

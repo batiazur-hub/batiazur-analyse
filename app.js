@@ -1,12 +1,9 @@
 /* ═══════════════════════════════════════════════════════
-   Horaires BatiAzur — Configuration Google Places API
-   ───────────────────────────────────────────────────────
-   1. Créez une clé API Google Cloud (Places API activée)
-   2. Restreignez-la au domaine batiazur-hub.github.io
-   3. Renseignez les deux valeurs ci-dessous
+   Horaires BatiAzur — Google Places
+   La clé Google n'est plus dans ce fichier public : les horaires
+   passent par le Worker (/api/horaires), qui garde la clé en secret
+   (variable GOOGLE_PLACES_KEY dans Cloudflare).
    ═══════════════════════════════════════════════════════ */
-var GOOGLE_API_KEY   = "AIzaSyAjllQCkN-0XuEYwC8kSM5I9L0_XPLFcYA";
-var BATIAZUR_PLACE_ID = "ChIJt0auf_wd8UcR_Cdc9S1ZyOc"; // Place ID Google Maps de BatiAzur
 
 /* Horaires de secours (utilisés si API non configurée ou échec réseau) */
 var HORAIRES_FALLBACK = {
@@ -33,6 +30,17 @@ const state = {
   lastResultText: "",
   faqReady: false
 };
+
+/* Icône du sprite Lucide intégré à index.html */
+function icon(name, cls) {
+  return '<svg class="i' + (cls ? " " + cls : "") + '" aria-hidden="true" focusable="false"><use href="#i-' + name + '"/></svg>';
+}
+
+function homeVolumeRefresh(volume) {
+  var el = document.getElementById("homeVolumeText");
+  if (!el) return;
+  el.textContent = volume > 0 ? fmt(volume, 1) + " m³" : "Aucun volume calculé";
+}
 
 function $(selector) {
   return document.querySelector(selector);
@@ -85,7 +93,7 @@ function showPage(page) {
   var next = document.getElementById("page-" + page);
   if (next) next.classList.add("active");
 
-  var validTabs = ["home", "volume", "dosage", "faq"];
+  var validTabs = ["home", "volume", "dosage", "faq", "compte"];
   var tabPage = validTabs.includes(page) ? page : "home";
 
   var tabbar = $("#tabbar");
@@ -97,8 +105,13 @@ function showPage(page) {
   }
 
   $all(".tab").forEach(function(tab) {
-    tab.classList.toggle("active", tab.dataset.page === tabPage);
+    var on = tab.dataset.page === tabPage;
+    tab.classList.toggle("active", on);
+    if (on) tab.setAttribute("aria-current", "page"); else tab.removeAttribute("aria-current");
   });
+  /* Accessibilité : focus sur le titre de la nouvelle page */
+  var heading = next && next.querySelector("h1");
+  if (heading) { heading.setAttribute("tabindex", "-1"); try { heading.focus({ preventScroll: true }); } catch (e) {} }
 
   var overlay = document.getElementById("faqInputOverlay");
   var app = document.querySelector(".app");
@@ -139,6 +152,7 @@ function updateVolumeFields() {
   $all(".depth-flat").forEach(function(el) { el.classList.toggle("hidden", state.floor !== "flat"); });
   $all(".depth-slope").forEach(function(el) { el.classList.toggle("hidden", state.floor !== "slope"); });
   $all(".depth-diamond").forEach(function(el) { el.classList.toggle("hidden", state.floor !== "diamond"); });
+  renderProfile();
 }
 
 function baseArea() {
@@ -152,14 +166,80 @@ function baseArea() {
   return l * w * coeff;
 }
 
-function averageDepth() {
-  if (state.floor === "flat") return num("depth");
+/* Longueur totale du bassin dans le sens des pentes */
+function poolLength() {
+  return state.shape === "round" ? num("diameter") : num("length");
+}
+
+/* Détail du fond : renvoie { avg, warn, parts } */
+function floorDetail() {
+  var L = poolLength();
+  if (state.floor === "flat") return { avg: num("depth"), parts: null };
+
   if (state.floor === "slope") {
-    return (num("depthMin") + num("depthMax")) / 2;
+    /* Pente composée : plat (petit bain) → pente → partie basse (grand bain) */
+    var h1 = num("depthMin"), h2 = num("depthMax");
+    var a = num("lenFlat"), b = num("lenSlope"), c = num("lenDeep");
+    var warn = "";
+    var given = [a, b, c].filter(function(x) { return x > 0; }).length;
+    if (L > 0 && given === 2) {
+      /* La 3e longueur se déduit de la longueur totale */
+      var rest = L - a - b - c;
+      if (rest > 0) {
+        if (!(a > 0)) a = rest; else if (!(b > 0)) b = rest; else c = rest;
+        warn = "Longueur manquante déduite de la longueur totale (" + fmt(rest, 2) + " m).";
+      }
+    }
+    var sum = a + b + c;
+    if (!(sum > 0)) {
+      /* Pas de longueurs : pente continue d'un bout à l'autre */
+      return { avg: (h1 + h2) / 2, parts: { a: 0, b: 1, c: 0, h1: h1, h2: h2 }, warn: "Sans les longueurs, le fond est compté comme une pente continue du petit au grand bain." };
+    }
+    if (L > 0 && Math.abs(sum - L) > 0.05) {
+      warn = "Plat + pente + partie basse = " + fmt(sum, 2) + " m, mais la longueur du bassin est de " + fmt(L, 2) + " m. Le calcul utilise les proportions saisies.";
+    }
+    var avg = (a * h1 + b * (h1 + h2) / 2 + c * h2) / sum;
+    return { avg: avg, parts: { a: a / sum, b: b / sum, c: c / sum, h1: h1, h2: h2 }, warn: warn };
   }
-  var edge = num("depthEdge");
-  var center = num("depthCenter");
-  return edge + ((center - edge) / 3);
+
+  /* Pointe de diamant : plateforme plate, puis fond qui plonge en pyramide vers la pointe */
+  var e = num("depthEdge"), p = num("depthCenter"), lp = num("lenPlatform");
+  var w = "";
+  if (L > 0 && lp >= L) { w = "La plateforme ne peut pas être plus longue que le bassin."; lp = 0; }
+  var frac = L > 0 ? Math.max(0, (L - lp) / L) : 1;
+  return {
+    avg: e + frac * (p - e) / 3,
+    parts: { plat: 1 - frac, h1: e, h2: p },
+    warn: w
+  };
+}
+
+function averageDepth() {
+  return floorDetail().avg;
+}
+
+/* Schéma du profil du fond, mis à jour pendant la saisie */
+function renderProfile() {
+  var box = document.getElementById("profileBox");
+  var hint = document.getElementById("volumeHint");
+  if (!box) return;
+  if (state.floor === "flat") { box.innerHTML = ""; if (hint) hint.textContent = ""; return; }
+  var d = floorDetail();
+  if (hint) hint.textContent = d.warn || "";
+  var W = 300, H = 110, x0 = 12, x1 = W - 12, top = 18;
+  var h1 = d.parts.h1 || 1, h2 = d.parts.h2 || 1.8;
+  var maxH = Math.max(h1, h2, 0.5);
+  var y = function(h) { return top + (h / maxH) * (H - top - 12); };
+  var span = x1 - x0, path;
+  if (state.floor === "slope") {
+    var xa = x0 + span * d.parts.a, xb = xa + span * d.parts.b;
+    path = "M" + x0 + "," + top + " L" + x0 + "," + y(h1) + " L" + xa + "," + y(h1) + " L" + xb + "," + y(h2) + " L" + x1 + "," + y(h2) + " L" + x1 + "," + top;
+  } else {
+    var xp = x0 + span * d.parts.plat;
+    var xm = xp + (x1 - xp) / 2;
+    path = "M" + x0 + "," + top + " L" + x0 + "," + y(h1) + " L" + xp + "," + y(h1) + " L" + xm + "," + y(h2) + " L" + x1 + "," + y(h1) + " L" + x1 + "," + top;
+  }
+  box.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Profil du fond"><path class="profile-water" d="' + path + ' Z"/><path class="profile-line" d="' + path + '"/><line class="profile-surface" x1="' + x0 + '" y1="' + top + '" x2="' + x1 + '" y2="' + top + '"/></svg>';
 }
 
 function setResult(id, title, text) {
@@ -179,7 +259,7 @@ function setResult(id, title, text) {
 function calculateVolume() {
   var volume = baseArea() * averageDepth();
   if (!Number.isFinite(volume) || volume <= 0) {
-    setResult("volumeResult", "Dimensions a vérifier", "Renseigne les dimensions visibles et la profondeur.");
+    setResult("volumeResult", "Dimensions à vérifier", "Renseigne les dimensions visibles et la profondeur.");
     return;
   }
   state.lastVolume = volume;
@@ -187,12 +267,12 @@ function calculateVolume() {
   setValue("doseVolume", volume.toFixed(1));
   var homeVolume = $("#homeVolumeText");
   if (homeVolume) {
-    homeVolume.textContent = "Dernier volume calcule : " + fmt(volume, 1) + " m³. Il sera repris automatiquement dans Dosage.";
+    homeVolumeRefresh(volume);
   }
   setResult(
     "volumeResult",
     fmt(volume, 1) + " m³",
-    "Volume repris automatiquement dans la page Dosage. Si le client connait deja son volume, il peut aussi le saisir directement dans Dosage."
+    "Repris automatiquement dans Dosage. Enregistrez ce bassin ci-dessous pour le retrouver plus tard."
   );
   if (window.BA) BA.renderSavePoolBox();
 }
@@ -222,21 +302,21 @@ function renderParamFields() {
     stabilizer: "Correction stabilisant",
     shock: "Chlore choc",
     brome: "Brome choc",
-    metals: "Sequestrant metaux",
+    metals: "Séquestrant métaux",
     plan: "Plan de traitement"
   };
   if (title) title.textContent = titleMap[state.param] || "Calcul";
 
   if (state.param === "ph") {
-    root.innerHTML = '<div class="form-grid"><label class="field"><span>pH mesure</span><input id="phCurrent" type="number" inputmode="decimal" step="0.1" placeholder="Ex. 7,6"></label><label class="field"><span>pH souhaite · idéal 7,2</span><input id="phTarget" type="number" inputmode="decimal" step="0.1" value="7.2"></label></div><div class="warning">pH plus et pH moins : correction toujours par apports de 0,2. On affiche dose par apport + total.</div>';
+    root.innerHTML = '<div class="form-grid"><label class="field"><span>pH mesuré</span><input id="phCurrent" type="number" inputmode="decimal" step="0.1" placeholder="Ex. 7,6"></label><label class="field"><span>pH souhaité · idéal 7,2</span><input id="phTarget" type="number" inputmode="decimal" step="0.1" value="7.2"></label></div><div class="warning">pH plus et pH moins : correction toujours par apports de 0,2. On affiche dose par apport + total.</div>';
   }
 
   if (state.param === "tac") {
-    root.innerHTML = '<div class="form-grid"><label class="field"><span>TAC mesure en ppm</span><input id="tacCurrent" type="number" inputmode="decimal" step="1" placeholder="Ex. 80"></label><label class="field"><span>TAC souhaite · idéal 150</span><input id="tacTarget" type="number" inputmode="decimal" step="1" value="150"></label></div>';
+    root.innerHTML = '<div class="form-grid"><label class="field"><span>TAC mesuré en ppm</span><input id="tacCurrent" type="number" inputmode="decimal" step="1" placeholder="Ex. 80"></label><label class="field"><span>TAC souhaité · idéal 150</span><input id="tacTarget" type="number" inputmode="decimal" step="1" value="150"></label></div>';
   }
 
   if (state.param === "salt") {
-    root.innerHTML = '<div class="chip-row"><button class="chip active" type="button" data-salt-target="5">Standard 5 g/L</button><button class="chip" type="button" data-salt-target="1.5">Low Salt 1,5 g/L</button><button class="chip" type="button" data-salt-target="">Personnalise</button></div><div class="form-grid"><label class="field"><span>Sel actuel en g/L</span><input id="saltCurrent" type="number" inputmode="decimal" step="0.1" placeholder="Ex. 2,1"></label><label class="field"><span>Sel souhaite en g/L</span><input id="saltTarget" type="number" inputmode="decimal" step="0.1" value="5"></label></div><p class="note">Sacs de sel retenus : 25 kg.</p>';
+    root.innerHTML = '<div class="chip-row"><button class="chip active" type="button" data-salt-target="5">Standard 5 g/L</button><button class="chip" type="button" data-salt-target="1.5">Low Salt 1,5 g/L</button><button class="chip" type="button" data-salt-target="">Personnalisé</button></div><div class="form-grid"><label class="field"><span>Sel actuel en g/L</span><input id="saltCurrent" type="number" inputmode="decimal" step="0.1" placeholder="Ex. 2,1"></label><label class="field"><span>Sel souhaité en g/L</span><input id="saltTarget" type="number" inputmode="decimal" step="0.1" value="5"></label></div><p class="note">Sacs de sel retenus : 25 kg.</p>';
     $all("[data-salt-target]").forEach(function(btn) {
       btn.addEventListener("click", function() {
         $all("[data-salt-target]").forEach(function(b) { b.classList.remove("active"); });
@@ -248,11 +328,11 @@ function renderParamFields() {
   }
 
   if (state.param === "stabilizer") {
-    root.innerHTML = '<div class="form-grid"><label class="field"><span>Stabilisant mesure en ppm</span><input id="stabCurrent" type="number" inputmode="decimal" step="1" placeholder="Ex. 10"></label><label class="field"><span>Stabilisant souhaite · idéal 30</span><input id="stabTarget" type="number" inputmode="decimal" step="1" value="30"></label></div>';
+    root.innerHTML = '<div class="form-grid"><label class="field"><span>Stabilisant mesuré en ppm</span><input id="stabCurrent" type="number" inputmode="decimal" step="1" placeholder="Ex. 10"></label><label class="field"><span>Stabilisant souhaité · idéal 30</span><input id="stabTarget" type="number" inputmode="decimal" step="1" value="30"></label></div>';
   }
 
   if (state.param === "shock") {
-    root.innerHTML = '<h2 class="spaced-title">Type de chlore choc</h2><div class="chip-row"><button class="chip active" type="button" data-shock-type="nonstab">Non stabilisé</button><button class="chip" type="button" data-shock-type="stab">Stabilise</button></div><h2 class="spaced-title">Produit</h2><div class="chip-row" id="shockProductRow"></div><div class="warning hidden" id="shockWarning">Attention : un chlore choc stabilisé augmente le taux de stabilisant.</div>';
+    root.innerHTML = '<h2 class="spaced-title">Type de chlore choc</h2><div class="chip-row"><button class="chip active" type="button" data-shock-type="nonstab">Non stabilisé</button><button class="chip" type="button" data-shock-type="stab">Stabilisé</button></div><h2 class="spaced-title">Produit</h2><div class="chip-row" id="shockProductRow"></div><div class="warning hidden" id="shockWarning">Attention : un chlore choc stabilisé augmente le taux de stabilisant.</div>';
     $all("[data-shock-type]").forEach(function(btn) {
       btn.addEventListener("click", function() {
         $all("[data-shock-type]").forEach(function(b) { b.classList.remove("active"); });
@@ -271,7 +351,7 @@ function renderParamFields() {
   }
 
   if (state.param === "metals") {
-    root.innerHTML = '<p class="note">Sequestrant metaux : 0,5 L pour 100 m³.</p>';
+    root.innerHTML = '<p class="note">Séquestrant métaux : 0,5 L pour 100 m³.</p>';
   }
 
   if (state.param === "plan") {
@@ -296,7 +376,7 @@ function renderShockProducts() {
   var warning = $("#shockWarning");
   if (!row) return;
   var options = state.shockType === "stab"
-    ? [["tabs", "Pastilles"], ["granules", "Granule"]]
+    ? [["tabs", "Pastilles"], ["granules", "Granulé"]]
     : [["chlorite", "Chlorite"], ["ritocal", "Ritocal GR"]];
   row.innerHTML = options.map(function(opt) {
     return '<button class="chip ' + (state.shockProduct === opt[0] ? "active" : "") + '" type="button" data-shock-product="' + opt[0] + '">' + opt[1] + '</button>';
@@ -314,11 +394,11 @@ function renderShockProducts() {
 function instructionsFor(param, context) {
   context = context || {};
   var base = "Filtration 24 h obligatoire.";
-  if (param === "ph") return "Application : diluer le produit dans un seau d'eau, verser delicatement devant les buses de refoulement. Attendre 20 minutes entre chaque apport de 0,2. " + base;
+  if (param === "ph") return "Application : diluer le produit dans un seau d'eau, verser délicatement devant les buses de refoulement. Attendre 20 minutes entre chaque apport de 0,2. " + base;
   if (param === "tac") return "Application : verser directement dans l'eau, en une seule fois, dans une partie calme du bassin. Ne pas fractionner. " + base;
-  if (param === "salt") return "Application : verser le sel directement dans l'eau du bassin, reparti sur la surface. Ne pas verser dans le skimmer. " + base;
+  if (param === "salt") return "Application : verser le sel directement dans l'eau du bassin, réparti sur la surface. Ne pas verser dans le skimmer. " + base;
   if (param === "stabilizer") return "Application : diluer le stabilisant puis le verser dans le bassin. " + base;
-  if (param === "metals") return "Application : verser le sequestrant metaux directement dans l'eau du bassin. " + base;
+  if (param === "metals") return "Application : verser le séquestrant métaux directement dans l'eau du bassin. " + base;
   if (param === "shock") {
     if (context.product === "tabs") return "Application : mettre les pastilles dans le panier de skimmer. " + base;
     return "Application : diluer le chlore choc dans un seau d'eau, puis verser tout autour du bassin. " + base;
@@ -354,7 +434,7 @@ function calculateDose() {
     var diff = target - current;
     if (!current || !target || Math.abs(diff) < 0.01) {
       title = "Pas de correction";
-      text = "Renseigne un pH mesure différent du pH souhaite.";
+      text = "Renseigne un pH mesuré différent du pH souhaité.";
     } else {
       var product = diff > 0 ? "pH plus" : "pH moins";
       var correction = Math.abs(diff);
@@ -370,11 +450,11 @@ function calculateDose() {
     var inc = num("tacTarget") - num("tacCurrent");
     if (inc <= 0) {
       title = "Pas d'ajout";
-      text = "Le TAC est deja au niveau cible ou au-dessus.";
+      text = "Le TAC est déjà au niveau cible ou au-dessus.";
     } else {
       var g = (volume / 10) * 170 * (inc / 10);
       title = mass(g);
-      text = "TAC+ · Augmentation souhaitee : " + fmt(inc, 0) + " ppm. Dosage : 170 g pour 10 m³ pour +10 ppm. " + instructionsFor("tac");
+      text = "TAC+ · Augmentation souhaitée : " + fmt(inc, 0) + " ppm. Dosage : 170 g pour 10 m³ pour +10 ppm. " + instructionsFor("tac");
     }
   }
 
@@ -382,12 +462,12 @@ function calculateDose() {
     var saltInc = num("saltTarget") - num("saltCurrent");
     if (saltInc <= 0) {
       title = "Pas d'ajout";
-      text = "Le taux de sel est deja au niveau cible ou au-dessus.";
+      text = "Le taux de sel est déjà au niveau cible ou au-dessus.";
     } else {
       var kg = volume * saltInc;
       var bags = Math.ceil(kg / 25);
       title = fmt(kg, 1) + " kg";
-      text = "Sel · Prevoir " + bags + " sac" + (bags > 1 ? "s" : "") + " de 25 kg. Quantite reelle avec sacs entiers : " + (bags * 25) + " kg. " + instructionsFor("salt");
+      text = "Sel · Prévoir " + bags + " sac" + (bags > 1 ? "s" : "") + " de 25 kg. Quantité réelle avec sacs entiers : " + (bags * 25) + " kg. " + instructionsFor("salt");
     }
   }
 
@@ -395,7 +475,7 @@ function calculateDose() {
     var stabInc = num("stabTarget") - num("stabCurrent");
     if (stabInc <= 0) {
       title = "Pas d'ajout";
-      text = "Le stabilisant est deja au niveau cible ou au-dessus.";
+      text = "Le stabilisant est déjà au niveau cible ou au-dessus.";
     } else {
       var stabG = (volume / 10) * 100 * (stabInc / 10);
       title = mass(stabG);
@@ -426,7 +506,7 @@ function calculateDose() {
     }
     if (state.shockProduct === "granules") {
       amount = (volume / 10) * 80;
-      productName = "Chlore choc granule stabilisé";
+      productName = "Chlore choc granulé stabilisé";
       note = "80 g pour 10 m³. Attention au stabilisant.";
     }
     title = unit === "g" ? mass(amount) : fmt(amount, 1) + " pastilles";
@@ -442,7 +522,7 @@ function calculateDose() {
   if (state.param === "metals") {
     var liters = volume * 0.005;
     title = liters < 1 ? fmt(liters * 1000, 0) + " mL" : fmt(liters, 2) + " L";
-    text = "Sequestrant metaux · Dosage : 0,5 L pour 100 m³. " + instructionsFor("metals");
+    text = "Séquestrant métaux · Dosage : 0,5 L pour 100 m³. " + instructionsFor("metals");
   }
 
   if (state.param === "plan") {
@@ -597,7 +677,7 @@ function calculateDose() {
             html += '<div class="plan-step">';
             html += '<div class="plan-step-header"><span class="plan-step-num">' + s.num + '</span><span class="plan-step-title">' + s.title + '</span></div>';
             html += '<ul class="plan-step-body">';
-            s.items.forEach(function(item) { html += '<li>' + item + '</li>'; });
+            s.items.forEach(function(item) { html += '<li>' + escapeHtml(item) + '</li>'; });
             html += '</ul>';
             if (s.alert) html += '<div class="plan-alert">⚠️ ' + s.alert + '</div>';
             if (s.wait) html += '<span class="plan-wait">⏱ ' + s.wait + '</span>';
@@ -632,21 +712,30 @@ async function loadNews() {
     var data = await response.json();
     if (list) {
       list.innerHTML = (data.items || []).map(function(item) {
-        var image = item.image ? '<img class="news-image" src="' + escapeHtml(item.image) + '" alt="">' : '<div class="news-image"></div>';
-        var buttons = (item.buttons || []).map(function(btn) {
+        var image = item.image && safeUrl(item.image, true) ? '<img class="news-image" src="' + escapeHtml(item.image) + '" alt="" loading="lazy">' : '<div class="news-image"></div>';
+        var buttons = (item.buttons || []).filter(function(btn) { return safeUrl(btn.url); }).map(function(btn) {
           return '<a class="secondary-btn" href="' + escapeHtml(btn.url) + '" target="' + (String(btn.url).startsWith("http") ? "_blank" : "_self") + '" rel="noopener">' + escapeHtml(btn.label || "Ouvrir") + "</a>";
         }).join("");
-        return '<article class="card news-card"><div class="news-meta"><span class="news-pill">' + escapeHtml(item.category || "Actualite") + '</span><span class="news-pill">' + escapeHtml(item.date || "") + '</span></div><h2>' + escapeHtml(item.title || "Actualite") + "</h2>" + image + "<p>" + escapeHtml(item.text || "") + "</p>" + '<div class="news-actions">' + buttons + "</div></article>";
-      }).join("") || '<section class="card"><h2>Aucune actualite</h2><p>Ajoute une actualite avec admin-actus.html puis remplace actus.json sur GitHub.</p></section>';
+        return '<article class="card news-card"><div class="news-meta"><span class="news-pill">' + escapeHtml(item.category || "Actualité") + '</span><span class="news-pill">' + escapeHtml(item.date || "") + '</span></div><h2>' + escapeHtml(item.title || "Actualité") + "</h2>" + image + "<p>" + escapeHtml(item.text || "") + "</p>" + '<div class="news-actions">' + buttons + "</div></article>";
+      }).join("") || '<section class="card"><h2>Aucune actualité</h2><p>Ajoutez une actualité avec admin-actus.html puis remplace actus.json sur GitHub.</p></section>';
     }
   } catch (e) {
-    if (list) list.innerHTML = '<section class="card"><h2>Actualites indisponibles</h2><p>Le fichier actus.json n\'a pas pu être charge.</p></section>';
+    if (list) list.innerHTML = '<section class="card"><h2>Actualités indisponibles</h2><p>Le fichier actus.json n\'a pas pu être chargé.</p></section>';
   }
 }
 
 function renderSocialLinks(socials) {
   var root = $("#socialLinks");
   if (!root) return;
+}
+
+/* Liens autorisés dans les actualités : http(s), tel, mailto, chemins relatifs (pas de javascript:) */
+function safeUrl(url, imageOnly) {
+  var u = String(url || "").trim();
+  if (!u) return false;
+  if (/^https?:\/\//i.test(u)) return true;
+  if (imageOnly) return /^\.?\/[^/]/.test(u) || /^data:image\/(png|jpe?g|webp|gif);/i.test(u);
+  return /^(tel:|mailto:)/i.test(u) || /^\.?\/[^/]/.test(u);
 }
 
 function escapeHtml(value) {
@@ -658,20 +747,15 @@ function escapeHtml(value) {
    ═══════════════════════════════════════════════════════ */
 
 async function horairesInit() {
-  if (GOOGLE_API_KEY && BATIAZUR_PLACE_ID) {
-    try {
-      var url = "https://places.googleapis.com/v1/places/" + BATIAZUR_PLACE_ID
-              + "?fields=currentOpeningHours,regularOpeningHours"
-              + "&key=" + GOOGLE_API_KEY
-              + "&languageCode=fr";
-      var res = await fetch(url);
-      if (!res.ok) throw new Error("HTTP " + res.status);
+  try {
+    var res = await fetch("./api/horaires", { cache: "no-store" });
+    if (res.ok) {
       var data = await res.json();
-      var hours = data.currentOpeningHours || data.regularOpeningHours;
+      var hours = data && (data.currentOpeningHours || data.regularOpeningHours);
       if (hours) { renderHorairesFromAPI(hours); return; }
-    } catch (e) {
-      console.warn("BatiAzur: Places API indisponible, horaires de secours utilises.", e);
     }
+  } catch (e) {
+    console.warn("BatiAzur: horaires en ligne indisponibles, horaires de secours utilisés.");
   }
   renderHorairesFromFallback();
 }
@@ -854,8 +938,8 @@ function renderHorairesUI(data) {
 
   daysEl.innerHTML = row
     ? '<div class="horaire-row' + (row.isToday ? ' horaire-today' : ' horaire-next-day') + '">'
-      + '<span class="horaire-day">'   + row.label + '</span>'
-      + '<span class="horaire-hours">' + row.hours + '</span>'
+      + '<span class="horaire-day">'   + escapeHtml(row.label) + '</span>'
+      + '<span class="horaire-hours">' + escapeHtml(row.hours) + '</span>'
       + '</div>'
     : '';
 }
@@ -1426,6 +1510,8 @@ function faqInit() {
 /* ── Events ──────────────────────────────────────────── */
 
 function bindEvents() {
+  var volFields = document.getElementById("volumeFields");
+  if (volFields) volFields.addEventListener("input", renderProfile);
   $all("[data-go]").forEach(function(btn) {
     btn.addEventListener("click", function() {
       press(btn);
@@ -1474,17 +1560,28 @@ function bindEvents() {
   var calcDose = document.getElementById("calculateDose");
   if (calcDose) calcDose.addEventListener("click", function(e) { press(e.currentTarget); calculateDose(); });
 
+  var shareBtn = document.getElementById("shareResult");
+  if (shareBtn) {
+    if (!navigator.share) shareBtn.classList.add("hidden");
+    shareBtn.addEventListener("click", function(e) {
+      press(e.currentTarget);
+      if (!state.lastResultText) return;
+      navigator.share({ title: "BatiAzur Analyse", text: state.lastResultText }).catch(function() {});
+    });
+  }
+
   var copyBtn = document.getElementById("copyResult");
   if (copyBtn) {
     copyBtn.addEventListener("click", async function(e) {
       press(e.currentTarget);
       try {
-        await navigator.clipboard.writeText(state.lastResultText || "Aucun résultat calcule.");
+        await navigator.clipboard.writeText(state.lastResultText || "Aucun résultat calculé.");
         copyBtn.classList.add("is-done");
-        copyBtn.textContent = "Copie !";
+        var lbl = copyBtn.querySelector("span") || copyBtn;
+        lbl.textContent = "Copié !";
         setTimeout(function() {
           copyBtn.classList.remove("is-done");
-          copyBtn.textContent = "Copier le résultat";
+          lbl.textContent = "Copier";
         }, 2200);
       } catch (err) {}
     });
@@ -1508,6 +1605,23 @@ function bindEvents() {
   if (shareAppHome) shareAppHome.addEventListener("click", shareHandler);
 }
 
+/* Accessibilité : les boutons de choix annoncent leur état (aria-pressed) */
+function syncPressed() {
+  $all("button.choice-card[data-shape], button.choice-card[data-floor], button.choice-card[data-param], button.chip, button.seg").forEach(function(b) {
+    b.setAttribute("aria-pressed", b.classList.contains("active") ? "true" : "false");
+  });
+}
+var _pressedQueued = false;
+function watchPressed() {
+  syncPressed();
+  if (!window.MutationObserver) return;
+  new MutationObserver(function() {
+    if (_pressedQueued) return;
+    _pressedQueued = true;
+    requestAnimationFrame(function() { _pressedQueued = false; syncPressed(); });
+  }).observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ["class"] });
+}
+
 function startSplash() {
   var splash = document.getElementById("splashScreen");
   var app = document.querySelector(".app");
@@ -1528,7 +1642,9 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
   startSplash();
+  homeVolumeRefresh(parseFloat(localStorage.getItem("batiAzurAnalyseVolume") || "0"));
   if (window.BA) BA.init();
+  watchPressed();
   bindEvents();
   updateVolumeFields();
   renderParamFields();
