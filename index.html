@@ -1,6 +1,30 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <!-- ═══ SW cache reset — runs before any other script ════════
+       Si le localStorage ne correspond pas à SW_VER, on désinstalle
+       tous les SW + on vide tous les caches + on recharge une seule fois.
+       Cela corrige tout état corrompu après un changement de version.
+  ════════════════════════════════════════════════════════════════ -->
+  <script>(function(){
+    var SW_VER="51";
+    try{
+      if(localStorage.getItem("batiazur_sw_ver")!==SW_VER){
+        localStorage.setItem("batiazur_sw_ver",SW_VER);
+        if("serviceWorker" in navigator){
+          navigator.serviceWorker.getRegistrations().then(function(regs){
+            var tasks=regs.map(function(r){return r.unregister();});
+            if("caches" in window){
+              tasks.push(caches.keys().then(function(keys){
+                return Promise.all(keys.map(function(k){return caches.delete(k);}));
+              }));
+            }
+            if(regs.length>0){Promise.all(tasks).then(function(){window.location.reload();});}
+          });
+        }
+      }
+    }catch(e){}
+  })();</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
   <title>BatiAzur Analyse</title>
@@ -9,12 +33,12 @@
   <link rel="icon" href="./favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
   <link rel="manifest" href="./site.webmanifest">
-  <meta name="theme-color" content="#1475c8">
+  <meta name="theme-color" content="#0e5ac8">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Bati Azur">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="stylesheet" href="./style.css?v=22" />
+  <link rel="stylesheet" href="./style.css?v=51" />
 </head>
 <body>
 <div class="app">
@@ -26,7 +50,7 @@
   <div class="splash-screen" id="splashScreen" aria-hidden="true">
     <div class="splash-glow"></div>
     <div class="splash-content">
-      <img src="./android-chrome-512x512.png" alt="" class="splash-logo">
+      <img src="./android-chrome-512x512.png" alt="" class="splash-logo" width="112" height="112" loading="eager" decoding="sync">
       <div class="splash-title">BatiAzur Analyse</div>
       <div class="splash-subtitle">Analyse &amp; dosage piscine</div>
     </div>
@@ -308,6 +332,7 @@
             <button class="choice-card" data-param="shock"><strong>Chlore choc</strong><small>Stab. / non stab.</small></button>
             <button class="choice-card" data-param="brome"><strong>Brome choc</strong><small>150 g / 10 m³</small></button>
             <button class="choice-card" data-param="metals"><strong>Métaux</strong><small>Séquestrant</small></button>
+            <button class="choice-card" data-param="plan"><strong>Plan traitement</strong><small>Ordre &amp; priorités</small></button>
           </div>
         </div>
 
@@ -408,7 +433,7 @@
   </div>
 
 </div><!-- /.app -->
-<script src="./app.js?v=22"></script>
+<script src="./app.js?v=51"></script>
 <script>
   if ("serviceWorker" in navigator) {
     /* Mémorise s'il y avait déjà un SW actif AVANT cette session */

@@ -219,7 +219,8 @@ function renderParamFields() {
     stabilizer: "Correction stabilisant",
     shock: "Chlore choc",
     brome: "Brome choc",
-    metals: "Sequestrant metaux"
+    metals: "Sequestrant metaux",
+    plan: "Plan de traitement"
   };
   if (title) title.textContent = titleMap[state.param] || "Calcul";
 
@@ -268,6 +269,21 @@ function renderParamFields() {
 
   if (state.param === "metals") {
     root.innerHTML = '<p class="note">Sequestrant metaux : 0,5 L pour 100 m³.</p>';
+  }
+
+  if (state.param === "plan") {
+    root.innerHTML = '<div class="form-grid"><label class="field"><span>pH actuel</span><input id="planPh" type="number" inputmode="decimal" step="0.1" placeholder="Ex. 7,6"></label><label class="field"><span>TAC actuel (ppm) · idéal 150</span><input id="planTac" type="number" inputmode="decimal" step="1" placeholder="Ex. 80"></label><label class="field"><span>Stabilisant actuel (ppm) · idéal 30</span><input id="planStab" type="number" inputmode="decimal" step="1" placeholder="Ex. 15"></label><label class="field"><span>Chlore libre actuel (mg/L) · idéal 1-1,5</span><input id="planChlore" type="number" inputmode="decimal" step="0.1" placeholder="Ex. 0,2"></label></div><div style="padding:4px 16px 0;"><p style="font-size:13px;font-weight:600;margin:8px 0 6px;color:var(--label-1);">Phosphates</p><div class="chip-row" style="padding:0 0 8px;"><button class="chip active" type="button" data-phosphate="non">Non détectés</button><button class="chip" type="button" data-phosphate="oui">Élevés</button></div></div>';
+    if (!state.planPhosphate) state.planPhosphate = "non";
+    $all("[data-phosphate]").forEach(function(btn) {
+      if (btn.dataset.phosphate === state.planPhosphate) btn.classList.add("active");
+      else btn.classList.remove("active");
+      btn.addEventListener("click", function() {
+        $all("[data-phosphate]").forEach(function(b) { b.classList.remove("active"); });
+        btn.classList.add("active");
+        state.planPhosphate = btn.dataset.phosphate;
+        press(btn);
+      });
+    });
   }
 }
 
@@ -411,6 +427,172 @@ function calculateDose() {
     var liters = volume * 0.005;
     title = liters < 1 ? fmt(liters * 1000, 0) + " mL" : fmt(liters, 2) + " L";
     text = "Sequestrant metaux · Dosage : 0,5 L pour 100 m³. " + instructionsFor("metals");
+  }
+
+  if (state.param === "plan") {
+    var planPh    = num("planPh");
+    var planTac   = num("planTac");
+    var planStab  = num("planStab");
+    var planChlore = num("planChlore");
+    var planPhosphate = state.planPhosphate || "non";
+
+    var phHigh  = planPh  > 0 && planPh  > 7.4;
+    var phLow   = planPh  > 0 && planPh  < 7.2;
+    var tacLow  = planTac > 0 && planTac < 150;
+    var stabLow = planStab  > 0 && planStab  < 30;
+    var chloreLow = planChlore > 0 && planChlore < 1.0;
+
+    // helper: pH dose string
+    var phDoseStr = function(current, targetPh) {
+      var d = targetPh - current;
+      var prod = d > 0 ? "pH plus" : "pH moins";
+      var corr = Math.abs(d);
+      var st = Math.ceil((corr - 0.0001) / 0.2);
+      var dps = d > 0 ? (volume / 10) * 150 : (volume / 10) * 200;
+      return prod + " : " + mass(dps * st) + " total, " + st + " apport" + (st > 1 ? "s" : "") + " de 0,2 — dose/apport : " + mass(dps);
+    };
+    // helper: TAC dose string
+    var tacDoseStr = function(current) {
+      var inc = 150 - current;
+      var g = (volume / 10) * 170 * (inc / 10);
+      return "TAC+ : " + mass(g) + " (bicarbonate de soude, +" + fmt(inc, 0) + " ppm)";
+    };
+    // helper: stab dose string
+    var stabDoseStr = function(current) {
+      var inc = 30 - current;
+      var g = (volume / 10) * 100 * (inc / 10);
+      return "Stabilisant (acide cyanurique) : " + mass(g) + " (+" + fmt(inc, 0) + " ppm)";
+    };
+
+    var planSteps = [];
+    var stepNum = 0;
+
+    // ── Step 1 : pH + TAC prioritization ──
+    if (phHigh && tacLow) {
+      stepNum++;
+      planSteps.push({
+        num: stepNum,
+        title: "Baisser le pH en premier",
+        items: [phDoseStr(planPh, 7.2), "Diluer dans un seau, verser devant les buses. Attendre 20 min entre chaque apport."],
+        alert: "pH élevé + TAC bas : corrigez toujours le pH en premier. Si vous ajoutez le TAC avant, le pH montera encore plus.",
+        wait: "Puis attendez 24 h, re-analysez l'eau avant de passer à l'étape suivante."
+      });
+      stepNum++;
+      planSteps.push({
+        num: stepNum,
+        title: "Corriger le TAC",
+        items: [tacDoseStr(planTac), "Verser directement dans l'eau, en une seule fois, en partie calme du bassin."],
+        wait: "Re-analysez l'eau après 24 h de filtration avant de traiter les autres paramètres."
+      });
+    } else if (phLow && tacLow) {
+      stepNum++;
+      planSteps.push({
+        num: stepNum,
+        title: "Corriger le TAC en priorité",
+        items: [tacDoseStr(planTac), "Verser directement dans l'eau, en une seule fois."],
+        alert: "pH bas + TAC bas : commencez toujours par le TAC — il remonte naturellement le pH. Ne corrigez pas le pH maintenant.",
+        wait: "Attendez 24 h et re-analysez : le pH peut être revenu dans la zone idéale (7,2–7,4) sans aucune autre intervention."
+      });
+    } else if (phHigh) {
+      stepNum++;
+      planSteps.push({
+        num: stepNum,
+        title: "Corriger le pH",
+        items: [phDoseStr(planPh, 7.2), "Diluer dans un seau, verser devant les buses. Attendre 20 min entre chaque apport."]
+      });
+    } else if (phLow) {
+      stepNum++;
+      planSteps.push({
+        num: stepNum,
+        title: "Corriger le pH",
+        items: [phDoseStr(planPh, 7.2), "Diluer dans un seau, verser devant les buses. Attendre 20 min entre chaque apport."]
+      });
+    } else if (tacLow) {
+      stepNum++;
+      planSteps.push({
+        num: stepNum,
+        title: "Corriger le TAC",
+        items: [tacDoseStr(planTac), "Verser directement dans l'eau, en une seule fois."]
+      });
+    }
+
+    // ── Step 2 : Stabilisant ──
+    if (stabLow) {
+      stepNum++;
+      var stabSimultaneous = stepNum === 1;
+      planSteps.push({
+        num: stepNum,
+        title: "Corriger le stabilisant" + (stabSimultaneous ? "" : " (après pH/TAC)"),
+        items: [stabDoseStr(planStab), "Diluer dans un seau, verser dans le bassin. Filtration en marche."],
+        note: stabSimultaneous ? "" : "Peut être réalisé en même temps que la dernière étape pH/TAC si aucune correction pH n'est en cours."
+      });
+    }
+
+    // ── Step 3 : Phosphates ──
+    if (planPhosphate === "oui") {
+      stepNum++;
+      planSteps.push({
+        num: stepNum,
+        title: "Traitement anti-phosphates",
+        items: ["Produit anti-phosphates selon le volume et le taux mesuré.", "Apportez un échantillon chez BatiAzur pour dosage précis."]
+      });
+    }
+
+    // ── Step 4 : Chloration ──
+    if (chloreLow) {
+      stepNum++;
+      planSteps.push({
+        num: stepNum,
+        title: "Chloration",
+        items: ["Chlore choc ou chlore d'entretien selon la situation.", "Utilisez l'onglet Dosage > Chlore choc pour le calcul exact.", "Ne traitez qu'après avoir corrigé le pH — le chlore est plus efficace entre 7,2 et 7,4."]
+      });
+    }
+
+    // ── Render ──
+    var box = document.getElementById("doseResult");
+    if (box) {
+      var strong = box.querySelector("strong");
+      var p = box.querySelector("p");
+      var spanEl = box.querySelector("span");
+      if (spanEl) spanEl.textContent = "Plan de traitement";
+      if (strong) {
+        if (planSteps.length === 0) {
+          strong.textContent = "Eau équilibrée";
+        } else {
+          strong.textContent = planSteps.length + " étape" + (planSteps.length > 1 ? "s" : "");
+        }
+      }
+      if (p) {
+        if (planSteps.length === 0) {
+          if (!planPh && !planTac && !planStab && !planChlore) {
+            p.innerHTML = "Renseigne au moins un paramètre (pH, TAC, stabilisant ou chlore).";
+          } else {
+            p.innerHTML = '<span class="plan-ok">Tous les paramètres sont dans la norme.</span><span class="plan-ok-sub">Aucun traitement prioritaire requis. Maintiens la filtration et surveille régulièrement.</span>';
+          }
+        } else {
+          var html = '<div class="plan-steps">';
+          planSteps.forEach(function(s) {
+            html += '<div class="plan-step">';
+            html += '<div class="plan-step-header"><span class="plan-step-num">' + s.num + '</span><span class="plan-step-title">' + s.title + '</span></div>';
+            html += '<ul class="plan-step-body">';
+            s.items.forEach(function(item) { html += '<li>' + item + '</li>'; });
+            html += '</ul>';
+            if (s.alert) html += '<div class="plan-alert">⚠️ ' + s.alert + '</div>';
+            if (s.wait) html += '<span class="plan-wait">⏱ ' + s.wait + '</span>';
+            html += '</div>';
+          });
+          html += '</div>';
+          p.innerHTML = html;
+        }
+      }
+      box.classList.remove("is-fresh");
+      void box.offsetWidth;
+      box.classList.add("is-fresh");
+    }
+    state.lastResultText = "BatiAzur Analyse\nVolume : " + fmt(volume, 1) + " m³\nPlan de traitement : " + planSteps.length + " étape(s)";
+    var mail = $("#mailResult");
+    if (mail) mail.href = "mailto:?subject=Plan%20traitement%20BatiAzur&body=" + encodeURIComponent(state.lastResultText);
+    return;
   }
 
   setResult("doseResult", title || "Erreur", text || "Aucun calcul disponible pour ce paramètre.");
@@ -737,25 +919,25 @@ var FAQ_KB = [
     id: "ph-haut",
     tags: ["ph haut", "ph élevé", "ph trop haut", "ph monte", "ph augmente", "ph sup", "ph supérieur", "ph 8", "ph 7.8", "ph 7.9", "ph", "haut", "élevé", "monte", "hausse", "augmente"],
     question: "pH trop élevé (> 7,4) ?",
-    title: "pH trop haut : pH minus et vérifier le TAC",
-    answer: "Pour baisser le pH, on utilise du pH moins.\n\nMais attention : un pH qui monte peut être le signe d'un TAC trop bas. Un TAC insuffisant ne joue plus son rôle de tampon et laisse le pH varier dans tous les sens — y compris vers le haut.\n\nDonc avant de corriger le pH, vérifiez aussi votre TAC. Si le TAC est trop bas, corrigez-le en premier : cela stabilisera le pH et les corrections tiendront dans le temps. Sinon vous allez corriger le pH en boucle sans jamais règler le vrai problème.\n\nUtilisez l'onglet Dosage de cette application pour calculer la dose exacte de pH moins selon votre volume. Et pour être sur de la cause, apportez un échantillon chez BatiAzur.",
-    followUp: ["TAC alcalinité", "Corriger le pH", "Valeurs idéales piscine"]
+    title: "pH trop haut : ordre de correction selon le TAC",
+    answer: "Pour baisser le pH, on utilise du pH moins.\n\nMais l'ordre de correction dépend de votre TAC :\n\n⚠️ pH élevé + TAC bas (< 150 ppm) :\n→ Corrigez le pH en premier avec du pH moins\n→ Ensuite seulement, remontez le TAC\n→ Re-analysez l'eau après 24 h\nPourquoi ? Si vous ajoutez du TAC avec un pH déjà haut, le pH va monter encore plus. La séquence correcte est pH d'abord, TAC ensuite.\n\n✅ pH élevé + TAC correct (≥ 150 ppm) :\n→ Corrigez directement le pH avec du pH moins\n→ Correction par apports de 0,2 unité, 20 min entre chaque\n\nUtilisez l'onglet Dosage > pH pour la dose exacte, ou l'onglet Plan traitement pour un plan complet.",
+    followUp: ["TAC alcalinité", "pH bas TAC bas que faire", "Plan de traitement complet", "Valeurs idéales piscine"]
   },
   {
     id: "ph-bas",
-    tags: ["ph bas", "ph trop bas", "ph baisse", "ph descend", "ph inf", "ph inférieur", "ph 6", "ph 7.0", "ph 7.1", "ph", "bas", "baisse", "descend", "chute", "acide"],
+    tags: ["ph bas", "ph trop bas", "ph baisse", "ph descend", "ph inf", "ph inférieur", "ph 6", "ph 7.0", "ph 7.1", "ph", "bas", "baisse", "descend", "chute", "acide", "ph et tac", "tac et ph"],
     question: "pH trop bas (< 7,2) ?",
-    title: "pH trop bas : pH plus et vérifier le TAC",
-    answer: "Pour remonter le pH, on utilise du pH plus.\n\nMais attention : un pH qui descend peut être le signe d'un TAC trop bas. Un TAC insuffisant ne joue plus son rôle de tampon et laisse le pH chuter — parfois très vite, notamment après une pluie ou un fort ensoleillement.\n\nSi le TAC est trop bas, corrigez-le en premier. Sinon, vous allez remonter le pH à la main en continu sans jamais stabiliser la situation.\n\nUtilisez l'onglet Dosage de cette application pour calculer la dose exacte de pH plus selon votre volume. Pour un diagnostic complet, apportez un échantillon chez BatiAzur.",
-    followUp: ["TAC alcalinité", "Corriger le pH", "Valeurs idéales piscine"]
+    title: "pH trop bas : ordre de correction selon le TAC",
+    answer: "Pour remonter le pH, on utilise normalement du pH plus.\n\nMais l'ordre de correction dépend de votre TAC :\n\n⚠️ pH bas + TAC bas (< 150 ppm) :\n→ Corrigez le TAC en premier, pas le pH\n→ Le TAC va naturellement faire remonter le pH vers 7,2–7,4\n→ Re-analysez l'eau après 24 h avant toute correction pH\nPourquoi ? Le TAC est le tampon du pH. En le remontant, le pH se stabilise souvent de lui-même. Si vous corrigez le pH avant le TAC, il baissera à nouveau rapidement — vous corrigerez en boucle sans régler le vrai problème.\n\n✅ pH bas + TAC correct (≥ 150 ppm) :\n→ Corrigez directement le pH avec du pH plus\n→ Correction par apports de 0,2 unité\n\nUtilisez l'onglet Dosage > pH pour la dose exacte, ou l'onglet Plan traitement pour un plan complet.",
+    followUp: ["TAC alcalinité", "pH haut TAC bas que faire", "Plan de traitement complet", "Valeurs idéales piscine"]
   },
   {
     id: "tac",
-    tags: ["tac", "alcalinité", "alcalin", "tampon", "bicarbonate", "titre alcalimetrique", "carbonate", "ions"],
+    tags: ["tac", "alcalinité", "alcalin", "tampon", "bicarbonate", "titre alcalimetrique", "carbonate", "ions", "tac bas", "tac trop bas", "tac faible", "tac remonter", "remonter tac", "corriger tac"],
     question: "C'est quoi le TAC ?",
     title: "Le TAC : le stabilisateur de votre pH",
-    answer: "Le TAC, c'est le Titre Alcalimétrique Complet. En termes simples, c'est le taux d'ions carbonates present dans l'eau.\n\nPourquoi c'est important ? Plus ce taux est élevé, plus le pH est stable et resistant aux variations. Un bon TAC empêche le pH de partir dans tous les sens après une pluie, une forte chaleur ou un traitement.\n\nValeur idéale : entre 150 et 250 ppm\n\nConsequences d'un TAC trop bas :\n• Le pH varie fortement et rapidement\n• Risque de verdissement de la piscine (pH instable = chlore inefficace)\n• Perte d'elasticite des revêtements en PVC (liner) : l'eau acide attaque progrèssivement le matériau\n\nConsequences d'un TAC trop haut :\n• Eau entartrante, dépôts calcaires sur les parois et le matériel\n\nRegne d'or : corrigez toujours le TAC avant de corriger le pH. Un TAC stable, c'est un pH qui reste en place.",
-    followUp: ["pH trop bas", "pH trop haut", "Valeurs idéales piscine"]
+    answer: "Le TAC, c'est le Titre Alcalimétrique Complet. En termes simples, c'est le taux d'ions carbonates present dans l'eau.\n\nPourquoi c'est important ? Plus ce taux est élevé, plus le pH est stable et resistant aux variations. Un bon TAC empêche le pH de partir dans tous les sens après une pluie, une forte chaleur ou un traitement.\n\nValeur idéale : entre 150 et 250 ppm\n\nConsequences d'un TAC trop bas :\n• Le pH varie fortement et rapidement\n• Risque de verdissement de la piscine (pH instable = chlore inefficace)\n• Perte d'elasticite des revêtements en PVC (liner) : l'eau acide attaque progressivement le matériau\n\nConsequences d'un TAC trop haut :\n• Eau entartrante, dépôts calcaires sur les parois et le matériel\n\nRègle d'or de la correction :\n• TAC bas + pH bas → corriger le TAC en premier (le pH remontera avec le TAC)\n• TAC bas + pH haut → corriger le pH en premier, puis le TAC\n• TAC bas + pH normal → corriger le TAC directement\n\nDose : 170 g de bicarbonate de soude pour 10 m³ et +10 ppm. Utilise l'onglet Plan traitement pour un plan complet.",
+    followUp: ["pH trop bas", "pH trop haut", "Plan de traitement complet", "Valeurs idéales piscine"]
   },
   {
     id: "chlore",
@@ -836,7 +1018,7 @@ var FAQ_KB = [
     title: "Les valeurs cibles BatiAzur",
     answer: "Voici les valeurs idéales à maintenir pour une eau saine et équilibrée :\n\n• pH : 7,2\n• Chlore : 2,5 ppm\n• TAC : 150 ppm\n• Sel : 5 g/L\n• Stabilisant : 30 ppm\n\nCes valeurs sont les cibles que nous utilisons chez BatiAzur pour analyser votre eau. Si l'un de ces paramètres est hors norme, les autres peuvent être affectes en cascade.\n\nPour une analyse précise de tous vos paramètres, apportez un échantillon d'eau chez BatiAzur — c'est gratuit et ça prend 5 minutes.",
     followUp: ["Corriger le pH", "TAC alcalinité", "Stabilisant"]
-  }
+  },
 
   /* ── Équipements & dépannage ────────────────────────── */
 
@@ -983,6 +1165,14 @@ var FAQ_KB = [
     answer: "Pour organiser une intervention, BatiAzur a besoin de :\n• Votre nom et prénom\n• Votre commune\n• Votre numéro de téléphone\n• Le sujet de l'intervention\n• Quelques photos si possible\n\nEn cas d'urgence (fuite importante, risque électrique, équipement qui force) :\n• Mettez l'installation en sécurité\n• Appelez directement BatiAzur au 04 70 34 21 96\n\nL'équipe rappelle pour confirmer le créneau selon la saison et l'urgence.",
     followUp: ["Devis travaux piscine", "SAV et garantie matériel"],
     cta: "phone"
+  },
+  {
+    id: "ordre-traitement",
+    tags: ["ordre traitement", "ordre des traitements", "plan traitement", "priorité traitement", "que traiter en premier", "commencer par quoi", "séquence traitement", "ph tac ordre", "tac ph priorité", "quel ordre", "priorité", "étapes traitement", "traitement complet", "ph bas tac bas", "ph haut tac bas", "stabilisant phosphates chlore"],
+    question: "Dans quel ordre traiter mon eau ?",
+    title: "Ordre de traitement : la bonne séquence",
+    answer: "L'ordre de traitement est important — traiter dans le mauvais ordre peut annuler l'efficacité des produits.\n\n📋 Séquence correcte :\n\nÉtape 1 — pH et TAC (règles de priorité)\n• pH élevé (> 7,4) + TAC bas (< 150) : baisser le pH en premier, puis corriger le TAC. Re-analyser après 24 h.\n• pH bas (< 7,2) + TAC bas : corriger le TAC en premier — il fera remonter le pH naturellement. Re-analyser après 24 h.\n• pH hors norme + TAC correct : corriger directement le pH.\n• TAC bas seul : corriger directement le TAC.\n\nÉtape 2 — Stabilisant (acide cyanurique)\n• Si le taux est en dessous de 30 ppm\n• Peut être fait en même temps que le TAC si aucune correction pH n'est en cours\n\nÉtape 3 — Anti-phosphates\n• Si les phosphates sont élevés (nourriture des algues)\n\nÉtape 4 — Chloration\n• Toujours en dernier, une fois le pH dans la norme (7,2–7,4)\n• Un pH correct maximise l'efficacité du chlore\n\n💡 Astuce : utilisez l'onglet Plan traitement dans l'app pour générer automatiquement votre plan avec les doses calculées selon votre volume.",
+    followUp: ["pH trop haut TAC bas", "pH trop bas TAC bas", "Stabilisant", "Chlore choc traitement"]
   }
 ];
 
@@ -1174,6 +1364,34 @@ function faqInit() {
         faqSend(input.value);
       }
     });
+
+    // Keyboard avoidance — iOS PWA : le visualViewport rétrécit quand le
+    // clavier apparaît mais le layout viewport ne change pas. On repositionne
+    // l'overlay au-dessus du clavier via visualViewport.resize.
+    var faqOverlay = document.getElementById("faqInputOverlay");
+    if (window.visualViewport && faqOverlay) {
+      function _vvUpdate() {
+        var vv = window.visualViewport;
+        var kbHeight = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+        if (kbHeight > 80) {
+          // Clavier visible : coller l'overlay juste au-dessus
+          faqOverlay.style.bottom = (kbHeight + 8) + "px";
+          faqOverlay.style.transition = "bottom 0s";
+          setTimeout(faqScrollBottom, 80);
+        } else {
+          // Clavier fermé : retour à la position CSS par défaut
+          faqOverlay.style.transition = "bottom .25s ease";
+          faqOverlay.style.bottom = "";
+        }
+      }
+      window.visualViewport.addEventListener("resize", _vvUpdate);
+      window.visualViewport.addEventListener("scroll", _vvUpdate);
+    }
+
+    // Scroll au dernier message quand le focus arrive (après animation clavier)
+    input.addEventListener("focus", function() {
+      setTimeout(faqScrollBottom, 350);
+    });
   }
 
   if (sendBtn) {
@@ -1281,6 +1499,12 @@ function startSplash() {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
+  /* Force SW update à chaque chargement pour éviter les caches périmés */
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(regs) {
+      regs.forEach(function(reg) { reg.update(); });
+    });
+  }
   startSplash();
   bindEvents();
   updateVolumeFields();

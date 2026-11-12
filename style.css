@@ -10,58 +10,58 @@
   --sf:  -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
          "Helvetica Neue", Arial, sans-serif;
 
-  /* iOS 26 system colors */
-  --ios-blue:       #007AFF;
-  --ios-blue-press: #0062CC;
-  --ios-tint:       rgba(0,122,255,.13);
-  --ios-tint-mid:   rgba(0,122,255,.08);
+  /* iOS system colors — dark mode permanent base */
+  --ios-blue:       #0A84FF;
+  --ios-blue-press: #0070D8;
+  --ios-tint:       rgba(10,132,255,.22);
+  --ios-tint-mid:   rgba(10,132,255,.14);
   --ios-yellow:     #FFD60A;
 
-  /* Backgrounds (grouped interface) */
-  --bg-primary:     #F2F2F7;          /* iOS grouped background */
-  --bg-card:        rgba(255,255,255,.90);
-  --bg-card-blur:   rgba(255,255,255,.72);
+  /* Backgrounds */
+  --bg-primary:     #1C1C1E;
+  --bg-card:        rgba(28,28,30,.90);
+  --bg-card-blur:   rgba(28,28,30,.72);
 
-  /* Labels */
-  --label:          #000000;
-  --label-2:        rgba(60,60,67,.60);
-  --label-3:        rgba(60,60,67,.30);
-  --label-4:        rgba(60,60,67,.18);
+  /* Labels — dark */
+  --label:          #FFFFFF;
+  --label-2:        rgba(235,235,245,.60);
+  --label-3:        rgba(235,235,245,.30);
+  --label-4:        rgba(235,235,245,.18);
 
-  /* Fills (inputs, chips) */
-  --fill:           rgba(118,118,128,.18);
-  --fill-2:         rgba(118,118,128,.14);
-  --fill-3:         rgba(118,118,128,.10);
-  --separator:      rgba(60,60,67,.22);
+  /* Fills */
+  --fill:           rgba(118,118,128,.40);
+  --fill-2:         rgba(118,118,128,.32);
+  --fill-3:         rgba(118,118,128,.24);
+  --separator:      rgba(84,84,88,.65);
 
-  /* Liquid glass */
-  --glass-bar:      rgba(255,255,255,.78);
-  --glass-spec:     rgba(255,255,255,.92);
-  --glass-shad:     rgba(0,0,0,.06);
+  /* Liquid glass — dark */
+  --glass-bar:      rgba(22,22,30,.86);
+  --glass-spec:     rgba(48,48,58,.94);
+  --glass-shad:     rgba(0,0,0,.52);
 
-  /* Adaptive surfaces — overridden in dark mode */
-  --surface-screen:  rgba(248,251,255,.54);
-  --surface-card:    rgba(255,255,255,.84);
-  --border-card:     rgba(255,255,255,.78);
-  --surface-cell:    rgba(255,255,255,.78);
-  --border-cell:     rgba(255,255,255,.82);
-  --surface-msg:     rgba(255,255,255,.90);
-  --surface-overlay: rgba(255,255,255,.84);
-  --border-overlay:  rgba(255,255,255,.92);
-  --warn-bg:         rgba(255,159,10,.14);
-  --warn-border:     rgba(255,159,10,.28);
-  --warn-text:       #7a4800;
-  --tel-bg:          rgba(52,199,89,.12);
-  --tel-border:      rgba(52,199,89,.30);
-  --tel-text:        #1a7a35;
-  --map-bg:          rgba(255,159,10,.10);
+  /* Adaptive surfaces — dark */
+  --surface-screen:  rgba(8,20,52,.32);
+  --surface-card:    rgba(34,34,38,.90);
+  --border-card:     rgba(255,255,255,.08);
+  --surface-cell:    rgba(44,44,50,.82);
+  --border-cell:     rgba(255,255,255,.10);
+  --surface-msg:     rgba(38,38,44,.94);
+  --surface-overlay: rgba(18,20,28,.92);
+  --border-overlay:  rgba(255,255,255,.12);
+  --warn-bg:         rgba(255,159,10,.16);
+  --warn-border:     rgba(255,159,10,.32);
+  --warn-text:       #FF9F0A;
+  --tel-bg:          rgba(48,209,88,.14);
+  --tel-border:      rgba(48,209,88,.30);
+  --tel-text:        #30D158;
+  --map-bg:          rgba(255,159,10,.14);
   --map-border:      rgba(255,159,10,.28);
-  --map-text:        #7a4800;
-  --cta-bg:          rgba(0,122,255,.09);
-  --cta-border:      rgba(0,122,255,.20);
-  --nomatch-bg:      rgba(255,159,10,.10);
+  --map-text:        #FF9F0A;
+  --cta-bg:          rgba(10,132,255,.12);
+  --cta-border:      rgba(10,132,255,.26);
+  --nomatch-bg:      rgba(255,159,10,.14);
   --nomatch-border:  rgba(255,159,10,.28);
-  --nomatch-text:    #7a4800;
+  --nomatch-text:    #FF9F0A;
 
   /* Tab bar geometry */
   --bar-w:      min(360px, calc(100vw - 20px));
@@ -72,8 +72,8 @@
   --bubble-top: -26px;
   --icon-size:  22px;
   --label-size: 10px;
-  --bottom-gap: 4px;
-  --dock-extra: 46px;
+  --bottom-gap: 0px;
+  --dock-extra: 28px;
 }
 
 /* ── Reset ──────────────────────────────────────────── */
@@ -83,18 +83,19 @@
 }
 html {
   margin: 0; padding: 0;
-  height: 100%; height: -webkit-fill-available;
-  overflow: hidden;
+  min-height: 100%; min-height: 100dvh;
+  /* overflow:hidden retiré → le fond de html peut peindre dans la zone
+     système iOS (home indicator) en dessous de la viewport CSS */
 }
 body {
   margin: 0; padding: 0;
-  height: 100%; height: -webkit-fill-available;
+  height: 100%; height: -webkit-fill-available; height: 100dvh;
   overflow: hidden; overscroll-behavior: none;
 }
 body {
   font-family: var(--sf);
   color: var(--label);
-  background: var(--bg-primary);
+  background: transparent;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-size: 17px;
@@ -104,36 +105,40 @@ input, button, select, a { font: inherit; }
 button { cursor: pointer; border: 0; }
 
 /* ── App background — pool vibrancy ─────────────────── */
-/* html reçoit le même gradient fixe que .app : toute zone non couverte
-   par .app (gap iOS safe-area) affiche la même image = seamless */
+/* Stratégie double :
+   • html background-color = #0e5ac8 (fin du gradient) : remplit la zone
+     système iOS sous le viewport CSS (home indicator) sans créer de bande
+     visible car la couleur prolonge naturellement le gradient.
+   • html background-image = gradient complet avec background-attachment:fixed
+     pour les zones overscroll/bounce en haut.
+   • .app background = même gradient, couvre tout l'écran via position:fixed. */
 html {
-  background:
-    radial-gradient(ellipse 110% 52% at 14% -4%, rgba(168,214,255,.52), transparent 50%),
-    radial-gradient(ellipse  58% 42% at 86% 108%, rgba(0,48,168,.22),   transparent 52%),
+  /* dark: gradient end = #0a2e74 — rempli safe-area iOS sans bande */
+  background-color: #0a2e74;
+  background-image:
+    radial-gradient(ellipse 110% 55% at 14% -2%, rgba(0,90,210,.50),  transparent 52%),
+    radial-gradient(ellipse  58% 44% at 88% 108%, rgba(0,40,140,.50), transparent 52%),
     linear-gradient(162deg,
-      #e2f2ff 0%, #a8d4f5 16%, #4ea8e8 36%,
-      #1268c0 58%, #1060be 78%, #0e5ac8 100%);
+      #1a3a6e 0%, #122e5e 12%, #0d2450 26%,
+      #0e3068 44%, #0c2e6a 64%, #0a2e74 82%, #0a2e74 100%);
   background-attachment: fixed;
 }
-body { background: transparent; }
 
 .app {
-  /* position: fixed + inset: 0 = remplit exactement le viewport,
-     plus fiable que 100vw/100dvh sur iOS Safari et Android Chrome */
   position: fixed; inset: 0;
   overflow: hidden;
 
-  /* Refined pool gradient — less saturated, more premium */
   background:
-    radial-gradient(ellipse 110% 52% at 14% -4%,  rgba(168,214,255,.52), transparent 50%),
-    radial-gradient(ellipse  58% 42% at 86% 108%, rgba(0, 48,168,.22),   transparent 52%),
+    radial-gradient(ellipse 110% 55% at 14% -2%, rgba(0,90,210,.50),  transparent 52%),
+    radial-gradient(ellipse  58% 44% at 88% 108%, rgba(0,40,140,.50), transparent 52%),
     linear-gradient(162deg,
-      #e2f2ff 0%,
-      #a8d4f5 16%,
-      #4ea8e8 36%,
-      #1268c0 58%,
-      #1060be 78%,
-      #0e5ac8 100%);
+      #1a3a6e 0%,
+      #122e5e 12%,
+      #0d2450 26%,
+      #0e3068 44%,
+      #0c2e6a 64%,
+      #0a2e74 82%,
+      #0a2e74 100%);
 }
 
 /* Status bar safe area overlay */
@@ -142,18 +147,13 @@ body { background: transparent; }
   position: fixed; left: 0; right: 0; top: 0;
   height: max(env(safe-area-inset-top), 20px);
   pointer-events: none; z-index: 100;
-  background: linear-gradient(180deg, rgba(210,240,255,.55), transparent);
+  background: linear-gradient(180deg, rgba(12,32,80,.28), transparent);
 }
 
-/* Couche de verre fixe — entre le gradient et le contenu scrollable.
-   position: fixed = immobile pendant le scroll, pas de décalage visuel. */
+
+/* Couche de verre fixe — désactivée : gradient pur comme le splash */
 .app-glass {
-  position: fixed; inset: 0;
-  background: var(--surface-screen);
-  backdrop-filter: blur(56px) saturate(180%) brightness(1.03);
-  -webkit-backdrop-filter: blur(56px) saturate(180%) brightness(1.03);
-  pointer-events: none;
-  z-index: 1;
+  display: none;
 }
 
 /* ── Scroll ─────────────────────────────────────────── */
@@ -162,23 +162,23 @@ body { background: transparent; }
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-  padding: 0 0 calc(var(--bar-h) + var(--dock-extra) + var(--bottom-gap) + 20px + env(safe-area-inset-bottom));
+  padding: 0;
   scroll-behavior: smooth;
   z-index: 2; /* au-dessus de .app-glass */
-
-  /* Fondu bas : le contenu s'évanouit sur les 100px du bas du viewport */
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    black 0,
-    black calc(100% - 100px),
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to bottom,
-    black 0,
-    black calc(100% - 100px),
-    transparent 100%
-  );
+  /* Fondu bas : le contenu se dissout dans le fond avant la pill.
+     La zone dock + safe-area devient transparente → montre le gradient
+     composite (.app-glass) = même couleur que la "bande" → invisible.
+     fade = 52px d'opaque→transparent, puis transparent jusqu'au bas.   */
+  --fade-stop: calc(100% - var(--bar-h) - var(--dock-extra) - env(safe-area-inset-bottom, 34px));
+  --fade-start: calc(var(--fade-stop) - 52px);
+  -webkit-mask-image: linear-gradient(to bottom,
+    black       0,
+    black       var(--fade-start),
+    transparent var(--fade-stop));
+  mask-image: linear-gradient(to bottom,
+    black       0,
+    black       var(--fade-start),
+    transparent var(--fade-stop));
 }
 
 /* ── iOS App Screen container — full bleed ──────────── */
@@ -189,7 +189,9 @@ body { background: transparent; }
   background: transparent;
   border: none;
   box-shadow: none;
-  padding: max(env(safe-area-inset-top), 16px) 0 28px;
+  /* Bas = pill + bulle + safe-area + tampon 40px pour éviter que le
+     contenu ne soit visible derrière le dock transparent */
+  padding: max(env(safe-area-inset-top), 16px) 0 calc(var(--bar-h) + var(--dock-extra) + env(safe-area-inset-bottom, 34px) + 40px);
   min-height: 100vh;
   min-height: 100dvh;
   display: flex;
@@ -423,7 +425,7 @@ a.choice-card.active:visited { color: #fff; }
     0 8px 20px rgba(0,122,255,.22);
   transition: transform .12s ease, opacity .12s ease;
   cursor: pointer;
-  position: relative; z-index: 1;
+  position: relative;
 }
 .primary-btn:active, .primary-btn.pressed {
   transform: scale(.97) !important;
@@ -589,6 +591,97 @@ a.choice-card.active:visited { color: #fff; }
   color: var(--label-3) !important;
   letter-spacing: -0.1px !important;
   padding-bottom: 12px !important;
+}
+
+/* ── Plan de traitement steps ────────────────────────── */
+.plan-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+}
+.plan-step {
+  padding: 10px 0 10px;
+  border-bottom: 0.5px solid rgba(255,255,255,.18);
+}
+.plan-step:last-child { border-bottom: none; padding-bottom: 0; }
+.plan-step-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.plan-step-num {
+  flex-shrink: 0;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.22);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  letter-spacing: 0;
+}
+.plan-step-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.3;
+  letter-spacing: -0.2px;
+}
+.plan-step-body {
+  font-size: 13px;
+  color: rgba(255,255,255,.84);
+  line-height: 1.5;
+  padding-left: 30px;
+  letter-spacing: -0.1px;
+}
+.plan-step-body li {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 3px;
+}
+.plan-step-body li::before { content: "• "; opacity: .6; }
+.plan-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  background: rgba(255,200,0,.18);
+  border: 0.5px solid rgba(255,200,0,.38);
+  border-radius: 8px;
+  padding: 7px 10px;
+  margin: 6px 0 4px 30px;
+  font-size: 12px;
+  color: rgba(255,255,255,.92);
+  line-height: 1.4;
+  font-weight: 500;
+}
+.plan-wait {
+  display: block;
+  background: rgba(255,255,255,.12);
+  border-radius: 8px;
+  padding: 6px 10px;
+  margin: 6px 0 0 30px;
+  font-size: 12px;
+  color: rgba(255,255,255,.80);
+  font-weight: 500;
+  line-height: 1.4;
+}
+.plan-ok {
+  display: block;
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  padding: 6px 0 2px;
+  letter-spacing: -0.3px;
+}
+.plan-ok-sub {
+  display: block;
+  font-size: 13px;
+  text-align: center;
+  color: rgba(255,255,255,.78);
+  padding: 2px 0 6px;
 }
 
 /* ── Contact cells (iOS Settings style) ─────────────── */
@@ -780,16 +873,16 @@ a.choice-card.active:visited { color: #fff; }
   opacity: .9;
 }
 .horaire-badge.horaire-ouvert {
-  background: rgba(52,199,89,.14);
-  color: #1a8c3a;
+  background: rgba(48,209,88,.16);
+  color: #30D158;
 }
 .horaire-badge.horaire-ferme {
-  background: rgba(255,59,48,.12);
-  color: #c0281e;
+  background: rgba(255,69,58,.14);
+  color: #FF453A;
 }
 .horaire-badge.horaire-bientot {
-  background: rgba(255,149,0,.14);
-  color: #a05800;
+  background: rgba(255,159,10,.18);
+  color: #FF9F0A;
 }
 .horaire-days {
   display: flex;
@@ -826,7 +919,7 @@ a.choice-card.active:visited { color: #fff; }
   font-weight: 600;
 }
 .horaire-today {
-  background: rgba(0,122,255,.06);
+  background: rgba(10,132,255,.10);
   border-radius: 0;
 }
 .horaire-footer-link {
@@ -901,22 +994,21 @@ a.choice-card.active:visited { color: #fff; }
 }
 .back-btn:active { opacity: .5; }
 
-/* ── iOS 26 Floating Glass Tab Bar ───────────────────── */
+/* ── iOS Floating Glass Tab Bar ──────────────────────── */
 .tabbar-dock {
-  position: absolute; left: 0; right: 0;
-  bottom: calc(var(--bottom-gap) + env(safe-area-inset-bottom, 0px));
-  height: calc(var(--bar-h) + var(--dock-extra));
+  position: fixed; left: 0; right: 0; bottom: 0;
+  height: calc(var(--bar-h) + var(--dock-extra) + env(safe-area-inset-bottom, 34px));
   z-index: 50;
   pointer-events: none;
   display: flex; align-items: flex-end; justify-content: center;
-  transform: translateZ(0);
+  padding-bottom: env(safe-area-inset-bottom, 34px);
+  background: transparent;
 }
 .tabbar {
   width: var(--bar-w);
   height: var(--bar-h);
   border-radius: 999px;
 
-  /* iOS 26 Liquid Glass tab bar */
   background: var(--glass-bar);
   backdrop-filter: blur(40px) saturate(220%) brightness(1.06);
   -webkit-backdrop-filter: blur(40px) saturate(220%) brightness(1.06);
@@ -1020,12 +1112,20 @@ a.choice-card.active:visited { color: #fff; }
   position: fixed; inset: 0; z-index: 999;
   display: flex; align-items: center; justify-content: center;
   overflow: hidden;
-  background:
-    radial-gradient(ellipse 80% 50% at 20% 10%, rgba(100,190,255,.32), transparent 50%),
-    radial-gradient(ellipse 55% 40% at 82% 94%, rgba(0,50,180,.40), transparent 52%),
-    linear-gradient(162deg, #1568c8 0%, #0d48a0 32%, #083280 62%, #041860 100%);
+  /* background-color = fin du gradient app = safe-area seamless */
+  background-color: #0a2e74;
+  background-image:
+    radial-gradient(ellipse 110% 55% at 14% -2%, rgba(0,90,210,.50),  transparent 52%),
+    radial-gradient(ellipse  58% 44% at 88% 108%, rgba(0,40,140,.50), transparent 52%),
+    linear-gradient(162deg, #1a3a6e 0%, #122e5e 12%, #0d2450 26%,
+      #0e3068 44%, #0c2e6a 64%, #0a2e74 82%, #0a2e74 100%);
   opacity: 1;
   transition: opacity .7s ease, visibility .7s ease;
+  /* Fallback CSS : disparaît à 5s même si JS ne répond pas */
+  animation: splashCssFallback 0s 5s forwards;
+}
+@keyframes splashCssFallback {
+  to { opacity: 0; visibility: hidden; pointer-events: none; }
 }
 .splash-screen.is-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 .splash-glow {
@@ -1104,7 +1204,7 @@ a.choice-card.active:visited { color: #fff; }
   }
   .app          { padding-top: 0; }
   .app::before  { display: none; }
-  .app-scroll   { padding: 0 0 calc(var(--bar-h) + var(--dock-extra) + var(--bottom-gap) + 16px + env(safe-area-inset-bottom)); }
+  .app-scroll   { padding: 0 0 calc(var(--bar-h) + var(--dock-extra) + env(safe-area-inset-bottom, 0px)); }
   .screen       { width: 100%; border-radius: 0; padding: 12px 0 22px; min-height: 100dvh; }
   h1            { font-size: 26px; margin: 12px 20px 4px; }
   .lead         { font-size: 14px; }
@@ -1475,173 +1575,59 @@ a.choice-card.active:visited { color: #fff; }
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   Dark Mode — prefers-color-scheme: dark
-   Apple HIG dark system colors + deep ocean gradient
-   ═══════════════════════════════════════════════════════ */
-
-@media (prefers-color-scheme: dark) {
-
-  /* ── System color tokens ─────────────────────────────── */
-  :root {
-    --ios-blue:        #0A84FF;
-    --ios-blue-press:  #0070D8;
-    --ios-tint:        rgba(10,132,255,.22);
-    --ios-tint-mid:    rgba(10,132,255,.14);
-
-    --label:    #FFFFFF;
-    --label-2:  rgba(235,235,245,.60);
-    --label-3:  rgba(235,235,245,.30);
-    --label-4:  rgba(235,235,245,.18);
-
-    --fill:      rgba(118,118,128,.40);
-    --fill-2:    rgba(118,118,128,.32);
-    --fill-3:    rgba(118,118,128,.24);
-    --separator: rgba(84,84,88,.65);
-
-    --glass-bar:  rgba(22,22,30,.86);
-    --glass-spec: rgba(48,48,58,.94);
-    --glass-shad: rgba(0,0,0,.52);
-
-    --surface-screen:  rgba(8,20,52,.32);
-    --surface-card:    rgba(34,34,38,.90);
-    --border-card:     rgba(255,255,255,.08);
-    --surface-cell:    rgba(44,44,50,.82);
-    --border-cell:     rgba(255,255,255,.10);
-    --surface-msg:     rgba(38,38,44,.94);
-    --surface-overlay: rgba(18,20,28,.92);
-    --border-overlay:  rgba(255,255,255,.12);
-
-    --warn-bg:    rgba(255,159,10,.16);
-    --warn-border: rgba(255,159,10,.32);
-    --warn-text:  #FF9F0A;
-
-    --tel-bg:     rgba(48,209,88,.14);
-    --tel-border: rgba(48,209,88,.30);
-    --tel-text:   #30D158;
-
-    --map-bg:     rgba(255,159,10,.14);
-    --map-border: rgba(255,159,10,.28);
-    --map-text:   #FF9F0A;
-
-    --cta-bg:     rgba(10,132,255,.12);
-    --cta-border: rgba(10,132,255,.26);
-
-    --nomatch-bg:     rgba(255,159,10,.14);
-    --nomatch-border: rgba(255,159,10,.28);
-    --nomatch-text:   #FF9F0A;
-  }
-
-  /* ── Horaires — dark mode badge overrides ───────────── */
-  .horaire-badge.horaire-ouvert  { background: rgba(48,209,88,.16);  color: #30D158; }
-  .horaire-badge.horaire-ferme   { background: rgba(255,69,58,.14);  color: #FF453A; }
-  .horaire-badge.horaire-bientot { background: rgba(255,159,10,.18); color: #FF9F0A; }
-  .horaire-today                 { background: rgba(10,132,255,.10); }
-
-  /* ── App background — deep ocean dark ───────────────── */
-  html {
-    background:
-      radial-gradient(ellipse 110% 55% at 14% -2%, rgba(0,90,210,.50),  transparent 52%),
-      radial-gradient(ellipse  58% 44% at 88% 108%, rgba(0,40,140,.50), transparent 52%),
-      linear-gradient(162deg,
-        #1a3a6e 0%, #122e5e 12%, #0d2450 26%,
-        #0e3068 44%, #0c2e6a 64%, #0a2e74 82%, #0a2e74 100%);
-    background-attachment: fixed;
-  }
-  body { background: transparent; }
-
-  .app {
-    background:
-      radial-gradient(ellipse 110% 55% at 14% -2%, rgba(0,90,210,.50), transparent 52%),
-      radial-gradient(ellipse  58% 44% at 88% 108%, rgba(0,40,140,.50), transparent 52%),
-      linear-gradient(162deg,
-        #1a3a6e 0%,
-        #122e5e 12%,
-        #0d2450 26%,
-        #0e3068 44%,
-        #0c2e6a 64%,
-        #0a2e74 82%,
-        #0a2e74 100%);
-  }
-
-  .app::before {
-    background: linear-gradient(180deg, rgba(12,32,80,.28), transparent);
-  }
-
-  /* ── Screen container — full bleed, no shadow needed ── */
-  .screen { box-shadow: none; border: none; }
-
-  /* ── Cards ──────────────────────────────────────────── */
-  .card {
-    box-shadow:
-      inset 0 0.5px 0 rgba(255,255,255,.08),
-      0 1px 2px rgba(0,0,0,.24),
-      0 4px 14px rgba(0,0,0,.28);
-  }
-
-  /* ── Choice cells ───────────────────────────────────── */
-  .choice-card {
-    box-shadow:
-      inset 0 0.5px 0 rgba(255,255,255,.10),
-      0 1px 3px rgba(0,0,0,.24),
-      0 4px 12px rgba(0,0,0,.32);
-  }
-  .choice-card::before        { background: rgba(255,255,255,.05); }
-  .choice-card.active         { background: rgba(10,132,255,.88); }
-  .choice-card.active::before { background: rgba(255,255,255,.08); }
-
-  /* ── Buttons ────────────────────────────────────────── */
-  .primary-btn {
-    box-shadow:
-      inset 0 1px 0 rgba(255,255,255,.16),
-      0 2px 8px rgba(10,132,255,.32),
-      0 8px 20px rgba(10,132,255,.18);
-  }
-
-  /* ── Tab bar ────────────────────────────────────────── */
-  .tabbar {
-    border-color: rgba(255,255,255,.12);
-    box-shadow:
-      inset 0 1.5px 0 rgba(255,255,255,.14),
-      inset 0 -0.5px 0 rgba(0,0,0,.30),
-      0 2px 8px rgba(0,0,0,.30),
-      0 16px 44px rgba(0,0,0,.50),
-      0 32px 64px rgba(0,0,0,.26);
-  }
-
-  /* ── Tab bubble ─────────────────────────────────────── */
-  .bubble {
-    background: #0A84FF;
-    box-shadow:
-      inset 0 1px 0 rgba(255,255,255,.24),
-      0 4px 14px rgba(10,132,255,.60),
-      0 12px 28px rgba(10,132,255,.30);
-  }
-
-  /* ── Result box ─────────────────────────────────────── */
-  .result-box {
-    background: rgba(10,132,255,.88);
-    border-color: rgba(10,132,255,.46);
-  }
-
-  /* ── FAQ input overlay ──────────────────────────────── */
-  .faq-input-overlay {
-    box-shadow:
-      inset 0 1px 0 rgba(255,255,255,.10),
-      inset 0 -0.5px 0 rgba(0,0,0,.30),
-      0 2px 8px rgba(0,0,0,.32),
-      0 10px 28px rgba(0,0,0,.44);
-  }
-
-  /* ── FAQ bot bubble ─────────────────────────────────── */
-  .faq-msg.bot {
-    border-color: rgba(255,255,255,.08);
-    box-shadow: 0 1px 3px rgba(0,0,0,.24), 0 4px 14px rgba(0,0,0,.32);
-  }
-
-  /* ── Google logo card (white bg) ────────────────────── */
-  .social-logo[style*="background:#fff"] {
-    background: rgba(255,255,255,.08) !important;
-    box-shadow: 0 1px 4px rgba(0,0,0,.40) !important;
-  }
+/* ── Dark-specific shadow overrides (permanent) ──────── */
+.card {
+  box-shadow:
+    inset 0 0.5px 0 rgba(255,255,255,.08),
+    0 1px 2px rgba(0,0,0,.24),
+    0 4px 14px rgba(0,0,0,.28);
+}
+.choice-card {
+  box-shadow:
+    inset 0 0.5px 0 rgba(255,255,255,.10),
+    0 1px 3px rgba(0,0,0,.24),
+    0 4px 12px rgba(0,0,0,.32);
+}
+.choice-card::before        { background: rgba(255,255,255,.05); }
+.choice-card.active         { background: rgba(10,132,255,.88); }
+.choice-card.active::before { background: rgba(255,255,255,.08); }
+.primary-btn {
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.16),
+    0 2px 8px rgba(10,132,255,.32),
+    0 8px 20px rgba(10,132,255,.18);
+}
+.tabbar {
+  border-color: rgba(255,255,255,.12);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,255,255,.14),
+    inset 0 -0.5px 0 rgba(0,0,0,.30),
+    0 2px 6px rgba(0,0,0,.20),
+    0 8px 18px rgba(0,0,0,.28),
+    0 16px 32px rgba(0,0,0,.14);
+}
+.bubble {
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.24),
+    0 4px 14px rgba(10,132,255,.60),
+    0 12px 28px rgba(10,132,255,.30);
+}
+.result-box {
+  background: rgba(10,132,255,.88);
+  border-color: rgba(10,132,255,.46);
+}
+.faq-input-overlay {
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.10),
+    inset 0 -0.5px 0 rgba(0,0,0,.30),
+    0 2px 8px rgba(0,0,0,.32),
+    0 10px 28px rgba(0,0,0,.44);
+}
+.faq-msg.bot {
+  border-color: rgba(255,255,255,.08);
+  box-shadow: 0 1px 3px rgba(0,0,0,.24), 0 4px 14px rgba(0,0,0,.32);
+}
+.social-logo[style*="background:#fff"] {
+  background: rgba(255,255,255,.08) !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,.40) !important;
 }
